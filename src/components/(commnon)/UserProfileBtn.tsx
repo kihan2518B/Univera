@@ -1,6 +1,6 @@
 "use client"
 import React from "react"
-import { ChevronUp, Loader2 } from "lucide-react"
+import { ChevronUp } from "lucide-react"
 import { UserButton, useUser } from "@clerk/nextjs"
 
 interface UserProfileBtnProps {
@@ -9,6 +9,12 @@ interface UserProfileBtnProps {
 
 export default function UserProfileBtn({ SideBarOpen }: UserProfileBtnProps) {
   const { user, isLoaded } = useUser()
+
+  // Render a loading state that matches server-side output
+  const loadingContent = (
+    <div className="w-6 h-6 rounded-full bg-gray-200 animate-pulse" />
+  )
+
   return (
     <div
       className={`${
@@ -17,7 +23,9 @@ export default function UserProfileBtn({ SideBarOpen }: UserProfileBtnProps) {
     >
       {SideBarOpen ? (
         <div className="w-full flex py-1 h-full items-center gap-2">
-          {isLoaded ? (
+          {!isLoaded ? (
+            loadingContent
+          ) : (
             <div className="flex w-full items-center gap-2">
               <UserButton
                 afterSignOutUrl="/"
@@ -31,8 +39,6 @@ export default function UserProfileBtn({ SideBarOpen }: UserProfileBtnProps) {
                 {user?.fullName ?? "User"}
               </div>
             </div>
-          ) : (
-            <Loader2 />
           )}
           <div className="">
             <ChevronUp />
@@ -41,15 +47,18 @@ export default function UserProfileBtn({ SideBarOpen }: UserProfileBtnProps) {
       ) : (
         <div className="flex flex-col items-center justify-between gap-2">
           <ChevronUp />
-          {/* UserButton as a compact avatar-only version */}
-          <UserButton
-            afterSignOutUrl="/"
-            appearance={{
-              elements: {
-                avatarBox: "h-6 w-6 rounded-full"
-              }
-            }}
-          />
+          {!isLoaded ? (
+            loadingContent
+          ) : (
+            <UserButton
+              afterSignOutUrl="/"
+              appearance={{
+                elements: {
+                  avatarBox: "h-6 w-6 rounded-full"
+                }
+              }}
+            />
+          )}
         </div>
       )}
     </div>
