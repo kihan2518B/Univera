@@ -2,6 +2,7 @@ import React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
 import { ClerkProvider } from "@clerk/nextjs"
+import { Toaster } from "react-hot-toast"
 
 export const metadata: Metadata = {
   title: "Univera: your own one stop soltuion",
@@ -16,7 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`antialiased font-glyphic`}>
-        <ClerkProvider>{children}</ClerkProvider>
+        <ClerkProvider>
+          {children}
+          <Toaster position="top-right" />
+        </ClerkProvider>
       </body>
     </html>
   )

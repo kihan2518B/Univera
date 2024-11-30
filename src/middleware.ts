@@ -1,7 +1,8 @@
 import {
   clerkMiddleware,
   clerkClient,
-  createRouteMatcher
+  createRouteMatcher,
+  AuthObject
 } from "@clerk/nextjs/server"
 import { NextRequest, NextResponse } from "next/server"
 
@@ -17,7 +18,7 @@ export default clerkMiddleware(async (authPromise, req) => {
     return afterAuth(auth, req)
   }
 
-  async function afterAuth(auth: any, req: NextRequest) {
+  async function afterAuth(auth: AuthObject, req: NextRequest) {
     //handle unauth users trying to access protected route
     if (!auth.userId) {
       return NextResponse.redirect(new URL("/sign-in", req.url))
@@ -26,10 +27,10 @@ export default clerkMiddleware(async (authPromise, req) => {
     if (auth.userId) {
       try {
         const user = (await clerk.users.getUser(auth.userId)) ?? undefined
-        const role = user.publicMetadata.role as string | undefined
+        const role = user?.publicMetadata?.role as string | undefined
 
         //admin role redirection
-        if (role == "admin" && req.nextUrl.pathname === "/") {
+        if (role === "admin" && req.nextUrl.pathname === "/") {
           return NextResponse.redirect(new URL("/erp/admin/dashboard", req.url))
         }
 
@@ -47,8 +48,10 @@ export default clerkMiddleware(async (authPromise, req) => {
             )
           )
         }
-      } catch (error) {
-        console.error(error)
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Unknown error occurred"
+        console.error("Auth Error:", errorMessage)
         return NextResponse.redirect(new URL("/error", req.url))
       }
     }

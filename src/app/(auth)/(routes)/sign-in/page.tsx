@@ -14,6 +14,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import OauthGoogle from "@/components/GoogleAuth"
 import { ButtonV1 } from "@/components/(commnon)/ButtonV1"
 
+interface SignInError {
+  errors: Array<{ message: string }>
+}
+
 export default function SignIn() {
   const { isLoaded, signIn, setActive } = useSignIn()
   const [emailAddress, setEmailAddress] = useState("")
@@ -48,9 +52,12 @@ export default function SignIn() {
       } else {
         console.log(JSON.stringify(res, null, 2))
       }
-    } catch (err: any) {
-      console.error("Error", err.errors[0].message)
-      setError(err.errors[0].message)
+    } catch (err: unknown) {
+      const signInError = err as SignInError
+      const errorMessage =
+        signInError.errors?.[0]?.message || "An error occurred during sign in"
+      console.error("Error", errorMessage)
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
