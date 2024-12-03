@@ -47,15 +47,12 @@ export default function CustomSideBar() {
   }
 
   return (
-    <Sidebar
-      collapsible="icon"
-      className="bg-[#f8f9fa] border-r border-gray-200"
-    >
+    <Sidebar collapsible="icon" className="border-r border-gray-200">
       <SidebarHeader className="border-b border-gray-200">
         <div
           className={`w-full flex ${open ? "justify-end" : "justify-center"} p-4`}
         >
-          <SidebarTrigger />
+          <SidebarTrigger className="cursor-pointer" />
         </div>
         <div
           className="w-full justify-center items-center flex py-5"

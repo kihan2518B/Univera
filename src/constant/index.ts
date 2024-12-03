@@ -39,3 +39,30 @@ export interface LinkItem {
 export interface MenuItems {
   [role: string]: LinkItem[]
 }
+
+export const staticData = {
+  student: {
+    departments: ["B.Tech", "B.Sc IT", "M.Tech", "MBA"],
+    years: ["1st Year", "2nd Year", "3rd Year", "4th Year"]
+  },
+  faculty: {
+    departments: ["Engineering", "Science", "Management", "Arts"]
+  },
+  forums: [
+    {
+      department: "B.Tech",
+      year: "1st Year",
+      issues: [
+        { id: 1, name: "Issue 1", date: "2024-01-15", status: "Resolved" },
+        { id: 2, name: "Issue 2", date: "2024-01-20", status: "Pending" }
+      ]
+    },
+    {
+      department: "B.Sc IT",
+      year: "2nd Year",
+      issues: [
+        { id: 3, name: "Issue 3", date: "2024-02-10", status: "Pending" }
+      ]
+    }
+  ]
+}

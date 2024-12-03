@@ -44,7 +44,7 @@ export default function SignIn() {
 
       if (res.status === "complete") {
         await setActive({ session: res.createdSessionId })
-        router.push("/dashboard")
+        router.push("/")
       } else {
         console.log(JSON.stringify(res, null, 2))
       }

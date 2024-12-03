@@ -9,7 +9,7 @@ export default function ModuleLayout({
 }>) {
   return (
     <SidebarProvider>
-      <div className="h-full flex items-center justify-center">
+      <div className="h-full w-full p-0 m-0 flex bg-[#f8f9fa]">
         <CustomSideBar />
         <SidebarTrigger className="md:hidden scale-150" size={"sm"} />
         {children}

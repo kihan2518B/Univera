@@ -1,79 +1,3 @@
-// import { Loader, LucideIcon, Plus, Send } from "lucide-react"
-// import Link from "next/link"
-// import React, { ButtonHTMLAttributes } from "react"
-// import { Button } from "../ui/button"
-
-// export interface ButtonV1Props extends ButtonHTMLAttributes<HTMLButtonElement> {
-//   icon?: LucideIcon | null
-//   label?: string
-//   href?: string
-//   disabled?: boolean
-//   loading?: boolean
-// }
-
-// export function ButtonV1({
-//   icon: Icon = Plus,
-//   label,
-//   disabled,
-//   href,
-//   loading,
-//   ...props
-// }: ButtonV1Props) {
-//   if (href) {
-//     return (
-//       <Link
-//         href={href}
-//         className="py-2 pl-2 pr-3 text-white bg-[#112C71] rounded-md flex gap-1.5 items-center transition-all duration-300 ease-in-out hover:bg-[#1A3E99] hover:scale-105 hover:shadow-lg"
-//       >
-//         {Icon && <Icon className="w-5 h-5" />}{" "}
-//         {/* Render the icon if it exists */}
-//         {label && <p>{label}</p>} {/* Render the label if it exists */}
-//       </Link>
-//     )
-//   }
-//   return (
-//     <Button
-//       {...props}
-//       disabled={disabled || loading}
-//       className={
-//         props.className +
-//         `py-2 pl-2 pr-3 text-white bg-Primary flex gap-1.5 items-center transition-all duration-300 ease-in-out hover:bg-[#1A3E99] hover:scale-105 hover:shadow-lg`
-//       }
-//     >
-//       {loading && <Loader />}
-//       {!loading && Icon && <Icon className="w-5 h-5" />}
-//       {/* Render the icon if it exists */}
-//       {label && <p>{label}</p>} {/* Render the label if it exists */}
-//     </Button>
-//   )
-// }
-
-// interface SubmitButtonProps {
-//   label: string
-//   disabled?: boolean
-//   loading?: boolean
-// }
-
-// export function Submit({
-//   label = "submit",
-//   disabled,
-//   loading,
-//   ...props
-// }: SubmitButtonProps) {
-//   return (
-//     <Button
-//       id="submit"
-//       {...props}
-//       type="submit"
-//       disabled={disabled || loading}
-//       className="py-2 pl-2 pr-3 text-white bg-[#112C71] rounded-md flex gap-1.5 items-center transition-all duration-300 ease-in-out hover:bg-[#1A3E99] hover:scale-105 hover:shadow-lg"
-//     >
-//       <Send size={20} />
-//       {label && <p>{label}</p>}
-//     </Button>
-//   )
-// }
-
 import { Loader, LucideIcon, Plus, Send } from "lucide-react"
 import Link from "next/link"
 import React, { ButtonHTMLAttributes } from "react"
@@ -120,7 +44,7 @@ export function ButtonV1({
 }
 
 interface SubmitButtonProps {
-  label: string
+  label?: string
   disabled?: boolean
   loading?: boolean
   className?: string

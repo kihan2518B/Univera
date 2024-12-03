@@ -5,7 +5,12 @@ import {
 } from "@clerk/nextjs/server"
 import { NextRequest, NextResponse } from "next/server"
 
-const publicRoutes = ["/api/webhook/register", "/sign-in(.*)", "/sign-up(.*)"]
+const publicRoutes = [
+  "/api/webhook/register",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+  "/"
+]
 
 const isPublicRoutes = createRouteMatcher(publicRoutes)
 
