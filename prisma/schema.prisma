@@ -7,128 +7,380 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model UserRole {
+  id         Int      @id @default(autoincrement())
+  userId     String
+  roleId     Int
+  assignedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+}
+
 model Role {
-  id       Int    @id @default(autoincrement())
-  rolename String
-  users    User[] @relation("UserRoles") // Relation: A role can have many users
+  id       Int        @id @default(autoincrement())
+  rolename String     @unique
+  users    UserRole[]
 }
 
 model User {
-  id          String        @id @default(uuid())
-  email       String        @unique
-  clerkId     String        @unique
-  createdAt   DateTime      @default(now())
-  roles       Role[]        @relation("UserRoles") // Relation: A user can have multiple roles
-  ChatMessage ChatMessage[]
-  Forum       Forum[]
-  student Student?
-  faculty Faculty?
+  id         String    @id @default(uuid())
+  email      String    @unique
+  name       String
+  phone      String
+  address    String?
+  clerkId    String    @unique
+  gender     String?
+  caste      String?
+  dob        DateTime?
+  birthPlace String?
+
+  roles               UserRole[]
+  chatMessage         ChatMessage[]
+  student             Student?
+  faculty             Faculty?
+  university          University?
+  nonTeachingStaff    NonTeachingStaff?
+  course              Course?
+  announcement        Announcement[]
+  forumParticipant    ForumParticipant[]
+  event               Event[]
+  departmentAdmin     Department?        @relation("AdminToDepartment")
+  departmentPrincipal Department?        @relation("PrincipalToDepartment")
+  forumStudent        Forum[]            @relation("UserToForum")
+  forumModerator      Forum[]            @relation("ModeratorToForum")
 }
 
 model University {
-  id          Int          @id @default(autoincrement())
+  id          Int    @id @default(autoincrement())
   name        String
   location    String
+  adminId     String @unique
   established Int
-  faculties   Faculty[]
-  students    Student[]
-  departments Department[]
-  courses     Course[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+
+  faculties        Faculty[]
+  students         Student[]
+  departments      Department[]
+  courses          Course[]
+  subjects         Subject[]
+  nonTeachingStaff NonTeachingStaff[]
+  attendance       Attendance[]
+  result           Result[]
+  announcement     Announcement[]
+  assignment       Assignment[]
+  exam             Exam[]
+  event            Event[]
+
+  admin User? @relation(fields: [adminId], references: [id])
+}
+
+model NonTeachingStaff {
+  id           Int    @id @unique
+  userId       String @unique
+  experience   Int
+  documents    Json[] //{name,url}
+  departmentId Int
+  universityId Int
+
+  user       User?       @relation(fields: [userId], references: [clerkId])
+  university University? @relation(fields: [universityId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
 }
 
 model Faculty {
-  id           String   @id @unique
-  name         String
-  email        String   @unique
-  phone        String?
+  id           String  @id @unique
+  achievements Json[] //{title,url,description}
+  documents    Json[]
+  position     String?
   departmentId Int
-  clerkId      String   @unique
+  clerkId      String  @unique
   courseId     Int
   universityId Int
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
 
-  user  User @relation(fields: [clerkId],references: [clerkId])
-  course     Course     @relation(fields: [courseId], references: [id])
-  Department Department @relation(fields: [departmentId], references: [id])
-  University University @relation(fields: [universityId], references: [id])
+  students   Student[]
+  Assignment Assignment[]
+  Subject    Subject[]    @relation("faculty_to_Subject")
+  timeTable  TimeTable[]
+  attendance Attendance[]
+
+  user       User?       @relation(fields: [clerkId], references: [clerkId])
+  course     Course?     @relation(fields: [courseId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
+  university University? @relation(fields: [universityId], references: [id])
 }
 
 model Student {
-  id           String   @id @unique
-  name         String
-  email        String   @unique
-  phone        String?
-  year         Int
-  departmentId Int
-  universityId Int
-  courseId     Int
-  clerkId      String   @unique
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String  @id @unique
+  prn           String?
+  year          Int
+  semister      Int
+  guardianEmail String?
+  gaurdianPhone String?
+  rollNo        Int
+  documents     Json[] //{name,link}
+  mentorId      String?
+  departmentId  Int
+  universityId  Int
+  courseId      Int
+  clerkId       String  @unique
 
-  user  User @relation(fields: [clerkId],references: [clerkId])
-  course     Course     @relation(fields: [courseId], references: [id])
-  Department Department @relation(fields: [departmentId], references: [id])
-  University University @relation(fields: [universityId], references: [id])
+  submissions Submission[]
+
+  department Department?  @relation(fields: [departmentId], references: [id])
+  university University?  @relation(fields: [universityId], references: [id])
+  mentor     Faculty?     @relation(fields: [mentorId], references: [id])
+  user       User?        @relation(fields: [clerkId], references: [clerkId])
+  course     Course?      @relation(fields: [courseId], references: [id])
+  attendance Attendance[]
 }
 
 model Department {
-  id           Int       @id @default(autoincrement())
+  id           Int     @id @unique @default(autoincrement())
   name         String
-  code         String    @unique
-  faculty      Faculty[]
-  students     Student[]
-  courses      Course[]
-  forums       Forum[]
+  code         String  @unique
+  principalId  String? @unique
   universityId Int
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  adminId      String? @unique
 
-  University University @relation(fields: [universityId], references: [id])
+  faculties        Faculty[]
+  students         Student[]
+  courses          Course[]
+  subjects         Subject[]
+  forums           Forum[]
+  nonTeachingStaff NonTeachingStaff[]
+  attendance       Attendance[]
+  result           Result[]
+  announcement     Announcement[]
+  assignment       Assignment[]
+  exam             Exam[]
+  timeTable        TimeTable[]
+  event            Event[]
+
+  admin      User?       @relation(name: "AdminToDepartment", fields: [adminId], references: [clerkId])
+  principal  User?       @relation(name: "PrincipalToDepartment", fields: [principalId], references: [clerkId])
+  university University? @relation(fields: [universityId], references: [id])
 }
 
 model Course {
-  id           Int       @id @default(autoincrement())
+  id            Int    @id @unique @default(autoincrement())
+  name          String
+  code          String @unique
+  departmentId  Int
+  universityId  Int
+  hodId         String @unique
+  totalSemister Int
+
+  forums       Forum[]
+  faculties    Faculty[]
+  students     Student[]
+  subjects     Subject[]
+  attendance   Attendance[]
+  result       Result[]
+  announcement Announcement[]
+  assignment   Assignment[]
+  exam         Exam[]
+  timeTable    TimeTable[]
+
+  hod        User?       @relation(fields: [hodId], references: [clerkId])
+  department Department? @relation(fields: [departmentId], references: [id])
+  university University? @relation(fields: [universityId], references: [id])
+}
+
+model Subject {
+  id           Int    @id @unique @default(autoincrement())
   name         String
-  code         String    @unique
   credits      Int
+  semester     Int
+  code         Int
+  courseId     Int
   departmentId Int
   universityId Int
-  forums       Forum[]
-  Faculty      Faculty[]
-  students     Student[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  resultId     Int
 
-  Department Department @relation(fields: [departmentId], references: [id])
-  University University @relation(fields: [universityId], references: [id])
+  assignment Assignment[]
+  attendance Attendance[]
+  faculties  Faculty[]    @relation("faculty_to_Subject")
+  timeTable  TimeTable[]
+
+  result     Result?     @relation(fields: [resultId], references: [id])
+  university University? @relation(fields: [universityId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
+  course     Course?     @relation(fields: [courseId], references: [id])
+}
+
+model Attendance {
+  id           Int      @id @unique @default(autoincrement())
+  rollNo       Int
+  studentId    String
+  facultyId    String
+  semister     Int
+  date         DateTime
+  subjectId    Int
+  courseId     Int
+  departmentId Int
+  universityId Int
+
+  faculty    Faculty?    @relation(fields: [facultyId], references: [clerkId])
+  student    Student?    @relation(fields: [studentId], references: [clerkId])
+  subject    Subject?    @relation(fields: [subjectId], references: [id])
+  course     Course?     @relation(fields: [courseId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
+  university University? @relation(fields: [universityId], references: [id])
+}
+
+model Submission {
+  id           Int    @id @unique @default(autoincrement())
+  studentId    String
+  assignmentId Int
+
+  student    Student?    @relation(fields: [studentId], references: [clerkId])
+  assignment Assignment? @relation(fields: [assignmentId], references: [id])
+}
+
+model Assignment {
+  id             Int      @id @unique @default(autoincrement())
+  title          String
+  deadline       DateTime @default(now())
+  attachmentUrl  String
+  assignmentType String   @default("tutorial") // tutorial, project, etc.
+  subjectId      Int
+  facultyId      String
+  courseId       Int
+  departmentId   Int
+  universityId   Int
+
+  submissions Submission[]
+
+  subject    Subject?    @relation(fields: [subjectId], references: [id])
+  faculty    Faculty?    @relation(fields: [facultyId], references: [id])
+  course     Course?     @relation(fields: [courseId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
+  university University? @relation(fields: [universityId], references: [id])
+}
+
+model Result {
+  id            Int    @id @unique @default(autoincrement())
+  prn           String
+  rollNo        Int
+  totalMarks    Int
+  obtainedMarks Int
+  egp           Int
+  CGPA          Int
+  SGPA          Int
+  departmentId  Int
+  universityId  Int
+  courseId      Int
+  examId        Int
+
+  subjects Subject[]
+
+  exam       Exam?       @relation(fields: [examId], references: [id])
+  course     Course?     @relation(fields: [courseId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
+  university University? @relation(fields: [universityId], references: [id])
+}
+
+model Exam {
+  id           Int       @id @unique @default(autoincrement())
+  name         String
+  semester     Int
+  timeTable    String
+  startDate    DateTime?
+  endDate      DateTime?
+  courseId     Int
+  departmentId Int
+  universityId Int
+
+  result Result[]
+
+  course     Course?     @relation(fields: [courseId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
+  university University? @relation(fields: [universityId], references: [id])
 }
 
 model ChatMessage {
-  id        Int      @id @default(autoincrement())
-  message   String
-  userId    String
-  forumId   Int
-  createdAt DateTime @default(now())
-  Forum     Forum    @relation(fields: [forumId], references: [id])
-  User      User     @relation(fields: [userId], references: [clerkId])
+  id            Int    @id @default(autoincrement())
+  message       String
+  userId        String
+  forumId       Int
+  attachmentUrl Json[] //{url,title}
+
+  Forum Forum? @relation(fields: [forumId], references: [id])
+  user  User?  @relation(fields: [userId], references: [clerkId])
+}
+
+model ForumParticipant {
+  id      Int    @id @default(autoincrement())
+  userId  String
+  forumId Int
+
+  user  User?  @relation(fields: [userId], references: [clerkId])
+  forum Forum? @relation(fields: [forumId], references: [id])
 }
 
 model Forum {
-  id           Int           @id @default(autoincrement())
+  id           Int    @id @default(autoincrement())
   name         String
-  departmentId Int
-  courseId     Int
   year         Int
   userId       String
   status       String
-  createdAt    DateTime      @default(now())
-  ChatMessage  ChatMessage[]
+  departmentId Int
+  courseId     Int
+  moderatorId  String
 
-  course     Course     @relation(fields: [courseId], references: [id])
-  department Department @relation(fields: [departmentId], references: [id])
-  User       User       @relation(fields: [userId], references: [clerkId])
+  ChatMessage      ChatMessage[]
+  ForumParticipant ForumParticipant[] //for other participants
+
+  course     Course?     @relation(fields: [courseId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
+  user       User?       @relation(name: "UserToForum", fields: [userId], references: [clerkId])
+  moderator  User?       @relation(name: "ModeratorToForum", fields: [moderatorId], references: [clerkId])
+}
+
+model Announcement {
+  id           Int      @id @default(autoincrement())
+  title        String?
+  deccription  String
+  date         DateTime @default(now())
+  attachments  Json[] //{title,url}
+  announcerId  String
+  courseId     Int
+  departmentId Int
+  universityId Int
+
+  course     Course?     @relation(fields: [courseId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
+  university University? @relation(fields: [universityId], references: [id])
+  announcer  User?       @relation(fields: [announcerId], references: [clerkId])
+}
+
+model TimeTable {
+  id           Int    @id @default(autoincrement())
+  day          String
+  fromTime     String
+  toTime       String
+  subjectId    Int
+  courseId     Int
+  departmentId Int
+  moderatorId  String
+
+  moderator  Faculty?    @relation(fields: [moderatorId], references: [clerkId])
+  subject    Subject?    @relation(fields: [subjectId], references: [id])
+  course     Course?     @relation(fields: [courseId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
+}
+
+model Event {
+  id           Int      @id @default(autoincrement())
+  date         DateTime @default(now())
+  description  String
+  type         String //compitition or meeting or anualfunction
+  budget       Int
+  organiserId  String
+  universityId Int
+  departmentId Int?
+
+  organiser  User?       @relation(fields: [organiserId], references: [clerkId])
+  university University? @relation(fields: [universityId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
 }
