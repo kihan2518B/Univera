@@ -16,7 +16,7 @@ const initForm = {
   name: "",
   code: "",
   credit: 0,
-  semister: 0
+  semester: 0
 }
 
 export default function EditSubjectPage() {
@@ -24,30 +24,53 @@ export default function EditSubjectPage() {
   const { subjectId, courseId } = useParams()
   const [course, setCourse] = useState<Course | null>(null)
   const [defaults, setDefaults] = useState<any>(initForm)
+  const [loading, setLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
     const fetchSubjects = async () => {
-      const res = await axios.get(
-        `/api/courses/${courseId}?courseId=${courseId}`
-      )
-      if (res.status !== 200) {
-        toast.error("error while getting course details")
-      }
-      setCourse(res.data.course)
+      setLoading(true)
+      try {
+        const res = await axios.get(
+          `/api/courses/${courseId}?courseId=${courseId}`
+        )
+        if (res.status !== 200) {
+          toast.error("Error while getting course details")
+          return
+        }
+        setCourse(res.data.course)
 
-      setDefaults(
-        res.data.course.subjects.find((s: Subject) => s.id == Number(subjectId))
-      )
+        const subject = res.data.course.subjects.find(
+          (s: Subject) => s.id == Number(subjectId)
+        )
+        if (subject) {
+          setDefaults(subject)
+        }
+      } catch (error) {
+        toast.error("Failed to load subject details.")
+      } finally {
+        setLoading(false)
+      }
     }
     fetchSubjects()
-  }, [subjectId])
+  }, [subjectId, courseId])
 
-  async function handleDeleteClick() {
+  const handleUpdateSubject = async (updatedData: any) => {
     try {
-      const res = await axios.delete(
-        `/api/subjects/${subjectId}?subjectId=${subjectId}`
-      )
+      const res = await axios.put(`/api/subjects/${subjectId}`, updatedData)
+      if (res.status === 200) {
+        toast.success("Subject updated successfully!")
+        router.push(`/subject/${courseId}`)
+      }
+    } catch (error) {
+      console.error("Error updating subject:", error)
+      toast.error("Something went wrong while updating the subject.")
+    }
+  }
+
+  const handleDeleteClick = async () => {
+    try {
+      const res = await axios.delete(`/api/subjects/${subjectId}`)
       if (res.status === 200) {
         toast.success(res.data.message)
         router.push(`/subject/${courseId}`)
@@ -58,37 +81,53 @@ export default function EditSubjectPage() {
   }
 
   return (
-    <section className="mt-8 max-w-lg mx-auto">
-      <div className="mt-8 flex">
+    <section className="mt-8 max-w-2xl mx-auto p-4">
+      {/* Navigation */}
+      <div className="flex justify-start mb-6">
         <Link
-          className=" flex justify-center gap-2 w-full border font-semibold rounded-lg px-6 py-2"
+          className="flex items-center gap-2 border border-gray-300 bg-white text-gray-700 font-semibold rounded-lg px-4 py-2 hover:bg-gray-100 hover:shadow transition duration-200"
           href={`/subject/${courseId}`}
         >
           <Left />
-          Show all Subject
+          Show All Subjects
         </Link>
       </div>
-      {course && (
-        <div className="">
-          <SubjectForm
-            subject={defaults}
-            submitBtnId="subject-update"
-            courseId={Number(courseId)}
-            department={user?.departmentAdmin}
-            courseName={course?.name}
-            departmentName={user?.departmentAdmin.name}
-            submitBtnLabel={"Update"}
-          />
-          <div className="max-w-2xl mx-auto mt-1">
-            <div className="">
+
+      {/* Loading Indicator */}
+      {loading ? (
+        <div className="flex justify-center items-center h-40">
+          <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+        </div>
+      ) : (
+        course && (
+          <div className="bg-white shadow-md rounded-lg p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Editing Subject:{" "}
+              <span className="text-blue-600">{defaults.name}</span>
+            </h2>
+
+            {/* Subject Form */}
+            <SubjectForm
+              subject={defaults}
+              submitBtnId="subject-update"
+              courseId={Number(courseId)}
+              department={user?.departmentAdmin}
+              courseName={course?.name}
+              departmentName={user?.departmentAdmin.name}
+              submitBtnLabel={"Update"}
+              onSubmit={handleUpdateSubject}
+            />
+
+            {/* Delete Button */}
+            <div className="mt-6">
               <DeleteButton
-                label="Delete this item"
+                label="Delete This Subject"
                 onDelete={handleDeleteClick}
-                className="bg-Primary text-white w-full mt-4 hover:bg-red-500 rounded-lg px-4 py-2"
+                className="bg-red-500 text-white w-full hover:bg-red-600 font-semibold rounded-lg px-4 py-2 transition duration-200"
               />
             </div>
           </div>
-        </div>
+        )
       )}
     </section>
   )

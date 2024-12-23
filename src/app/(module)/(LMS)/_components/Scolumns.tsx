@@ -70,11 +70,14 @@ export const Scolumns: ColumnDef<fullCourseData>[] = [
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-4 w-4 p-4">
-              <span className="sr-only ">Open menu</span>
+              <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent
+            align="end"
+            className="bg-white border border-gray-300 shadow-lg rounded-md"
+          >
             <Link href={`/subject/${id}`}>
               <DropdownMenuItem>
                 <Pencil className="h-4 w-4 mr-2" />

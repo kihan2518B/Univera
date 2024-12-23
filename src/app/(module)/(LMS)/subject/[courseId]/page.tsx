@@ -1,4 +1,5 @@
 "use client"
+
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
@@ -8,7 +9,7 @@ import Right from "@/components/Icons/Right"
 import Left from "@/components/Icons/Left"
 
 export default function SubjectsPage() {
-  const [subjects, setSubjects] = useState<Subject[]>([]) // State to hold subjects
+  const [subjects, setSubjects] = useState<Subject[]>([])
   const { courseId } = useParams()
 
   useEffect(() => {
@@ -16,8 +17,7 @@ export default function SubjectsPage() {
       try {
         const response = await axios.get(`/api/subjects?courseId=${courseId}`)
         if (response.status === 200) {
-          // Ensure successful status code
-          setSubjects(response.data.subjects) // Set subjects state with fetched data
+          setSubjects(response.data.subjects)
         } else {
           console.error("Error fetching subjects", response)
         }
@@ -27,59 +27,73 @@ export default function SubjectsPage() {
     }
 
     if (courseId) {
-      fetchSubjects() // Fetch subjects for the specific course
+      fetchSubjects()
     }
   }, [courseId])
 
   return (
-    <section className="mt-8 max-w-lg mx-auto flex flex-col">
-      <div className="mt-8 flex">
+    <section className="mt-8 max-w-5xl mx-auto px-4">
+      {/* Navigation Buttons */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
         <Link
-          className="flex justify-center gap-2 border-2 w-full border-black font-semibold rounded-lg px-6 py-2"
+          className="flex items-center justify-center gap-2 border-2 border-black text-black font-semibold rounded-lg px-6 py-2 transition-transform transform hover:scale-105 hover:bg-gray-100"
           href={"/subject"}
         >
-          Back
-          <Left />
+          <Left /> Back
         </Link>
         <Link
-          className="flex justify-center gap-2 border-2 w-full border-black font-semibold rounded-lg px-6 py-2"
+          className="flex items-center justify-center gap-2 border-2 border-blue-600 text-blue-600 font-semibold rounded-lg px-6 py-2 transition-transform transform hover:scale-105 hover:bg-blue-100"
           href={`/subject/${courseId}/new`}
         >
-          Create new subject
-          <Right />
+          Create New Subject <Right />
         </Link>
       </div>
-      <div className="h-full w-full flex flex-col items-center justify-center">
-        <h1 className="text-xl text-gray-500 font-bold uppercase mt-8">
-          Edit existing subject:
+
+      {/* Subject Cards */}
+      <div className="flex flex-col items-center text-center mb-8">
+        <h1 className="text-2xl font-bold text-gray-700 uppercase">
+          Edit Existing Subjects
         </h1>
-        <div className="h-full w-full flex flex-col gap-2">
-          {subjects?.length > 0 ? (
-            subjects.map((subject) => (
-              <Link
-                key={subject.id} // Use subject ID as the key
-                href={`/subject/${courseId}/edit/${subject.id}`} // Dynamically generate the path
-                className="border w-full bg-gray-200 hover:bg-white flex-col mb-1 rounded-lg p-4"
-              >
-                <div className="relative">
-                  {/* Optional: Add subject image */}
-                  {/* <Image
-                      className="rounded-md"
-                      src={subject.image || "/default-image.png"}
-                      alt={subject.name || "Subject Image"}
-                      width={500}
-                      height={500}
-                    /> */}
-                </div>
-                <div className="text-center mt-4 font-semibold">
-                  {subject.name} {/* Display subject name */}
-                </div>
-              </Link>
-            ))
-          ) : (
-            <p className="text-center text-gray-500">No subjects found.</p>
-          )}
-        </div>
+        <p className="text-gray-500 mt-2 ">
+          Select a subject below to edit its details.
+        </p>
+      </div>
+
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {subjects?.length > 0 ? (
+          subjects.map((subject) => (
+            <Link
+              key={subject.id}
+              href={`/subject/${courseId}/edit/${subject.id}`}
+              className="group  bg-gradient-to-tr from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-400 rounded-lg shadow-md p-6 transition-transform transform hover:scale-105"
+            >
+              <div className="relative">
+                {/* Optional Placeholder for Image */}
+                {/* <div className="h-36 w-full bg-gray-200 rounded-md mb-4 flex items-center justify-center text-gray-500">
+                  Subject Image Placeholder
+                </div> */}
+              </div>
+              <div className="text-left">
+                <h2 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 mb-2">
+                  {subject.name}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  <strong>Code:</strong> {subject.code}
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Credits:</strong> {subject.credits}
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Semester:</strong> {subject.semester}
+                </p>
+              </div>
+            </Link>
+          ))
+        ) : (
+          <div className="col-span-full text-center py-8">
+            <p className="text-gray-500">No subjects found.</p>
+          </div>
+        )}
       </div>
     </section>
   )

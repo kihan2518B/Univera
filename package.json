@@ -12,7 +12,7 @@
     "prepare": "husky install",
     "lint": "eslint src --ext ts,tsx,js,jsx --report-unused-disable-directives ",
     "lint:fix": "eslint src --ext js,jsx,ts,tsx --fix",
-    "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,html}' 'package.json'"
+    "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,html}' package.json"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.3.1",
@@ -68,6 +68,7 @@
     "lint-staged": "^13.2.3",
     "postcss": "^8",
     "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.9",
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.7.2"

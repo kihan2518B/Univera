@@ -44,20 +44,22 @@ export const columns: ColumnDef<Course>[] = [
     id: "actions",
     cell: ({ row }) => {
       const { id } = row.original
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-4 w-8 p-0">
-              <span className="sr-only ">Open menu</span>
+            <Button variant="ghost" className="h-4 w-4 p-4">
+              <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <Link href={`/courses/${id}`}>
+          <DropdownMenuContent
+            align="end"
+            className="bg-white border border-gray-300 shadow-lg rounded-md"
+          >
+            <Link href={`/subject/${id}`}>
               <DropdownMenuItem>
                 <Pencil className="h-4 w-4 mr-2" />
-                Edit
+                Add Subject
               </DropdownMenuItem>
             </Link>
           </DropdownMenuContent>
