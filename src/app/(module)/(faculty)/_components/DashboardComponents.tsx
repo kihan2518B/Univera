@@ -105,7 +105,7 @@ function ExploreItem({
               {/* Title Container */}
               <div className="flex-1">
                 <h4
-                  className="text-lg xs:text-xl md:text-2xl font-bold text-TextTwo 
+                  className="text-base xs:text-lg md:text-xl font-bold text-TextTwo 
                             group-hover:text-ColorThree 
                             text-center xs:text-left transition-colors duration-500
                             tracking-tight line-clamp-2"
@@ -117,7 +117,7 @@ function ExploreItem({
 
             {/* Description */}
             <p
-              className="mt-3 sm:mt-5 text-sm sm:text-base md:text-lg text-gray-600 
+              className="mt-2 sm:mt-3 text-xs sm:text-sm md:text-base text-gray-600 
                         text-center xs:text-left leading-relaxed
                         group-hover:text-gray-700 transition-colors duration-500
                         line-clamp-3 md:line-clamp-none"
@@ -147,7 +147,6 @@ function ExploreItem({
     </Link>
   )
 }
-
 const dashboardItems = [
   {
     icon: Home,
