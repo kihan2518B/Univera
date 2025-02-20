@@ -5,12 +5,7 @@ import {
 } from "@clerk/nextjs/server"
 import { NextRequest, NextResponse } from "next/server"
 
-const publicRoutes = [
-  "/api/webhook/register",
-  "/sign-in(.*)",
-  "/sign-up(.*)",
-  "/api/list/teacher/[teacherId]"
-]
+const publicRoutes = ["/api/webhook/register", "/sign-in(.*)", "/sign-up(.*)"]
 
 const isPublicRoutes = createRouteMatcher(publicRoutes)
 
@@ -32,6 +27,7 @@ export default clerkMiddleware(async (authPromise, req) => {
       try {
         const user = (await clerk.users.getUser(auth.userId)) ?? undefined
         const role = user.publicMetadata.role as string | undefined
+
         if (role == "superuser") return
         //admin role redirection
         if (role == "university_admin" && req.nextUrl.pathname === "/") {
