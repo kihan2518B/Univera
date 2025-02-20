@@ -101,42 +101,46 @@ export default function ClassFaculties({
         <h2 className="text-xl sm:text-2xl font-bold mb-6 text-Dark">
           Assigned Faculties
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {assignedFaculties.map((faculty) => (
-            <Card
-              key={faculty.id}
-              className="relative border-Primary border-2 overflow-hidden hover:shadow-lg transition-shadow duration-300"
-            >
-              <CardContent className="p-4 sm:p-5">
-                <button
-                  onClick={() => handleRemoveFaculty(faculty.id)}
-                  disabled={removing === faculty.id}
-                  className="absolute top-2 right-2 p-1.5 rounded-full hover:bg-red-50 transition-colors duration-200 text-ColorTwo"
-                >
-                  <X size={20} />
-                </button>
-                <div className="pr-8">
-                  <h3 className="font-semibold text-base sm:text-lg mb-2 text-TextTwo line-clamp-1">
-                    {faculty.user.name}
-                  </h3>
-                  <p className="text-xs sm:text-sm mb-3 text-Dark line-clamp-1">
-                    {faculty.user.email}
-                  </p>
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                    {faculty.user.roles.map((role: any) => (
-                      <span
-                        key={role.id}
-                        className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium text-Dark bg-ColorOne whitespace-nowrap"
-                      >
-                        {role.rolename}
-                      </span>
-                    ))}
+        {assignedFaculties.length === 0 ? (
+          <p className="text-sm text-gray-500">No faculty assigned</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {assignedFaculties.map((faculty) => (
+              <Card
+                key={faculty.id}
+                className="relative border-Primary border-2 overflow-hidden hover:shadow-lg transition-shadow duration-300"
+              >
+                <CardContent className="p-4 sm:p-5">
+                  <button
+                    onClick={() => handleRemoveFaculty(faculty.id)}
+                    disabled={removing === faculty.id}
+                    className="absolute top-2 right-2 p-1.5 rounded-full hover:bg-red-50 transition-colors duration-200 text-ColorTwo"
+                  >
+                    <X size={20} />
+                  </button>
+                  <div className="pr-8">
+                    <h3 className="font-semibold text-base sm:text-lg mb-2 text-TextTwo line-clamp-1">
+                      {faculty.user.name}
+                    </h3>
+                    <p className="text-xs sm:text-sm mb-3 text-Dark line-clamp-1">
+                      {faculty.user.email}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                      {faculty.user.roles.map((role: any) => (
+                        <span
+                          key={role.id}
+                          className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium text-Dark bg-ColorOne whitespace-nowrap"
+                        >
+                          {role.rolename}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </section>
 
       <section>
@@ -158,41 +162,47 @@ export default function ClassFaculties({
             />
           )}
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {unassignedFaculties.map((faculty) => (
-            <Card
-              key={faculty.id}
-              className="hover:shadow-lg transition-shadow duration-300 border-Primary border-2"
-            >
-              <CardContent className="p-4 sm:p-5 flex items-start space-x-3 sm:space-x-4">
-                <Checkbox
-                  id={`faculty-${faculty.id}`}
-                  checked={selectedFaculties.includes(faculty.id)}
-                  onCheckedChange={() => handleCheckboxChange(faculty.id)}
-                  className="mt-1 text-ColorTwo border-ColorTwo"
-                />
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-base sm:text-lg mb-2 text-TextTwo line-clamp-1">
-                    {faculty.user.name}
-                  </h3>
-                  <p className="text-xs sm:text-sm mb-3 text-Dark line-clamp-1">
-                    {faculty.user.email}
-                  </p>
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                    {faculty.user.roles.map((role: any) => (
-                      <span
-                        key={role.id}
-                        className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium text-Dark bg-ColorOne whitespace-nowrap"
-                      >
-                        {role.rolename}
-                      </span>
-                    ))}
+        {faculties.length === 0 ? (
+          <p className="text-sm text-gray-500">No faculty available</p>
+        ) : unassignedFaculties.length === 0 ? (
+          <p className="text-sm text-gray-500">No faculty remain to assign</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {unassignedFaculties.map((faculty) => (
+              <Card
+                key={faculty.id}
+                className="hover:shadow-lg transition-shadow duration-300 border-Primary border-2"
+              >
+                <CardContent className="p-4 sm:p-5 flex items-start space-x-3 sm:space-x-4">
+                  <Checkbox
+                    id={`faculty-${faculty.id}`}
+                    checked={selectedFaculties.includes(faculty.id)}
+                    onCheckedChange={() => handleCheckboxChange(faculty.id)}
+                    className="mt-1 text-ColorTwo border-ColorTwo"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-base sm:text-lg mb-2 text-TextTwo line-clamp-1">
+                      {faculty.user.name}
+                    </h3>
+                    <p className="text-xs sm:text-sm mb-3 text-Dark line-clamp-1">
+                      {faculty.user.email}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                      {faculty.user.roles.map((role: any) => (
+                        <span
+                          key={role.id}
+                          className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium text-Dark bg-ColorOne whitespace-nowrap"
+                        >
+                          {role.rolename}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   )

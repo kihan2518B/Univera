@@ -24,7 +24,7 @@ export default function SubjectsPage() {
   const [roles, setRoles] = useState<number[]>([])
 
   useEffect(() => {
-    setRoles(user?.roles.map((role: any) => role.id))
+    setRoles(user?.roles.map((role: any) => role.id) ?? [])
   }, [user?.roles])
 
   const {

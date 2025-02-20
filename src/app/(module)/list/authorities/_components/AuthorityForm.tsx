@@ -61,9 +61,9 @@ export function AuthorityForm({ data }: AuthorityFormProps) {
     refetch: refetchCourses,
     isRefetching: isCourseRefetching
   } = useQuery({
-    queryKey: ["courses", user?.departmentAdmin.id, user?.id],
-    queryFn: () => fetchCourses(user?.departmentAdmin.id, user?.id as string),
-    enabled: !!user?.departmentAdmin?.id && !!user?.id
+    queryKey: ["courses", user?.departmentId, user?.id],
+    queryFn: () => fetchCourses(String(user?.departmentId), user?.id as string),
+    enabled: !!user?.departmentId && !!user?.id
   })
 
   const {
@@ -88,8 +88,8 @@ export function AuthorityForm({ data }: AuthorityFormProps) {
           roleIds,
           position,
           courseId: selectedCourse,
-          departmentId: user?.departmentAdmin.id,
-          universityId: user?.departmentAdmin.universityId
+          departmentId: user?.departmentId,
+          universityId: user?.universityId
         })
         if (res.status == 201) {
           toast.success(res.data.message)
@@ -107,8 +107,8 @@ export function AuthorityForm({ data }: AuthorityFormProps) {
             roleIds,
             position,
             courseId: selectedCourse,
-            departmentId: user?.departmentAdmin.id,
-            universityId: user?.departmentAdmin.universityId
+            departmentId: user?.departmentId,
+            universityId: user?.universityId
           }
         )
         if (res.status == 200) {
@@ -188,8 +188,10 @@ export function AuthorityForm({ data }: AuthorityFormProps) {
           courses={courses}
           selectedCourse={selectedCourse}
           setSelectedCourse={setSelectedCourse}
-          departmentName={data?.Department?.name ?? user?.departmentAdmin.name}
-          departmentId={user?.departmentAdmin.id as number}
+          departmentName={
+            data?.Department?.name ?? String(user?.Department?.name)
+          }
+          departmentId={user?.departmentId as number}
         />
       )}
       <div className="flex gap-4 mt-4">

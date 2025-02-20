@@ -73,8 +73,9 @@ export async function PATCH(req: Request) {
       const timeDifference = currentDate.getTime() - inputDate.getTime()
       const hoursDifference = timeDifference / (1000 * 60 * 60)
 
-      // Check if the date falls within the last 72 hours
+      // Check if the date falls within the last 24 hours
       if (hoursDifference >= 0 && hoursDifference <= 24) {
+        // Update existing records
         const updatedRecords = await Promise.all(
           validAttendance.map(async (attendanceData) => {
             const existingRecord = await prisma.attendance.findFirst({
@@ -106,16 +107,15 @@ export async function PATCH(req: Request) {
         )
       }
     } else {
-      // If `id` is not provided, create new attendance records for all students
-      const result = await prisma.$transaction(
-        validAttendance.map((attendanceData) =>
-          prisma.attendance.create({
-            data: {
-              ...attendanceData
-            }
-          })
-        )
-      )
+      // Bulk create new attendance records
+      const newRecords = validAttendance.map((attendanceData) => ({
+        ...attendanceData
+      }))
+
+      const result = await prisma.attendance.createMany({
+        data: newRecords,
+        skipDuplicates: true // Prevent duplicate entries
+      })
 
       return NextResponse.json(result, { status: 201 })
     }
@@ -146,7 +146,7 @@ export async function GET(req: Request) {
   try {
     const attendance = await prisma.attendance.findMany({
       where: {
-        classId: Number(classId), // Ensure correct type handling for `id`
+        classId: Number(classId),
         date
       },
       include: {

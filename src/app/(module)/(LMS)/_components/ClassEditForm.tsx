@@ -6,6 +6,7 @@ import * as z from "zod"
 import axios from "axios"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
+import { CourseFormSkeleton } from "@/components/(commnon)/Skeleton"
 
 import {
   Form,
@@ -27,6 +28,7 @@ interface ClassDetailsProps {
   user: any
   defaults: any
   classId: any
+  isLoading?: boolean
 }
 //Schema
 const initForm = {
@@ -38,13 +40,15 @@ const initForm = {
 export const ClassEditForm: React.FC<ClassDetailsProps> = ({
   defaults,
   user,
-  classId
+  classId,
+  isLoading
 }) => {
   const [formData, setFormData] =
     useState<Record<"name" | "code" | "semister", string | number>>(initForm)
   const [editingField, setEditingField] = useState<string | null>(null)
   const [isDirty, setIsDirty] = useState(false)
   const fields = ["name", "code", "semister"]
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     if (defaults) {
@@ -89,6 +93,7 @@ export const ClassEditForm: React.FC<ClassDetailsProps> = ({
   }
   async function handleDeleteClick() {
     try {
+      setIsDeleting(true)
       const res = await axios.delete(`/api/classes/${classId}`)
       if (res.status === 200) {
         toast.success(res.data.message)
@@ -96,6 +101,8 @@ export const ClassEditForm: React.FC<ClassDetailsProps> = ({
       }
     } catch (error) {
       toast.error("Internal server error")
+    } finally {
+      setIsDeleting(false)
     }
   }
   const router = useRouter()
@@ -136,106 +143,116 @@ export const ClassEditForm: React.FC<ClassDetailsProps> = ({
   return (
     <div className=" mx-auto flex md:items-center md:justify-center h-full p-6">
       <h1 className="text-2xl"></h1>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-8">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Edit Class Details</FormLabel>
-                <FormControl>
-                  <EditableInputField
-                    key={"name"}
-                    label={"Class Name"}
-                    placeholder={"Enter your Class Name"}
-                    name={"name"}
-                    value={formData["name"] as string}
-                    onChange={(e) => {
-                      handleChange(e)
-                      field.onChange(e)
-                    }}
-                    isEditing={editingField === "name"}
-                    setEditingField={setEditingField}
-                    isDirty={isDirty}
-                    className=""
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Class Code</FormLabel>
-                <FormControl>
-                  <EditableInputField
-                    key={"code"}
-                    label={"Class Code"}
-                    placeholder={"Enter your Class Code"}
-                    name={"code"}
-                    value={formData["code"] as string}
-                    onChange={(e) => {
-                      handleChange(e)
-                      field.onChange(e)
-                    }}
-                    isEditing={editingField === "code"}
-                    setEditingField={setEditingField}
-                    isDirty={isDirty}
-                    className=""
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="semister"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Semister</FormLabel>
-                <FormControl>
-                  <EditableInputField
-                    key={"semister"}
-                    label={"Total Semister"}
-                    placeholder={"Enter total sem of the Class"}
-                    name={"semister"}
-                    value={formData["semister"]}
-                    onChange={(e) => {
-                      handleChange(e)
-                      field.onChange(
-                        e.target.value ? parseInt(e.target.value, 10) : ""
-                      )
-                    }}
-                    isEditing={editingField === "semister"}
-                    setEditingField={setEditingField}
-                    isDirty={isDirty}
-                    className=""
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="flex items-center gap-x-2">
-            <Link href="/classes">
-              <Button type="button" variant="ghost">
-                Cancel
+      {isLoading ? (
+        <CourseFormSkeleton />
+      ) : (
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-8 mt-8"
+          >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Edit Class Details</FormLabel>
+                  <FormControl>
+                    <EditableInputField
+                      key={"name"}
+                      label={"Class Name"}
+                      placeholder={"Enter your Class Name"}
+                      name={"name"}
+                      value={formData["name"] as string}
+                      onChange={(e) => {
+                        handleChange(e)
+                        field.onChange(e)
+                      }}
+                      isEditing={editingField === "name"}
+                      setEditingField={setEditingField}
+                      isDirty={isDirty}
+                      className=""
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Class Code</FormLabel>
+                  <FormControl>
+                    <EditableInputField
+                      key={"code"}
+                      label={"Class Code"}
+                      placeholder={"Enter your Class Code"}
+                      name={"code"}
+                      value={formData["code"] as string}
+                      onChange={(e) => {
+                        handleChange(e)
+                        field.onChange(e)
+                      }}
+                      isEditing={editingField === "code"}
+                      setEditingField={setEditingField}
+                      isDirty={isDirty}
+                      className=""
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="semister"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Semister</FormLabel>
+                  <FormControl>
+                    <EditableInputField
+                      key={"semister"}
+                      label={"Total Semister"}
+                      placeholder={"Enter total sem of the Class"}
+                      name={"semister"}
+                      value={formData["semister"]}
+                      onChange={(e) => {
+                        handleChange(e)
+                        field.onChange(
+                          e.target.value ? parseInt(e.target.value, 10) : ""
+                        )
+                      }}
+                      isEditing={editingField === "semister"}
+                      setEditingField={setEditingField}
+                      isDirty={isDirty}
+                      className=""
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex items-center gap-x-2">
+              <Link href="/classes">
+                <Button type="button" variant="ghost">
+                  Cancel
+                </Button>
+              </Link>
+              {/* <Link href='/'> */}
+              <Button type="submit" disabled={!isValid || isSubmitting}>
+                {isSubmitting ? "Updating..." : "Update"}
               </Button>
-            </Link>
-            {/* <Link href='/'> */}
-            <Button type="submit" disabled={!isValid || isSubmitting}>
-              Update
-            </Button>
-            <DeleteButton label="Delete" onDelete={handleDeleteClick} />
-            {/* </Link> */}
-          </div>
-        </form>
-      </Form>
+              <DeleteButton
+                label={isDeleting ? "Deleting..." : "Delete"}
+                onDelete={handleDeleteClick}
+              />
+              {/* </Link> */}
+            </div>
+          </form>
+        </Form>
+      )}
     </div>
   )
 }

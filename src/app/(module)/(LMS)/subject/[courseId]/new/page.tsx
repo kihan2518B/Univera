@@ -45,7 +45,7 @@ export default function NewSubjectPage() {
           courseId={Number(courseId)}
           department={user?.Department}
           courseName={course?.name}
-          departmentName={user?.Department.name}
+          departmentName={String(user?.Department?.name)}
           submitBtnId="submit"
           submitBtnLabel={"Create"}
         />

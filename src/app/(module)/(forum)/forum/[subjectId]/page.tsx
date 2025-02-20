@@ -8,6 +8,22 @@ import { useParams } from "next/navigation"
 import { chatMessage, Forum, UploadedFile } from "@/types/globals"
 import toast from "react-hot-toast"
 import { UserContext } from "@/context/user"
+import { useQuery } from "@tanstack/react-query"
+
+async function fetchSubjectDetails(subjectId: string | undefined | string[]) {
+  try {
+    const res = await fetch(
+      `/api/subjects/forum/helper?route=subjectDetails&subjectId=${subjectId}`
+    )
+    if (!res.ok) {
+      throw new Error("Failed to fetch subject details")
+    }
+    return res.json()
+  } catch (error) {
+    console.error("Error fetching subject details:", error)
+    throw error
+  }
+}
 
 export default function Home() {
   const [forums, setForums] = useState<Forum[]>([])
@@ -18,11 +34,11 @@ export default function Home() {
   const [isTagDialogOpen, setIsTagDialogOpen] = useState(false)
   const [isForumDialogOpen, setIsForumDialogOpen] = useState(false)
   const [forumName, setForumName] = useState<string>("")
-  const [forumTags, setForumTags] = useState<string[]>([])
   const [selectedTags, setSelectedTags] = useState<string[]>([])
-  const [departmentId, setDepartmentId] = useState<number | null>(null)
-  const [courseId, setCourseId] = useState<number | null>(null)
   const [isPrivate, setIsPrivate] = useState(false)
+  const [isSubmittingForumForm, setIsSubmittingForumForm] = useState(false)
+  const [isSubmittingForumTagForm, setIsSubmittingForumTagForm] =
+    useState(false)
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
 
   const { user } = useContext(UserContext)
@@ -352,6 +368,9 @@ export default function Home() {
   }
 
   const addTag = async () => {
+    if (isSubmittingForumTagForm) return // Prevent double submissions
+    setIsSubmittingForumTagForm(true)
+
     if (!subjectId || !tag.trim()) {
       alert("Subject ID or tag is missing!")
       return
@@ -368,34 +387,29 @@ export default function Home() {
 
       setTag("") // Clear the input
       setIsTagDialogOpen(false) // Close dialog
+      refetchSubjectDetails()
     } catch (error) {
       if (error) toast.error("error while creating tag")
+    } finally {
+      setIsSubmittingForumTagForm(false)
     }
   }
 
-  // Fetch forumTags, departmentId, and courseId from the subject table
-  useEffect(() => {
-    async function fetchSubjectDetails() {
-      try {
-        const res = await fetch(
-          `/api/subjects/forum/helper?route=subjectDetails&subjectId=${subjectId}`
-        )
-        if (!res.ok) console.log("Failed to fetch subject details")
+  const { data: subjectDetails, refetch: refetchSubjectDetails } = useQuery({
+    queryKey: ["subjectDetails", subjectId],
+    queryFn: () => fetchSubjectDetails(subjectId),
+    enabled: !!subjectId // Ensures query runs only when subjectId exists
+  })
 
-        const data = await res.json()
-        setForumTags(data.forumTags || [])
-        setDepartmentId(data.departmentId)
-        setCourseId(data.courseId)
-      } catch (error) {
-        if (error) console.log("Error fetching subject details")
-      }
-    }
-
-    fetchSubjectDetails()
-  }, [subjectId])
+  // Derived state from fetched data
+  const forumTags = subjectDetails?.forumTags || []
+  const departmentId = subjectDetails?.departmentId
+  const courseId = subjectDetails?.courseId
 
   // Handle forum creation
   const createForum = async () => {
+    if (isSubmittingForumForm) return // Prevent double submissions
+    setIsSubmittingForumForm(true)
     try {
       // Fetch the faculty data for the given courseId
       const facultyRes = await fetch(
@@ -444,6 +458,8 @@ export default function Home() {
       setIsForumDialogOpen(false) // Close dialog
     } catch (error) {
       if (error) toast.error("Error creating forum")
+    } finally {
+      setIsSubmittingForumForm(false)
     }
   }
 
@@ -486,6 +502,8 @@ export default function Home() {
               isPrivate={isPrivate}
               setForumName={setForumName}
               setIsPrivate={setIsPrivate}
+              isSubmittingForumForm={isSubmittingForumForm}
+              isSubmittingForumTagForm={isSubmittingForumTagForm}
             />
           </div>
         ) : (
@@ -507,9 +525,7 @@ export default function Home() {
       ) : (
         // Desktop view: Show Sidebar and Chatbox side by side
         <>
-          <div
-            className={`transition-all duration-300 h-[85vh] w-[30%] md:w-[25%]`}
-          >
+          <div className={`transition-all duration-300 h-[85vh] w-[35%]`}>
             <ForumSidebar
               forums={forums}
               selectedForumId={selectedForumId}
@@ -530,6 +546,8 @@ export default function Home() {
               isPrivate={isPrivate}
               setForumName={setForumName}
               setIsPrivate={setIsPrivate}
+              isSubmittingForumForm={isSubmittingForumForm}
+              isSubmittingForumTagForm={isSubmittingForumTagForm}
             />
           </div>
 
@@ -549,7 +567,7 @@ export default function Home() {
               />
             ) : (
               !isMobileView && (
-                <div className="h-[90vh]  rounded-lg flex items-center justify-center">
+                <div className="h-[90vh] rounded-lg flex items-center justify-center">
                   <div className="text-center">
                     <h2 className="text-xl font-semibold text-gray-600">
                       Please Select a Forum

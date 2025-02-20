@@ -25,9 +25,9 @@ export default function SubjectsPage() {
         </h1>
         <div className="h-full w-full flex flex-col gap-2">
           <StudentForm
-            courseId={user?.course.id}
-            departmentId={user?.departmentId}
-            universityId={user?.universityId}
+            courseId={Number(user?.courseId)}
+            departmentId={Number(user?.departmentId)}
+            universityId={Number(user?.universityId)}
             submitBtnId="student-submit"
             submitBtnLabel="Create Student"
           />

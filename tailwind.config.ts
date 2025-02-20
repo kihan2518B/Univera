@@ -65,6 +65,9 @@ const config: Config = {
         lamaYellow: "#FAE27C",
         lamaYellowLight: "#FEFCE8",
       },
+      screens: {
+        'small': '400px', // Add the custom breakpoint
+      },
       fontFamily: {
         glyphic: ["Faculty Glyphic", "sans-serif"],
         literata: ["Literata", "sans-serif"],

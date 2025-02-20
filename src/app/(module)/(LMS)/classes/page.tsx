@@ -47,7 +47,7 @@ export default function ClassesPage() {
     return (
       <div>
         <DepartmentClasses
-          departmentId={user?.Department?.id}
+          departmentId={String(user?.departmentId)}
           user={user}
           roles={roles}
         />
@@ -104,6 +104,9 @@ function Authority({ roles, user }: AuthorityProps) {
           My Classes
           <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4 ml-2">
             {isFClasserror && <>Failed to load your classes</>}
+            {FacultyClasses && FacultyClasses.length === 0 && (
+              <p>No classes found.</p>
+            )}
             {isFClassLoading ? (
               <>
                 {[...Array(8)].map((_, i) => (
@@ -126,6 +129,7 @@ function Authority({ roles, user }: AuthorityProps) {
         )}
       </div>
       <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4 ml-2">
+        {classes && classes.length === 0 && <p>No classes found.</p>}
         {isLoading ? (
           <>
             {[...Array(8)].map((_, i) => (
@@ -192,6 +196,7 @@ function FacultyClasses({ user, roles }: FacultyClassesProps) {
           {FacultyError && (
             <p>Failed to load your classes. Please try again later.</p>
           )}
+          {classes && classes.length === 0 && <p>No classes found.</p>}
           {isLoading ? (
             <>
               {[...Array(3)].map((_, i) => (
@@ -228,6 +233,9 @@ function FacultyClasses({ user, roles }: FacultyClassesProps) {
             <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4 ml-2">
               {isAuthorityError && (
                 <p>Failed to load course classes. Please try again later.</p>
+              )}
+              {AuthorityClasses && AuthorityClasses.length === 0 && (
+                <p>No classes found.</p>
               )}
               {isAuthorityClassesLoading ? (
                 <>

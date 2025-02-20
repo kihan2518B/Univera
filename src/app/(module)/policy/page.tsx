@@ -4,12 +4,13 @@ import { UserContext } from "@/context/user"
 import React, { useContext } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { ButtonV1 } from "@/components/(commnon)/ButtonV1"
-import { FilePlus, Loader2, RotateCcw } from "lucide-react"
+import { FilePlus, RotateCcw } from "lucide-react"
 import axios from "axios"
 import { Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs"
 import { TabsList } from "@radix-ui/react-tabs"
 import { useRouter } from "next/navigation"
 import PolicyCard from "./_components/PolicyCard"
+import { AnnouncementCardSkeleton } from "@/components/(commnon)/Skeleton"
 
 async function fetchPolicy(departmentId: string, universityId: string) {
   const response = await axios.get(
@@ -36,31 +37,10 @@ export default function PolicyPage() {
     isLoading
   } = useQuery({
     queryKey: ["fetchPolicies", user?.departmentId, user?.universityId],
-    queryFn: () => fetchPolicy(user?.departmentId, user?.universityId),
+    queryFn: () =>
+      fetchPolicy(String(user?.departmentId), String(user?.universityId)),
     enabled: !!user?.departmentId && !!user?.universityId
   })
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full w-full">
-        <>
-          <Loader2 size={16} className="animate-spin" />
-        </>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="text-red-500">
-        <p>Failed to load policy. Please try again later.</p>
-        <p className="text-sm text-gray-500">
-          {error?.message || "An unexpected error occurred."}
-        </p>
-        <ButtonV1 icon={RotateCcw} label="Retry" onClick={() => refetch()} />
-      </div>
-    )
-  }
 
   return (
     <div>
@@ -72,8 +52,8 @@ export default function PolicyPage() {
           {canCreatePolicy && (
             <button
               onClick={() => router.push("/policy/form")}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-lg text-ColorThree border border-ColorThree 
-            hover:bg-ColorThree hover:text-white transition-all duration-200 gap-2 group/create w-full sm:w-auto"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-lg text-ColorThree border border-ColorThree
+              hover:bg-ColorThree hover:text-white transition-all duration-200 gap-2 group/create w-full sm:w-auto"
             >
               <FilePlus
                 size={18}
@@ -84,9 +64,9 @@ export default function PolicyPage() {
           )}
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden py-4 px-0.5">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden p-4">
           <Tabs defaultValue="academic" className="w-full ">
-            <TabsList className="flex justify-between bg-lamaSkyLight rounded-lg mb-6 py-3 px-0.5">
+            <TabsList className="w-full flex justify-evenly bg-lamaSkyLight mb-6 px-1 py-1.5">
               {[
                 { value: "academic", label: "Academic" },
                 { value: "administrative", label: "Administrative" },
@@ -95,8 +75,8 @@ export default function PolicyPage() {
                 <TabsTrigger
                   key={tab.value}
                   value={tab.value}
-                  className="flex-1 data-[state=active]:bg-white data-[state=active]:text-ColorThree 
-                  data-[state=active]:shadow-sm text-TextTwo hover:text-ColorThree transition-colors text-sm md:text-base"
+                  className="flex-1 data-[state=active]:bg-white data-[state=active]:text-ColorThree
+                    data-[state=active]:shadow-sm text-TextTwo hover:text-ColorThree transition-colors text-xs sm:text-sm md:text-base py-1"
                 >
                   {tab.label}
                 </TabsTrigger>
@@ -109,8 +89,31 @@ export default function PolicyPage() {
                 value={tabValue}
                 className="space-y-2 max-h-[65vh] overflow-y-auto custom-scrollbar"
               >
-                {policy?.filter((a: any) => a.category === tabValue).length >
-                0 ? (
+                {error && (
+                  <div className="text-red-500">
+                    <p>Failed to load policy. Please try again later.</p>
+                    <p className="text-sm text-gray-500">
+                      {error?.message || "An unexpected error occurred."}
+                    </p>
+                    <ButtonV1
+                      icon={RotateCcw}
+                      label="Retry"
+                      onClick={() => refetch()}
+                    />
+                  </div>
+                )}
+
+                {isLoading ? (
+                  Array(2)
+                    .fill(0)
+                    .map((_, index) => (
+                      <AnnouncementCardSkeleton
+                        key={index}
+                        withSubjects={false}
+                      />
+                    ))
+                ) : policy?.filter((a: any) => a.category === tabValue).length >
+                  0 ? (
                   policy
                     .filter((a: any) => a.category === tabValue)
                     .map((policy: any) => (

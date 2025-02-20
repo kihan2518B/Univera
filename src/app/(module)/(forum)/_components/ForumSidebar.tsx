@@ -1,7 +1,14 @@
 import { Input } from "@/components/ui/input"
 import { ButtonV1, Submit } from "@/components/(commnon)/ButtonV1"
 import { MultiSelect } from "@/components/ui/MultiSelect"
-import { PlusCircle, MessageCircle, TagIcon, LockIcon, X } from "lucide-react"
+import {
+  PlusCircle,
+  MessageCircle,
+  TagIcon,
+  LockIcon,
+  X,
+  LogOut
+} from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -10,6 +17,7 @@ import {
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog"
+import Link from "next/link"
 
 interface ForumSidebarProps {
   forums: any[]
@@ -31,6 +39,8 @@ interface ForumSidebarProps {
   createForum: () => void
   isPrivate: boolean
   setIsPrivate: (value: boolean) => void
+  isSubmittingForumForm: boolean
+  isSubmittingForumTagForm: boolean
 }
 
 export const ForumSidebar = ({
@@ -52,7 +62,9 @@ export const ForumSidebar = ({
   createForum,
   selectedTags,
   isForumDialogOpen,
-  addTag
+  addTag,
+  isSubmittingForumForm,
+  isSubmittingForumTagForm
 }: ForumSidebarProps) => {
   const filteredForums = forums.filter(
     (forum) => !forum.isPrivate || (forum.isPrivate && userRole.includes(4)) // in this the forums filtered if isPrivate is true and userRole is faculty, if not then filtered if isPrivate is false
@@ -61,23 +73,32 @@ export const ForumSidebar = ({
   return (
     <div
       className={`transition-all duration-300 flex flex-col min-h-full bg-Primary text-white rounded-2xl shadow-2xl border-2 border-[#56E1E9]/20 overflow-hidden relative
-      w-full`}
+w-full`}
     >
       <div
-        className={`bg-[#5B58EB]/10 p-2 border-b border-[#56E1E9]/20 flex flex-row justify-between items-center`}
+        className={`bg-[#5B58EB]/10 p-1 border-b border-[#56E1E9]/20 flex flex-row justify-between items-center`}
       >
-        <div className="flex items-center">
-          <MessageCircle className="text-Dark w-5 h-5" />
-          <h2 className="text-lg md:text-xl font-bold text-Dark">Forums</h2>
+        <div className="flex items-center gap-1">
+          <Link href="/forum">
+            <p className="p-1 hover:bg-Dark/5 rounded-full transition-colors inline-flex items-center justify-center">
+              <LogOut className="w-5 h-5 text-Dark rotate-180" />
+            </p>
+          </Link>
+          <h2 className="text-xl font-bold text-Dark">Forums</h2>
         </div>
 
         {userRole.includes(4) && (
-          <Dialog open={isForumDialogOpen} onOpenChange={setIsForumDialogOpen}>
+          <Dialog
+            open={isForumDialogOpen}
+            onOpenChange={(isOpen) => {
+              setIsForumDialogOpen(isOpen)
+            }}
+          >
             <DialogTrigger asChild>
               <button
-                className={`bg-Dark text-white p-1.5 flex justify-evenly items-center rounded-full hover:bg-[#5B58EB] transition-colors shadow-md`}
+                className={`bg-Dark text-white p-1 flex justify-evenly items-center rounded-full hover:bg-[#5B58EB] transition-colors shadow-md`}
               >
-                <PlusCircle className="w-5 h-5" />
+                <PlusCircle className="w-6 h-6" />
               </button>
             </DialogTrigger>
 
@@ -98,13 +119,22 @@ export const ForumSidebar = ({
                   className="border-2 border-[#56E1E9] rounded-lg p-3 focus:ring-2 focus:ring-[#BB63FF] transition-all"
                 />
 
-                <MultiSelect
-                  options={forumTags.map((tag) => ({ label: tag, value: tag }))}
-                  selected={selectedTags}
-                  onChange={setSelectedTags}
-                  placeholder="Select Tags"
-                  className="border-2 border-[#56E1E9] rounded-lg"
-                />
+                {forumTags.length > 0 ? (
+                  <MultiSelect
+                    options={forumTags.map((tag) => ({
+                      label: tag,
+                      value: tag
+                    }))}
+                    selected={selectedTags}
+                    onChange={setSelectedTags}
+                    placeholder="Select Tags"
+                    className="border-2 border-[#56E1E9] rounded-lg"
+                  />
+                ) : (
+                  <p className="text-red-500 text-sm">
+                    Minimum one tag is required to create a forum.
+                  </p>
+                )}
 
                 <label className="flex items-center gap-3 text-[#0A2353] hover:bg-[#CFCEFF]/20 p-2 rounded-lg transition-colors cursor-pointer">
                   <input
@@ -123,6 +153,11 @@ export const ForumSidebar = ({
                   onClick={createForum}
                   icon={PlusCircle}
                   label="Create Forum"
+                  disabled={
+                    !forumName ||
+                    selectedTags.length === 0 ||
+                    isSubmittingForumForm // Disable until conditions are met
+                  }
                   className="w-full bg-[#0A2353] text-white rounded-lg hover:bg-[#5B58EB] transition-colors shadow-md flex items-center justify-center gap-2"
                 />
                 <ButtonV1
@@ -171,7 +206,7 @@ export const ForumSidebar = ({
                   label="Create Tag"
                   className="w-full py-3 bg-[#0A2353] text-white rounded-lg hover:bg-[#5B58EB] transition-colors flex items-center justify-center gap-2.5 shadow-md"
                   onClick={addTag}
-                  disabled={!tag.trim()}
+                  disabled={!tag.trim() || isSubmittingForumTagForm}
                 >
                   <TagIcon className="w-5 h-5" />
                   Create Tag

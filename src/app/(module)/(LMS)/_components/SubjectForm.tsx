@@ -14,7 +14,7 @@ interface SubjectFormProps {
   courseName: string | null | undefined
   courseId: number | null
   departmentName: string
-  department: Department
+  department: Department | null | undefined
   subject?: Subject
   submitBtnId?: string
   submitBtnLabel?: string

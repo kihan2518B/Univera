@@ -1,9 +1,9 @@
-"use client"
+import ClassTimeTable from "./_components/ClassTimeTable"
 
-export default function ClassTimeTablePage() {
+export default function TimeTablePage() {
   return (
     <div>
-      <h1>Time Table</h1>
+      <ClassTimeTable isMyClass={true} />
     </div>
   )
 }

@@ -7,7 +7,7 @@ export default function Page() {
   const { user } = useContext(UserContext)
   return (
     <div className=" h-full w-full">
-      <CreateDepartment universityId={user?.university.id} />
+      <CreateDepartment universityId={Number(user?.universityId)} />
     </div>
   )
 }

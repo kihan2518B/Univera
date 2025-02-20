@@ -25,9 +25,9 @@ export default function AdminUsersPage() {
     isLoading,
     isError
   } = useQuery({
-    queryKey: ["users", user?.Department.id],
-    queryFn: () => fetchDepartment(user?.Department.id),
-    enabled: !!user?.Department.id
+    queryKey: ["users", user?.departmentId],
+    queryFn: () => fetchDepartment(Number(user?.departmentId)),
+    enabled: !!user?.departmentId
   })
   return (
     <Container>

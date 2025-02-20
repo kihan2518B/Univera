@@ -44,19 +44,9 @@ const CoursesPage: React.FC = () => {
     isLoading
   } = useQuery({
     queryKey: ["subjects", user?.courseId],
-    queryFn: () => fetchSubjects(user?.courseId),
+    queryFn: () => fetchSubjects(String(user?.courseId)),
     enabled: !!user?.courseId && !!user
   })
-
-  // if (isLoading) {
-  //   return (
-  //     <div className="flex items-center justify-center h-full w-full">
-  //       <>
-  //         <Loader2 size={16} className="animate-spin" />
-  //       </>
-  //     </div>
-  //   )
-  // }
 
   if (error) {
     return (

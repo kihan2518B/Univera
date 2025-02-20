@@ -2,7 +2,6 @@ import { Subject } from "@prisma/client"
 import React from "react"
 
 interface SubjectCardProps {
-  courseId: number
   subject: Subject
 }
 

@@ -46,8 +46,8 @@ const TeacherListPage = () => {
   const userRoles = user?.roles.map((r: Role) => r.id)
   const { data, error, isLoading, refetch } = useQuery({
     queryKey: ["department"],
-    queryFn: () => fetchDepartment(user?.departmentAdmin.id),
-    enabled: !!user?.departmentAdmin.id
+    queryFn: () => fetchDepartment(Number(user?.departmentId)),
+    enabled: !!user?.departmentId
   })
 
   if (isLoading) {

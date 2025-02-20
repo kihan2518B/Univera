@@ -120,14 +120,14 @@ model Faculty {
   university     University   @relation(fields: [universityId], references: [id])
   forumModerator Forum[]
   students       Student[]
-  timeTable      TimeTable[]  @relation("FacultyToAttendance")
-  proxyTimeTable TimeTable[]  @relation("ProxyToAttendance")
+  slots          Slot[]       @relation("FacultyToLecture")
+  proxySlots     Slot[]       @relation("ProxyToSlot")
   subject        Subject[]    @relation("faculty_to_Subject")
 }
 
 model Student {
   id            String       @id @unique
-  prn           String?
+  prn           String
   year          Int
   semester      Int
   guardianEmail String?
@@ -261,7 +261,7 @@ model Subject {
   department   Department   @relation(fields: [departmentId], references: [id])
   result       Result?      @relation(fields: [resultId], references: [id])
   university   University   @relation(fields: [universityId], references: [id])
-  timeTable    TimeTable[]
+  slots        Slot[]
   classes      Class[]      @relation("class_to_Subject")
   faculties    Faculty[]    @relation("faculty_to_Subject")
 }
@@ -269,11 +269,11 @@ model Subject {
 model Attendance {
   id           Int        @id @unique @default(autoincrement())
   rollNo       Int
-  studentId    String     
+  studentId    String
   facultyId    String
   semester     Int
   date         String
-  status       String    
+  status       String
   slotId       Int
   subjectId    Int
   courseId     Int
@@ -290,13 +290,14 @@ model Attendance {
   subject      Subject    @relation(fields: [subjectId], references: [id])
   university   University @relation(fields: [universityId], references: [id])
 
-  @@unique([studentId, classId, date]) //for update attendance this should be unique
+  @@unique([studentId, classId, date]) // Composite unique constraint
 }
 
 model Submission {
   id           Int        @id @unique @default(autoincrement())
   studentId    String
   assignmentId Int
+  studentName  String
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @default(now())
   assignment   Assignment @relation(fields: [assignmentId], references: [id])
@@ -306,10 +307,13 @@ model Submission {
 model Assignment {
   id             Int          @id @unique @default(autoincrement())
   title          String
-  deadline       DateTime     @default(now())
+  startDate      String
+  deadline       String
   attachmentUrl  String
-  assignmentType String       @default("tutorial")
+  tag            String[]     @default(["IMP"])
+  assignmentType String       @default("TUTORIAL")
   subjectId      Int
+  AuthorName     String
   facultyId      String
   courseId       Int
   classId        Int?
@@ -416,20 +420,20 @@ model Forum {
 }
 
 model Announcement {
-  id           Int      @id @default(autoincrement())
-  title        String
-  description  String?
-  date         DateTime @default(now())
-  attachments  Json[]
-  announcerId  String
-  category     String
-  departmentId Int
-  universityId Int
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String?
+  date          DateTime @default(now())
+  attachments   Json[]
+  announcerId   String
+  category      String
+  departmentId  Int
+  universityId  Int
   announcerName String
-  classId      Int?
-  subjectName  String[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
+  classId       Int?
+  subjectName   String[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
 
   announcer  User       @relation(fields: [announcerId], references: [clerkId])
   department Department @relation(fields: [departmentId], references: [id])
@@ -438,23 +442,37 @@ model Announcement {
 
 model TimeTable {
   id           Int        @id @default(autoincrement())
-  day          String
-  fromTime     String
-  toTime       String
-  subjectId    Int
   courseId     Int
-  classId      Int
+  classId      Int        @unique
   departmentId Int
-  facultyId    String
-  lecturerId   String?
+  slots        Slot[]
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @default(now())
   class        Class      @relation(fields: [classId], references: [id])
   course       Course     @relation(fields: [courseId], references: [id])
   department   Department @relation(fields: [departmentId], references: [id])
-  facuty       Faculty    @relation("FacultyToAttendance", fields: [facultyId], references: [clerkId])
-  lecturer     Faculty?   @relation("ProxyToAttendance", fields: [lecturerId], references: [clerkId])
-  subject      Subject    @relation(fields: [subjectId], references: [id])
+}
+
+model Slot {
+  id           Int        @id @default(autoincrement())
+  timeTableId  Int
+  day          String
+  fromTime     String
+  toTime       String
+  subjectId    Int?
+  title        String
+  courseId     Int
+  classId      Int
+  departmentId Int
+  facultyId    String?
+  lecturerId   String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @default(now()) 
+
+  facuty       Faculty?    @relation("FacultyToLecture", fields: [facultyId], references: [clerkId])
+  lecturer     Faculty?   @relation("ProxyToSlot", fields: [lecturerId], references: [clerkId])
+  subject      Subject?    @relation(fields: [subjectId], references: [id])
+  timetable    TimeTable  @relation(fields: [timeTableId], references: [id])
 }
 
 model Event {
@@ -474,23 +492,23 @@ model Event {
 }
 
 model Policy {
-  id             Int       @id @default(autoincrement())
-  title          String
-  description    String?
-  attachments    Json[]    
-  category       String    
-  effectiveDate  String  
-  expiryDate     String?
-  departmentId   Int
-  universityId   Int
-  authorId       String
-  authorName     String
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @default(now())
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String?
+  attachments   Json[]
+  category      String
+  effectiveDate String
+  expiryDate    String?
+  departmentId  Int
+  universityId  Int
+  authorId      String
+  authorName    String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
 
-  sharedBy       User       @relation(fields: [authorId], references: [clerkId])
-  department     Department @relation(fields: [departmentId], references: [id])
-  university     University @relation(fields: [universityId], references: [id])
+  sharedBy   User       @relation(fields: [authorId], references: [clerkId])
+  department Department @relation(fields: [departmentId], references: [id])
+  university University @relation(fields: [universityId], references: [id])
 }
 
 // This is your Prisma schema file,
@@ -498,7 +516,6 @@ model Policy {
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 
 model LeaveType {
   id          String   @id @default(cuid())
@@ -518,7 +535,7 @@ enum LeaveStatus {
 model Leave {
   id            String      @id @default(cuid())
   type          String
-  year          String @default("")
+  year          String      @default("")
   startDate     String
   endDate       String
   days          Int
@@ -528,8 +545,8 @@ model Leave {
   userEmail     String
   status        LeaveStatus @default(PENDING)
   moderatorNote String?
-  updatedBy String?
-  moderator     User[] @relation("moderator_to_leave")
+  updatedBy     String?
+  moderator     User[]      @relation("moderator_to_leave")
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @default(now())
 }
@@ -543,28 +560,28 @@ model Balances {
   healthCredit       Int?   @default(0)
   healthUsed         Int?   @default(0)
   healthAvailable    Int?   @default(0)
-  casualCredit        Int?   @default(0)
-  casualUsed          Int?   @default(0)
-  casualAvailable     Int?   @default(0)
+  casualCredit       Int?   @default(0)
+  casualUsed         Int?   @default(0)
+  casualAvailable    Int?   @default(0)
   maternityCredit    Int?   @default(0)
   maternityUsed      Int?   @default(0)
   maternityAvailable Int?   @default(0)
-  specialCredit       Int?   @default(0)
-  specialUsed         Int?   @default(0)
-  specialAvailable    Int?   @default(0)
+  specialCredit      Int?   @default(0)
+  specialUsed        Int?   @default(0)
+  specialAvailable   Int?   @default(0)
   paternityCredit    Int?   @default(0)
   paternityUsed      Int?   @default(0)
   paternityAvailable Int?   @default(0)
   unpaidCredit       Int?   @default(0)
   unpaidUsed         Int?   @default(0)
-  unpaidAvailable        Int?   @default(0)
+  unpaidAvailable    Int?   @default(0)
   name               String
   email              String @unique
   user               User   @relation(fields: [email], references: [email], onDelete: Cascade)
 }
 
 model Events {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
   description String?
   startDate   DateTime

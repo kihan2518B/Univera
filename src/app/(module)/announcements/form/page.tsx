@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useUploadThing } from "@/utils/uploadthing"
 import { UploadthingUploader } from "@/components/(commnon)/UploadthingUploader"
+import { AnnouncementFormSkeleton } from "@/components/(commnon)/Skeleton"
 
 interface FileWithPreview extends File {
   preview?: string
@@ -41,15 +42,10 @@ export default function CreateAnnouncement() {
 
   const { data: subjects, isLoading: subjectsLoading } = useQuery({
     queryKey: ["subjects", user?.courseId, classId, roles],
-    queryFn: () => fetchSubjects(user?.courseId as string),
+    queryFn: () => fetchSubjects(String(user?.courseId)),
     enabled:
       (!!user?.courseId && !!classId && roles.includes(4)) || !!announcementId
   })
-
-  console.log("subjects: ", subjects)
-  console.log("classId: ", classId)
-  console.log("roles.includes(4)", roles.includes(4))
-  console.log("selectedSubjects: ", selectedSubjects)
 
   useEffect(() => {
     const fetchAnnouncementDetails = async () => {
@@ -229,15 +225,7 @@ export default function CreateAnnouncement() {
     }
   }
 
-  if (isLoading || subjectsLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="animate-spin" size={32} />
-      </div>
-    )
-  }
-
-  console.log("files: ", files)
+  if (isLoading || subjectsLoading) return <AnnouncementFormSkeleton />
 
   return (
     <div className="min-h-screen p-4">
@@ -332,7 +320,7 @@ export default function CreateAnnouncement() {
             />
           </div>
 
-          {roles.includes(4) && !subjectsLoading && subjects && (
+          {roles.includes(4) && !subjectsLoading && subjects && classId && (
             <div>
               <label className="block text-sm font-semibold text-TextTwo mb-3">
                 Select Subjects

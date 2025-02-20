@@ -29,7 +29,7 @@ export default function Portal() {
 
   const { data, refetch, isError, isLoading } = useQuery({
     queryKey: ["yBalance", "yEvents"],
-    queryFn: () => GetUserBalances(user?.email),
+    queryFn: () => GetUserBalances(String(user?.email)),
     enabled: !!user?.email
   })
 

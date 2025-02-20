@@ -1,4 +1,4 @@
-//post route for teacher
+//post route for student
 import { NextResponse } from "next/server"
 import { createUser } from "@/utils/clerk"
 import prisma from "@/lib/prisma"
@@ -46,16 +46,20 @@ export async function POST(req: Request) {
     ) {
       throw new Error("All fields are required")
     }
-    const existingStudent = await prisma.student.findFirst({
+    let existingStudent
+    existingStudent = await prisma.student.findFirst({
       where: { prn: prn }
+    })
+    existingStudent = await prisma.student.findFirst({
+      where: { rollNo, courseId, semester }
     })
     if (existingStudent) {
       return NextResponse.json(
-        { message: "Student with this PRN already exists" },
+        { message: "Student with this PRN or Rollnumber already exists" },
         { status: 400 }
       )
     }
-    //creating a clerk teacher
+    //creating a clerk student
     const user = await createUser({
       name: name,
       email: email,

@@ -64,6 +64,7 @@ export async function createUser({
             name,
             email,
             phone,
+            imageUrl: user.imageUrl,
             departmentId: Number(departmentId) ?? null,
             universityId: Number(universityId),
             courseId: Number(courseId),
@@ -86,6 +87,7 @@ export async function createUser({
           name,
           email,
           phone,
+          imageUrl: user.imageUrl,
           departmentId: departmentId ?? null,
           universityId: universityId,
           roles: {
@@ -99,14 +101,14 @@ export async function createUser({
 
       return prismaUser
     } else {
-      console.log(roleIds)
       // Update existing Prisma user
       const updatedPrismaUser = await prisma.user.update({
         where: { id: user.id },
         data: {
           roles: {
             connect: roleIds.map((id) => ({ id }))
-          }
+          },
+          courseId: Number(courseId)
         }
       })
 

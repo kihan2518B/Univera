@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation"
 import "react-loading-skeleton/dist/skeleton.css"
 import { useState } from "react"
 import { Prisma } from "@prisma/client"
+import { CourseFormSkeleton } from "@/components/(commnon)/Skeleton"
+import { Loader2 } from "lucide-react"
 
 type StudentWithRelations = Prisma.StudentGetPayload<{
   include: {
@@ -22,6 +24,8 @@ interface StudentFormProps {
   departmentId: number
   universityId: number
   refetch?: () => void
+  isLoading?: boolean
+  isError?: boolean
 }
 
 export default function StudentForm({
@@ -32,7 +36,9 @@ export default function StudentForm({
   courseId,
   departmentId,
   universityId,
-  refetch
+  refetch,
+  isLoading,
+  isError
 }: StudentFormProps) {
   const [name, setName] = useState<string>(student?.user.name ?? "")
   const [email, setEmail] = useState<string>(student?.user.email ?? "")
@@ -40,14 +46,16 @@ export default function StudentForm({
   const [rollno, setRollNo] = useState<number>(student?.rollNo ?? 0)
   const [prn, setPRN] = useState<string>(student?.prn ?? "")
   const [semester, setSemester] = useState<number>(student?.semester ?? 0)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const buttonId = (e.nativeEvent as SubmitEvent).submitter?.id
+    setIsSubmitting(true)
 
-    if (buttonId == "student-submit") {
-      try {
+    try {
+      if (buttonId == "student-submit") {
         const createFormData = {
           name: name,
           email: email,
@@ -67,17 +75,10 @@ export default function StudentForm({
         } else {
           toast.error(res.data.message)
         }
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-          toast.error(error.response.data.message || "Something went wrong")
-        } else {
-          toast.error("An unexpected error occurred")
-        }
-      }
-    } else if (buttonId == "student-update") {
-      try {
+      } else if (buttonId == "student-update") {
         const updatedStudent = {
           rollNo: Number(rollno),
+          courseId,
           prn: prn,
           semester: Number(semester)
         }
@@ -92,95 +93,156 @@ export default function StudentForm({
         } else {
           toast.error(res.data.message)
         }
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-          toast.error(error.response.data.message || "Something went wrong")
-        } else {
-          toast.error("An unexpected error occurred")
-        }
       }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data.message || "Something went wrong")
+      } else {
+        toast.error("An unexpected error occurred")
+      }
+    } finally {
+      setIsSubmitting(false)
     }
   }
+
+  const inputClasses =
+    "h-10 w-full rounded-lg bg-white border-2 border-gray-200 px-3 py-2 text-sm ring-offset-white transition-colors placeholder:text-gray-500 focus:border-ColorThree focus:outline-none focus:ring-2 focus:ring-ColorThree/20 disabled:cursor-not-allowed disabled:opacity-50"
+  const labelClasses = "text-sm font-medium text-TextTwo mb-1.5 block"
+
   return (
-    <form className="mt-8 max-w-2xl" onSubmit={handleSubmit}>
-      <div
-        className="grid items-start gap-2"
-        // style={{ gridTemplateColumns: '.3fr .7fr' }}
-      >
-        <label className="text-sm">Full Name</label>
-        <input
-          value={name}
-          disabled={!!isEditable}
-          className="placeholder-transparent h-10 w-full bg-gray-200 rounded-lg border-gray-300 text-gray-900 p-1 mb-4"
-          type="text"
-          onChange={(e) => {
-            setName(e.target.value)
-          }}
-        />
-
-        <label className="text-sm">College Email</label>
-        <input
-          disabled={!!isEditable}
-          value={email}
-          className="placeholder-transparent h-10 w-full bg-gray-200 rounded-lg border-gray-300 text-gray-900 p-1 mb-4"
-          type="text"
-          onChange={(e) => {
-            setEmail(e.target.value)
-          }}
-        />
-
-        {!isEditable && (
-          <div className="">
-            <label className="text-sm">Password</label>
-            <input
-              value={password}
-              className="placeholder-transparent h-10 w-full bg-gray-200 rounded-lg border-gray-300 text-gray-900 p-1 mb-4"
-              type="text"
-              onChange={(e) => {
-                setPassword(e.target.value)
-              }}
-            />
+    <div className="w-full max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+      {isError && (
+        <div className="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 rounded-lg mb-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <svg
+                className="h-5 w-5 text-red-400"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium">
+                Something went wrong. Please try again.
+              </p>
+            </div>
           </div>
-        )}
+        </div>
+      )}
 
-        <label className="text-sm">Roll No</label>
-        <input
-          value={rollno}
-          className="placeholder-transparent h-10 w-full bg-gray-200 rounded-lg border-gray-300 text-gray-900 p-1 mb-4"
-          type="number"
-          onChange={(e) => {
-            setRollNo(Number(e.target.value))
-          }}
-        />
+      {isLoading ? (
+        <CourseFormSkeleton />
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-4">
+            <div>
+              <label className={labelClasses}>Full Name</label>
+              <input
+                value={name}
+                disabled={!!isEditable || isSubmitting}
+                className={inputClasses}
+                type="text"
+                placeholder="Enter full name"
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
 
-        <label className="text-sm">PRN</label>
-        <input
-          value={prn}
-          className="placeholder-transparent h-10 w-full bg-gray-200 rounded-lg border-gray-300 text-gray-900 p-1 mb-4"
-          type="text"
-          onChange={(e) => {
-            setPRN(e.target.value)
-          }}
-        />
+            <div>
+              <label className={labelClasses}>College Email</label>
+              <input
+                value={email}
+                disabled={!!isEditable || isSubmitting}
+                className={inputClasses}
+                type="email"
+                placeholder="Enter college email"
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
 
-        <label className="text-sm">Semester</label>
-        <input
-          value={semester}
-          className="placeholder-transparent h-10 w-full bg-gray-200 rounded-lg border-gray-300 text-gray-900 p-1 mb-4"
-          type="number"
-          onChange={(e) => {
-            setSemester(Number(e.target.value))
-          }}
-        />
+            {!isEditable && (
+              <div>
+                <label className={labelClasses}>Password</label>
+                <input
+                  value={password}
+                  disabled={isSubmitting}
+                  className={inputClasses}
+                  type="password"
+                  placeholder="Enter password"
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+            )}
 
-        <button
-          id={submitBtnId ?? "submit"}
-          type="submit"
-          className="bg-Primary text-white w-full mt-4 hover:bg-blue-500 rounded-lg px-4 py-2"
-        >
-          {submitBtnLabel}
-        </button>
-      </div>
-    </form>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelClasses}>Roll No</label>
+                <input
+                  value={rollno}
+                  disabled={isSubmitting}
+                  className={inputClasses}
+                  type="number"
+                  placeholder="Enter roll number"
+                  onChange={(e) => setRollNo(Number(e.target.value))}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className={labelClasses}>PRN</label>
+                <input
+                  value={prn}
+                  disabled={isSubmitting}
+                  className={inputClasses}
+                  type="text"
+                  placeholder="Enter PRN"
+                  onChange={(e) => setPRN(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className={labelClasses}>Semester</label>
+              <input
+                value={semester}
+                disabled={isSubmitting}
+                className={inputClasses}
+                type="number"
+                min="1"
+                max="8"
+                placeholder="Enter semester"
+                onChange={(e) => setSemester(Number(e.target.value))}
+                required
+              />
+            </div>
+          </div>
+
+          <button
+            id={submitBtnId ?? "submit"}
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full h-11 px-8 flex items-center justify-center font-medium rounded-lg text-white bg-gradient-to-r from-ColorThree to-ColorTwo hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ColorThree/20 disabled:opacity-70 transition-all duration-200"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                {isEditable ? "Updating..." : "Creating..."}
+              </>
+            ) : (
+              (submitBtnLabel ?? "Submit")
+            )}
+          </button>
+        </form>
+      )}
+    </div>
   )
 }

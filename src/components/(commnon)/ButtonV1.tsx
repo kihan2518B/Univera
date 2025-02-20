@@ -24,14 +24,16 @@ export function ButtonV1({
 }: ButtonV1Props) {
   if (varient == "primary") {
     const primaryButtonClasses = clsx(
-      "py-2 pl-2 pr-3 text-white bg-Dark rounded-lg flex gap-1.5 items-center transition-all duration-300 ease-in-out hover:bg-[#1A3E99] hover:-translate-y-px hover:shadow-lg",
+      "py-2 pl-2 pr-3 text-white bg-Dark cursor-pointer rounded-lg flex gap-1.5 items-center transition-all duration-300 ease-in-out hover:bg-[#1A3E99] hover:shadow-lg group",
       props.className
     )
 
     if (href) {
       return (
         <Link href={href} className={primaryButtonClasses}>
-          {Icon && <Icon className="w-5 h-5" />}
+          {Icon && (
+            <Icon className="w-5 h-5 transition-transform group-hover:rotate-12" />
+          )}
           {label && <p>{label}</p>}
         </Link>
       )
@@ -44,20 +46,24 @@ export function ButtonV1({
         className={primaryButtonClasses}
       >
         {loading && <Loader />}
-        {!loading && Icon && <Icon className="w-5 h-5" />}
+        {!loading && Icon && (
+          <Icon className="w-5 h-5 transition-transform group-hover:rotate-12" />
+        )}
         {!loading && label && <p>{label}</p>}
       </Button>
     )
   } else if (varient == "outline") {
     const primaryButtonClasses = clsx(
-      "py-2 pl-2 pr-3 text-Dark border-2 rounded-lg border-Dark bg-transparent text-Dark flex gap-1.5 items-center transition-all duration-300 ease-in-out hover:text-white hover:bg-[#1A3E99] hover:shadow-lg",
+      "py-2 pl-2 pr-3 text-Dark border-2 cursor-pointer rounded-lg border-Dark bg-transparent text-Dark flex gap-1.5 group items-center transition-all duration-300 ease-in-out hover:text-white hover:bg-[#1A3E99] hover:shadow-lg",
       props.className
     )
 
     if (href) {
       return (
         <Link href={href} className={primaryButtonClasses}>
-          {Icon && <Icon className="w-5 h-5" />}
+          {Icon && (
+            <Icon className="w-5 h-5 transition-transform group-hover:rotate-12" />
+          )}
           {label && <p>{label}</p>}
         </Link>
       )
@@ -70,7 +76,9 @@ export function ButtonV1({
         className={primaryButtonClasses}
       >
         {loading && <Loader />}
-        {!loading && Icon && <Icon className="w-5 h-5" />}
+        {!loading && Icon && (
+          <Icon className="w-5 h-5 transition-transform group-hover:rotate-12" />
+        )}
         {!loading && label && <p>{label}</p>}
       </Button>
     )
@@ -92,7 +100,7 @@ export function Submit({
 }: SubmitButtonProps) {
   // clsx function intelligently merges class names and ensures that user-provided
   const buttonClasses = clsx(
-    "py-2 pl-2 pr-3 text-white bg-[#112C71] rounded-md flex gap-1.5 items-center transition-all duration-300 ease-in-out hover:bg-[#1A3E99] hover:scale-105 hover:shadow-lg",
+    "py-2 pl-2 pr-3 text-white bg-[#112C71] cursor-pointer rounded-md flex gap-1.5 group items-center transition-all duration-300 ease-in-out hover:bg-[#1A3E99] hover:scale-105 hover:shadow-lg",
     props.className
   )
 
@@ -104,7 +112,14 @@ export function Submit({
       disabled={disabled || loading}
       className={buttonClasses}
     >
-      {loading ? <Loader /> : <Send size={20} />}
+      {loading ? (
+        <Loader />
+      ) : (
+        <Send
+          size={20}
+          className="transition-transform group-hover:rotate-12"
+        />
+      )}
       {label && <p>{label}</p>}
     </Button>
   )

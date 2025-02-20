@@ -67,7 +67,7 @@ const AttendanceDashboard = () => {
 
   const { data: classes, isLoading: classesLoading } = useQuery({
     queryKey: ["classes", courseId, user?.id],
-    queryFn: () => fetchClasses(courseId),
+    queryFn: () => fetchClasses(Number(courseId)),
     enabled: !!courseId && !!user?.id
   })
 

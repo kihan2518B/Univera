@@ -32,6 +32,12 @@ export default function ClassStudents({
   const [removing, setRemoving] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
 
+  if (!Students) {
+    return null
+  }
+  if (Students.length === 0) {
+    return <>No students data found. Add some</>
+  }
   const assignedStudents = Students.filter(
     (student: Student) => student.classId === classId
   )

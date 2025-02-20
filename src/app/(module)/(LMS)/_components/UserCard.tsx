@@ -54,7 +54,7 @@ export default function UserCard({
         <div className="flex-shrink-0">
           <div className="relative h-32 w-32 rounded-full overflow-hidden shadow-xl border-4 border-white">
             <Image
-              src={"/user.jpg"}
+              src={`${User?.imageUrl || "/user.jpg"}`}
               className="object-cover transition-transform duration-300 hover:scale-105"
               fill
               alt={User?.name || "Profile"}

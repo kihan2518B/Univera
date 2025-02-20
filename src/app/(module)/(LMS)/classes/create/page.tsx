@@ -6,16 +6,17 @@ import ClassForm from "../../_components/ClassForm"
 import { UserContext } from "@/context/user"
 import { useQuery } from "@tanstack/react-query"
 import { fetchCourses } from "../../_helper"
+import { CourseFormSkeleton } from "@/components/(commnon)/Skeleton"
 
 export default function CreateClassPage() {
   const { user } = useContext(UserContext)
   const { data: courses, isLoading } = useQuery({
-    queryKey: ["courses", user?.Department.id, user?.id],
-    queryFn: () => fetchCourses(user?.Department.id, user?.id as string),
+    queryKey: ["courses", user?.departmentId, user?.id],
+    queryFn: () => fetchCourses(String(user?.departmentId), user?.id as string),
     enabled: !!user?.Department?.id && !!user?.id
   })
 
-  const courseId = user?.faculty.courseId || (user?.course.id as number)
+  const courseId = user?.faculty?.courseId || (user?.courseId as number)
 
   return (
     <section className="mt-8 max-w-lg mx-auto">
@@ -28,13 +29,13 @@ export default function CreateClassPage() {
           Back
         </Link>
       </div>
-      {isLoading && <p>Loading...</p>}
+      {isLoading && <CourseFormSkeleton />}
       {courses && (
         <ClassForm
           courseId={courseId}
           courses={courses}
-          departmentId={user?.Department.id}
-          universityId={user?.Department.universityId}
+          departmentId={Number(user?.departmentId)}
+          universityId={Number(user?.universityId)}
         />
       )}
     </section>

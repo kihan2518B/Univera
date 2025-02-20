@@ -6,7 +6,6 @@ import React, { useContext } from "react"
 import axios from "axios"
 import { RotateCcw } from "lucide-react"
 import { ButtonV1 } from "@/components/(commnon)/ButtonV1"
-import { CourseFormSkeleton } from "@/components/(commnon)/Skeleton"
 import { ClassEditForm } from "../../../_components/ClassEditForm"
 
 async function fetchClassById(classId: number) {
@@ -40,17 +39,14 @@ export default function ClassEditPage() {
       </div>
     )
   }
-  if (isLoading)
-    return (
-      <div className="h-full w-full">
-        <CourseFormSkeleton />
-      </div>
-    )
   return (
     <div>
-      {Class && (
-        <ClassEditForm defaults={Class} user={user} classId={classId} />
-      )}
+      <ClassEditForm
+        defaults={Class}
+        isLoading={isLoading}
+        user={user}
+        classId={classId}
+      />
     </div>
   )
 }

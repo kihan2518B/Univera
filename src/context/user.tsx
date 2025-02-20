@@ -10,15 +10,21 @@ import { useUser } from "@clerk/nextjs"
 import { useQuery } from "@tanstack/react-query"
 import { RotateCcw } from "lucide-react"
 import { ButtonV1 } from "@/components/(commnon)/ButtonV1"
+import { Prisma } from "@prisma/client"
 
-interface User {
-  id: string
-  role: { id: number; roleName: string }[]
-  [key: string]: any
-}
+type UserWithRelations = Prisma.UserGetPayload<{
+  include: {
+    course: true
+    faculty: true
+    student: true
+    roles: true
+    university: true
+    Department: true
+  }
+}>
 
 interface UserContextType {
-  user: User | null
+  user: UserWithRelations | null
   dispatch: React.Dispatch<any>
 }
 
@@ -28,8 +34,8 @@ export const UserContext = createContext<UserContextType>({
 })
 
 const UserReducer = (
-  state: User | null,
-  action: { type: string; user: User | null }
+  state: UserWithRelations | null,
+  action: { type: string; user: UserWithRelations | null }
 ) => {
   switch (action.type) {
     case "SET_USER":
@@ -87,7 +93,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     [state, dispatch]
   )
   if (!isClient) return null // Avoid rendering on the server
-  if (isLoading) return <div>Loading...</div>
+  if (isLoading || !data) return <div>Loading...</div>
 
   if (fetchError)
     return (

@@ -5,7 +5,7 @@ import { UserContext } from "@/context/user"
 import axios from "axios"
 
 import { CourseCard } from "../_components/CourseCard"
-import { CoursesSkeleton } from "@/components/(commnon)/Skeleton"
+import { ClassesCardSkeleton } from "@/components/(commnon)/Skeleton"
 import { Input } from "@/components/ui/input"
 
 import { useQuery } from "@tanstack/react-query"
@@ -30,7 +30,8 @@ const SubjectPage = () => {
     isLoading
   } = useQuery({
     queryKey: ["courses", user?.Department?.id, user?.id],
-    queryFn: () => fetchCourses(user?.Department?.id || "", user?.id || ""),
+    queryFn: () =>
+      fetchCourses(String(user?.departmentId) || "", user?.id || ""),
     enabled: !!user?.Department?.id && !!user?.id
   })
   const filteredCourses = courses.filter((course: any) =>
@@ -38,7 +39,13 @@ const SubjectPage = () => {
   )
 
   if (isLoading) {
-    return <CoursesSkeleton />
+    return (
+      <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4 ml-2">
+        {[...Array(5)].map((_, i) => (
+          <ClassesCardSkeleton key={i} />
+        ))}
+      </div>
+    )
   }
 
   if (error) {

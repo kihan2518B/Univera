@@ -48,3 +48,84 @@ export type Student = {
   id: string
   checked: boolean
 }
+
+export type TruncatedTextProps = {
+  text: string
+  className?: string
+}
+
+export type SelectedSlot = {
+  [IntClassId: number]: {
+    [key: string]: {
+      subject: string
+      faculty: string | null
+    } // key is formatted as `${day},${slot}`
+  }
+}
+
+export type TableSlotCellProps = {
+  selected:
+    | {
+        subject: string
+        faculty: string | null
+      }
+    | undefined
+  onSelect: () => void
+  onDelete: () => void
+  isCoordinator: boolean
+  isEditing: boolean
+  currentSubject: string
+  selectedFaculty: string | null
+}
+
+export type TimeSlotCardProps = {
+  timeSlot: string
+  IntClassId: number
+  selected?:
+    | {
+        subject: string
+        faculty: string | null
+      }
+    | undefined
+  onSelect: () => void
+  onDelete: () => void
+  isEditing: boolean
+  isCoordinator: boolean
+  removeTimeSlot: (IntClassId: number, index: number) => void
+  rowIndex: number
+  currentSubject: string
+  selectedFaculty: string
+}
+
+export type DayScheduleProps = {
+  day: string
+  IntClassId: number
+  timeSlots: string[]
+  selectedSlots: SelectedSlot
+  isCoordinator: boolean
+  onCellClick: (
+    day: string,
+    slot: string,
+    IntClassId: number,
+    isDelete?: boolean
+  ) => void
+  isEditing: boolean
+  removeTimeSlot: (IntClassId: number, index: number) => void
+  currentSubject: string
+  selectedFaculty: string
+}
+
+export type TimeTableSlot = {
+  id: number
+  timeTableId: number
+  day: string
+  fromTime: string
+  toTime: string
+  title: string
+  facultyId?: string
+  lecturerId?: string
+  subjectId?: string
+  courseId: number
+  classId: number
+  departmentId: number
+}

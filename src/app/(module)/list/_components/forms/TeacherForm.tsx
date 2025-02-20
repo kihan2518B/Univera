@@ -68,9 +68,9 @@ export function TeacherForm({ data }: TeacherFormProps) {
     error: coursesError,
     refetch: refetchCourses
   } = useQuery({
-    queryKey: ["courses", user?.departmentAdmin.id, user?.id],
-    queryFn: () => fetchCourses(user?.departmentAdmin.id, user?.id as string),
-    enabled: !!user?.departmentAdmin?.id && !!user?.id
+    queryKey: ["courses", user?.departmentId, user?.id],
+    queryFn: () => fetchCourses(String(user?.departmentId), user?.id as string),
+    enabled: !!user?.departmentId && !!user?.id
   })
   const {
     data: roles,
@@ -93,8 +93,8 @@ export function TeacherForm({ data }: TeacherFormProps) {
           roleIds,
           position,
           courseId: selectedCourse,
-          departmentId: user?.departmentAdmin.id,
-          universityId: user?.departmentAdmin.universityId,
+          departmentId: user?.departmentId,
+          universityId: user?.universityId,
           subjectIds: selectedSubjectIds
         })
         if (res.status == 201) {
@@ -109,8 +109,8 @@ export function TeacherForm({ data }: TeacherFormProps) {
           roleIds,
           position,
           courseId: selectedCourse,
-          departmentId: user?.departmentAdmin.id,
-          universityId: user?.departmentAdmin.universityId,
+          departmentId: user?.departmentId,
+          universityId: user?.universityId,
           subjectIds: selectedSubjectIds
         })
         if (res.status == 200) {
@@ -179,8 +179,10 @@ export function TeacherForm({ data }: TeacherFormProps) {
           setSelectedCourse={setSelectedCourse}
           setStep={setStep}
           courses={courses}
-          departmentId={user?.departmentAdmin.id}
-          departmentName={data?.department.name ?? user?.departmentAdmin.name}
+          departmentId={Number(user?.departmentId)}
+          departmentName={
+            data?.department.name ?? String(user?.Department?.name)
+          }
         />
       )}
       {step == 3 && (

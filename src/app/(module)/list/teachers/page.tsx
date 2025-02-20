@@ -46,8 +46,8 @@ const TeacherListPage = () => {
 
   const { data, error, isLoading, refetch } = useQuery({
     queryKey: ["department"],
-    queryFn: () => fetchDepartment(user?.Department.id),
-    enabled: !!user?.Department.id
+    queryFn: () => fetchDepartment(Number(user?.departmentId)),
+    enabled: !!user?.departmentId
   })
   const deleteFaculty = async (id: string) => {
     try {

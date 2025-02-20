@@ -14,15 +14,14 @@ const App = () => {
   if (!user) return <DashboardSkeleton />
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100">
-      <div className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Section */}
+    <div className="min-h-screen bg-gray-50">
+      <div className="w-full mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8 space-y-6">
             <ProfileBanner user={user} />
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
-                Explore
+            <div className="rounded-xl shadow-sm py-5 sm:px-5">
+              <h3 className="text-xl font-bold mb-2 text-center">
+                Quick Links
               </h3>
               <ExploreGrid />
             </div>
@@ -84,7 +83,7 @@ const App = () => {
               </h3>
               <div className="flex flex-col items-center">
                 <img
-                  src="/api/placeholder/100/100"
+                  src="/ladaki.jpg"
                   alt="Concern Person"
                   className="w-12 h-12 rounded-full object-cover border border-gray-300"
                 />

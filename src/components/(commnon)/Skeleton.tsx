@@ -102,6 +102,7 @@ export const ClassDetailsSkeleton = () => {
 }
 
 import React from "react"
+import { Clock, Paperclip, User } from "lucide-react"
 
 export const DashboardSkeleton = () => {
   return (
@@ -178,6 +179,125 @@ export const DashboardSkeleton = () => {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  )
+}
+
+export const AnnouncementFormSkeleton = () => {
+  return (
+    <div className="min-h-screen p-4">
+      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-6">
+        {/* Title Skeleton */}
+        <Skeleton className="h-8 w-1/2 mx-auto mb-6" />
+
+        <form className="space-y-6">
+          {/* Title Input Skeleton */}
+          <div>
+            <Skeleton className="h-5 w-1/4 mb-2" />
+            <Skeleton className="h-10 w-full rounded-lg" />
+          </div>
+
+          {/* Category Select Skeleton */}
+          <div>
+            <Skeleton className="h-5 w-1/4 mb-2" />
+            <Skeleton className="h-10 w-full rounded-lg" />
+          </div>
+
+          {/* Description Textarea Skeleton */}
+          <div>
+            <Skeleton className="h-5 w-1/4 mb-2" />
+            <Skeleton className="h-24 w-full rounded-lg" />
+          </div>
+
+          {/* Subjects Checkbox Skeleton */}
+          <div>
+            <Skeleton className="h-5 w-1/4 mb-3" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {Array(6)
+                .fill(0)
+                .map((_, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <Skeleton className="h-5 w-5 rounded" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                ))}
+            </div>
+          </div>
+
+          {/* File Uploader Skeleton */}
+          <div className="rounded-lg p-4">
+            <Skeleton className="h-10 w-full" />
+          </div>
+
+          {/* Submit Button Skeleton */}
+          <Skeleton className="h-10 w-full rounded-lg" />
+        </form>
+      </div>
+    </div>
+  )
+}
+
+export const AnnouncementCardSkeleton = ({ withSubjects = false }) => {
+  return (
+    <div className="group p-3 mx-0.5 sm:p-4 md:p-6 bg-lamaSkyLight/50 rounded-lg shadow-sm border border-ColorThree/20">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-4 mb-2 sm:mb-3">
+        {/* Title Skeleton */}
+        <div className="h-4 sm:h-7 bg-gray-200 animate-pulse rounded-md w-full sm:w-1/3" />
+
+        {/* Announcer Name Skeleton */}
+        <div className="flex items-center gap-1.5">
+          <User size={18} className="shrink-0 text-gray-300" />
+          <div className="h-5 bg-gray-200 animate-pulse rounded-md w-24 sm:w-32" />
+        </div>
+
+        {/* Date Skeleton */}
+        <div className="flex items-center text-xs sm:text-sm whitespace-nowrap bg-gray-200 animate-pulse px-3 py-1 rounded-full">
+          <Clock size={14} className="mr-1.5 shrink-0 text-gray-300" />
+          <div className="h-4 w-24 bg-gray-300 rounded" />
+        </div>
+      </div>
+
+      {/* Description Skeleton */}
+      <div className="space-y-2">
+        <div className="h-2 bg-gray-200 animate-pulse rounded w-full" />
+        <div className="h-2 bg-gray-200 animate-pulse rounded w-11/12" />
+        <div className="h-2 bg-gray-200 animate-pulse rounded w-4/5" />
+      </div>
+
+      {/* Subject Tags Skeleton */}
+      {withSubjects && (
+        <div className="flex flex-wrap gap-2 mt-2">
+          {[1, 2].map((index) => (
+            <div
+              key={index}
+              className="h-3 w-24 bg-gray-200 animate-pulse rounded-full"
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Attachments Section Skeleton */}
+      <div className="mt-2 space-y-2 bg-lamaSkyLight/50 p-3 rounded-lg">
+        <div className="flex items-center">
+          <Paperclip size={14} className="mr-1.5 shrink-0 text-gray-300" />
+          <div className="h-4 w-28 bg-gray-200 animate-pulse rounded" />
+        </div>
+        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+          {[1, 2].map((index) => (
+            <div
+              key={index}
+              className="h-4 sm:h-9 w-32 sm:w-36 bg-gray-200 animate-pulse rounded-full"
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Action Buttons Skeleton */}
+      <div className="mt-2 flex flex-col sm:flex-row gap-3 sm:justify-end">
+        <div className="h-4 w-full sm:w-24 bg-gray-200 animate-pulse rounded-lg" />
+        <div className="h-4 w-full sm:w-32 bg-gray-200 animate-pulse rounded-lg" />
       </div>
     </div>
   )

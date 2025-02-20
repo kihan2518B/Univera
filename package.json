@@ -17,7 +17,8 @@
   "dependencies": {
     "@clerk/nextjs": "^6.3.1",
     "@hookform/resolvers": "^3.9.1",
-    "@prisma/client": "^5.22.0",
+    "@prisma/client": "^6.2.1",
+    "@radix-ui/react-alert-dialog": "^1.1.4",
     "@radix-ui/react-avatar": "^1.1.2",
     "@radix-ui/react-checkbox": "^1.1.3",
     "@radix-ui/react-dialog": "^1.1.4",
@@ -47,6 +48,7 @@
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "localtunnel": "^2.0.2",
+    "lodash": "^4.17.21",
     "lucide-react": "^0.456.0",
     "next": "^15.0.4",
     "react": "18.2.0",
@@ -73,6 +75,7 @@
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
+    "@types/lodash": "^4.17.14",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -86,7 +89,7 @@
     "postcss": "^8",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.9",
-    "prisma": "^5.22.0",
+    "prisma": "^6.2.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.7.2"
   },

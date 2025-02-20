@@ -67,8 +67,25 @@ export async function PATCH(req: Request, context: any) {
       )
     }
 
-    const { prn, year, semester, rollNo } = await req.json()
+    const { prn, semester, rollNo, courseId } = await req.json()
+    if (!courseId || !semester || !rollNo || !prn) {
+      throw new Error("All fields are required")
+    }
 
+    let existingStudent
+    existingStudent = await prisma.student.findFirst({
+      where: { prn: prn }
+    })
+    existingStudent = await prisma.student.findFirst({
+      where: { rollNo, courseId, semester }
+    })
+    if (existingStudent) {
+      return NextResponse.json(
+        { message: "Student with this PRN or Rollnumber already exists" },
+        { status: 400 }
+      )
+    }
+    const year = Math.ceil(Number(semester) / 2)
     const updatedStudents = await prisma.student.update({
       where: { clerkId: studentId },
       data: { prn, year, semester, rollNo: Number(rollNo) }
@@ -84,7 +101,7 @@ export async function PATCH(req: Request, context: any) {
     )
   } catch (error) {
     console.log(
-      "Error while updating student @api/list/teacher/[teacherId]: ",
+      "Error while updating student @api/list/student/[studentId]: ",
       error
     )
     return NextResponse.json(

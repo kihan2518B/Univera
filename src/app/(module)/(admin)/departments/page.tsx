@@ -12,7 +12,7 @@ export default function Page() {
   useEffect(() => {
     const fetcDepartments = async () => {
       const response = await fetch(
-        `/api/department?universityId=${user?.university.id}`
+        `/api/department?universityId=${user?.universityId}`
       )
       if (!response.ok) {
         toast.error(`Failed to fetch: ${response.statusText}`)

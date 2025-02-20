@@ -37,8 +37,8 @@ const StudentListPage = () => {
   const roles = user?.roles.map((r: any) => r.id)
   const { data, error, isLoading, refetch } = useQuery({
     queryKey: ["course"],
-    queryFn: () => fetchStudents(user?.course.id),
-    enabled: !!user?.course.id
+    queryFn: () => fetchStudents(user?.courseId as number),
+    enabled: !!user?.course?.id
   })
   const deleteStudent = async (id: string) => {
     try {

@@ -48,6 +48,7 @@ export default function DepartmentClasses({
           </>
         )}
 
+        {classes && classes.length === 0 && <p>No classes found.</p>}
         {classes &&
           classes.map((c: any) => <ClassesCard key={c.id} Class={c} />)}
       </div>

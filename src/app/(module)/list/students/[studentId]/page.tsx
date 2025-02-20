@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query"
 import Left from "@/components/Icons/Left"
 import StudentForm from "../../_components/forms/StudentForm"
 import { useParams } from "next/navigation"
+import { CourseFormSkeleton } from "@/components/(commnon)/Skeleton"
 
 async function getStudentById(id: string) {
   const { data } = await axios.get(`/api/list/student/${id}`)
@@ -18,7 +19,7 @@ export default function EditStudentPage() {
   const { user } = useContext(UserContext)
   const { studentId } = useParams()
 
-  const { data, refetch } = useQuery({
+  const { data, refetch, isLoading, isError } = useQuery({
     queryKey: ["student", user],
     queryFn: () => getStudentById(studentId as string),
     enabled: !!user
@@ -39,15 +40,19 @@ export default function EditStudentPage() {
           Edit Student:
         </h1>
         <div className="h-full w-full flex flex-col gap-2">
-          {data && (
+          {isLoading ? (
+            <CourseFormSkeleton />
+          ) : (
             <StudentForm
+              isLoading={isLoading}
+              isError={isError}
               refetch={refetch}
               student={data}
               submitBtnId="student-update"
               submitBtnLabel="Update Student"
-              departmentId={user?.departmentId}
-              courseId={user?.courseId}
-              universityId={user?.universityId}
+              departmentId={Number(user?.departmentId)}
+              courseId={Number(user?.courseId)}
+              universityId={Number(user?.universityId)}
               isEditable={true}
             />
           )}

@@ -43,8 +43,8 @@ export default function AdminLeaves() {
           isLoading={isLoading}
           isError={isError}
           refetch={refetch}
-          userName={user?.name}
-          userId={user?.id as string}
+          userName={String(user?.name)}
+          userId={String(user?.id)}
           leaves={allLeaves as Leave[]}
         />
       </TableWrapper>

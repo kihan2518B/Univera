@@ -4,7 +4,7 @@ import React, { useContext, Suspense, useEffect, useState } from "react"
 import { UserContext } from "@/context/user"
 import { useQuery } from "@tanstack/react-query"
 import { fetchCourses } from "../_helper"
-import { CoursesSkeleton } from "@/components/(commnon)/Skeleton"
+import { ClassesCardSkeleton } from "@/components/(commnon)/Skeleton"
 import { ButtonV1 } from "@/components/(commnon)/ButtonV1"
 import { RotateCcw, PlusCircle } from "lucide-react"
 import { Courcecard_c } from "../_components/Courcecard_c"
@@ -22,16 +22,22 @@ const CoursesGrid = () => {
     refetch,
     isLoading
   } = useQuery({
-    queryKey: ["courses", user?.Department.id, user?.id],
-    queryFn: () => fetchCourses(user?.Department.id, user?.id as string),
+    queryKey: ["courses", user?.departmentId, user?.id],
+    queryFn: () => fetchCourses(String(user?.departmentId), user?.id as string),
     enabled: !!user?.Department?.id && !!user?.id
   })
   useEffect(() => {
-    setRoles(user?.roles.map((role: any) => role.id))
+    setRoles(user?.roles.map((role: any) => role.id) ?? [])
   }, [user?.roles])
 
   if (isLoading) {
-    return <CoursesSkeleton />
+    return (
+      <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4 ml-2">
+        {[...Array(5)].map((_, i) => (
+          <ClassesCardSkeleton key={i} />
+        ))}
+      </div>
+    )
   }
 
   if (error) {
@@ -87,7 +93,15 @@ const CoursesPage = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Courses</h1>
-      <Suspense fallback={<CoursesSkeleton />}>
+      <Suspense
+        fallback={
+          <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4 ml-2">
+            {[...Array(5)].map((_, i) => (
+              <ClassesCardSkeleton key={i} />
+            ))}
+          </div>
+        }
+      >
         <CoursesGrid />
       </Suspense>
     </div>
