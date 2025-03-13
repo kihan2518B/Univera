@@ -135,7 +135,6 @@ function ExploreItem({
     </Link>
   )
 }
-
 const dashboardItems = [
   {
     icon: Home,
