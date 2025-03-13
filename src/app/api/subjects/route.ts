@@ -73,6 +73,9 @@ export async function GET(req: Request) {
     const subjects = await prisma.subject.findMany({
       where: {
         courseId: Number(courseId) // Ensure correct type handling for `courseId`
+      },
+      include: {
+        faculties: true
       }
     })
     if (!subjects) {

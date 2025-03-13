@@ -135,3 +135,9 @@ export type TimeTableSlot = {
   remarks: string
   location: string
 }
+
+export interface FileWithPreview extends File {
+  preview?: string
+  existing?: boolean
+  url?: string
+}

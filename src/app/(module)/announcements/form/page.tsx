@@ -3,7 +3,7 @@
 import React, { useCallback, useContext, useEffect, useState } from "react"
 import { Loader2 } from "lucide-react"
 import { UserContext } from "@/context/user"
-import { UploadedFile } from "@/types/globals"
+import { FileWithPreview, UploadedFile } from "@/types/globals"
 import { useRouter, useSearchParams } from "next/navigation"
 import toast from "react-hot-toast"
 import axios from "axios"
@@ -12,12 +12,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { useUploadThing } from "@/utils/uploadthing"
 import { UploadthingUploader } from "@/components/(commnon)/UploadthingUploader"
 import { AnnouncementFormSkeleton } from "@/components/(commnon)/Skeleton"
-
-interface FileWithPreview extends File {
-  preview?: string
-  existing?: boolean
-  url?: string
-}
 
 async function fetchSubjects(courseId: string) {
   const response = await axios.get(`/api/subjects?courseId=${courseId}`)

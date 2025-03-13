@@ -267,10 +267,6 @@ export async function GET(request: Request) {
 
       return NextResponse.json(slots, { status: 200 })
     } catch (error) {
-      // console.log(
-      //   "Error fetching subject details @api/subjects/forum/tags:",
-      //   error
-      // )
       return NextResponse.json(
         {
           error: "Internal server error @api/subjects/forum/tags",
