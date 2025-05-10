@@ -7,7 +7,7 @@ import { UserContext } from "@/context/user"
 import toast from "react-hot-toast"
 import { AssignmentTableComponent } from "../../_components/AssignmentTable"
 import Link from "next/link"
-import Left from "@/components/Icons/Left"
+import { ArrowLeft } from "lucide-react"
 
 async function fetchAssignments(classId: string, subjectId: string) {
   const res = await axios.get(
@@ -51,10 +51,11 @@ export default function AssignmentListPage() {
         className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6 md:mb-8 `}
       >
         <Link
-          className="inline-flex items-center justify-center gap-2 bg-white border-2 text-TextTwo font-semibold rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base transition-all hover:bg-lamaPurpleLight hover:border-ColorTwo w-full sm:w-auto"
           href={`/classes/my-class/${classId}/assignments`}
+          className="flex items-center text-TextTwo hover:bg-lamaSkyLight"
         >
-          <Left className="w-4 h-4 sm:w-5 sm:h-5" /> Back
+          <ArrowLeft size={18} className="mr-2" />
+          Back
         </Link>
       </div>
       <AssignmentTableComponent

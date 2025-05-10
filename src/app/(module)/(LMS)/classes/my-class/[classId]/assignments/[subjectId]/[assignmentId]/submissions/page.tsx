@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import { UserContext } from "@/context/user"
 import { AssignmentSubmissions } from "../../../../_components/AssignmentSubmission"
+import { AssignmentSubmissionsSkeleton } from "@/components/(commnon)/Skeleton"
 
 async function getAssignment(
   classId: string,
@@ -20,7 +21,7 @@ async function getAssignment(
 export default function SubmissionsPage() {
   const { user } = useContext(UserContext)
   const { classId, subjectId, assignmentId } = useParams()
-  const { data: assignment } = useQuery({
+  const { data: assignment, isLoading } = useQuery({
     queryKey: ["submissions"],
     queryFn: () =>
       getAssignment(
@@ -36,6 +37,9 @@ export default function SubmissionsPage() {
   }
   return (
     <div>
+      {isLoading && (
+        <AssignmentSubmissionsSkeleton classId={classId as string} />
+      )}
       {assignment && (
         <AssignmentSubmissions
           assignment={assignment}

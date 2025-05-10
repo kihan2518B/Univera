@@ -2,7 +2,7 @@
 
 import React, { useContext, useState, CSSProperties } from "react"
 import { Card } from "@/components/ui/card"
-import { Download, Upload, Plus, Eye } from "lucide-react"
+import { Download, Upload, Plus, Eye, ArrowLeft } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -34,6 +34,9 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip"
+import Link from "next/link"
+import { useParams } from "next/navigation"
+import { SyllabusSkeleton } from "@/components/(commnon)/Skeleton"
 
 // Fetch syllabi from the server
 async function fetchSyllabi(userSubjectIds?: number[]) {
@@ -82,7 +85,11 @@ export default function SyllabusPage() {
   const userSubjectIds = userSubjects?.map((subject: any) => subject.id)
 
   // Fetch syllabi
-  const { data: syllabi, refetch } = useQuery({
+  const {
+    data: syllabi,
+    refetch,
+    isLoading
+  } = useQuery({
     queryKey: ["syllabi", userSubjectIds],
     queryFn: () => fetchSyllabi(userSubjectIds),
     enabled: !!userSubjectIds && userSubjectIds.length > 0
@@ -272,11 +279,22 @@ export default function SyllabusPage() {
         toast.error("Failed to download file")
       })
   }
+  const { classId } = useParams()
 
   return (
     <div className="container mx-auto px-4 py-4 max-w-5xl">
       {/* Header Section - Improved responsive layout */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div className="mb-4">
+          <Link
+            href={`/classes/my-class/${classId}`}
+            className="flex items-center text-TextTwo hover:bg-lamaSkyLight"
+          >
+            <ArrowLeft size={18} className="mr-2" />
+            Back
+          </Link>
+        </div>
+
         <h1 className="text-2xl sm:text-3xl font-bold text-Dark">Syllabus</h1>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -379,182 +397,188 @@ export default function SyllabusPage() {
       </div>
 
       {/* Cards Grid Section - Enhanced for better responsiveness */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        {syllabi && syllabi.length > 0 ? (
-          syllabi.map((syllabus: any, index: number) => {
-            const colorSet = colorSets[index % colorSets.length]
+      {isLoading ? (
+        <SyllabusSkeleton />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          {syllabi && syllabi.length > 0 ? (
+            syllabi.map((syllabus: any, index: number) => {
+              const colorSet = colorSets[index % colorSets.length]
 
-            const cardStyle: CSSProperties & { [key: string]: string } = {
-              backgroundColor: colorSet.bg,
-              "--hover-bg": colorSet.hover,
-              "--icon-color": colorSet.icon,
-              "--dark-color": colorSet.icon
-            }
+              const cardStyle: CSSProperties & { [key: string]: string } = {
+                backgroundColor: colorSet.bg,
+                "--hover-bg": colorSet.hover,
+                "--icon-color": colorSet.icon,
+                "--dark-color": colorSet.icon
+              }
 
-            return (
-              <Card
-                key={syllabus.id}
-                style={cardStyle}
-                className="group relative p-3 sm:p-4 transition-all duration-300 ease-in-out
-                hover:scale-[1.02] hover:shadow-lg overflow-hidden rounded-xl border-0
-                hover:bg-[var(--hover-bg)] w-full"
-              >
-                {/* Decorative corner accent */}
-                <div
-                  className="absolute -top-2 -right-2 w-12 sm:w-16 h-12 sm:h-16 rotate-45 opacity-20"
-                  style={{ backgroundColor: colorSet.icon }}
-                ></div>
+              return (
+                <Card
+                  key={syllabus.id}
+                  style={cardStyle}
+                  className="group relative p-3 sm:p-4 transition-all duration-300 ease-in-out
+            hover:scale-[1.02] hover:shadow-lg overflow-hidden rounded-xl border-0
+            hover:bg-[var(--hover-bg)] w-full"
+                >
+                  {/* Decorative corner accent */}
+                  <div
+                    className="absolute -top-2 -right-2 w-12 sm:w-16 h-12 sm:h-16 rotate-45 opacity-20"
+                    style={{ backgroundColor: colorSet.icon }}
+                  ></div>
 
-                <div className="relative flex flex-row items-start gap-2">
-                  <div className="flex-shrink-0 relative z-10">
-                    <FileTypeIcon color={colorSet.icon} />
-                  </div>
-                  <div className="flex-1 min-w-0 relative z-10">
-                    <TooltipProvider delayDuration={300}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span
-                            className="font-semibold text-gray-800 text-base sm:text-lg truncate max-w-[150px] 
-                              cursor-default inline-flex items-center"
-                          >
-                            <span className="truncate">{syllabus.title}</span>
+                  <div className="relative flex flex-row items-start gap-2">
+                    <div className="flex-shrink-0 relative z-10">
+                      <FileTypeIcon color={colorSet.icon} />
+                    </div>
+                    <div className="flex-1 min-w-0 relative z-10">
+                      <TooltipProvider delayDuration={300}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span
+                              className="font-semibold text-gray-800 text-base sm:text-lg truncate max-w-[150px] 
+                          cursor-default inline-flex items-center"
+                            >
+                              <span className="truncate">{syllabus.title}</span>
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-white px-2 py-1 rounded-md shadow-md">
+                            <p> {syllabus.title}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
+                      {/* Updated tags with field names */}
+                      <div className="flex flex-col space-y-2 mt-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-xs sm:text-sm text-gray-600 font-medium">
+                            Subject:
                           </span>
-                        </TooltipTrigger>
-                        <TooltipContent className="bg-white px-2 py-1 rounded-md shadow-md">
-                          <p> {syllabus.title}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-
-                    {/* Updated tags with field names */}
-                    <div className="flex flex-col space-y-2 mt-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-xs sm:text-sm text-gray-600 font-medium">
-                          Subject:
-                        </span>
-                        <TooltipProvider delayDuration={300}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span
-                                className="bg-[var(--hover-bg)] text-black px-2 py-0.5 rounded-md truncate max-w-[150px] 
-                              cursor-default text-xs sm:text-sm font-medium inline-flex items-center shadow-sm"
-                              >
-                                <span className="truncate">
+                          <TooltipProvider delayDuration={300}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span
+                                  className="bg-[var(--hover-bg)] text-black px-2 py-0.5 rounded-md truncate max-w-[150px] 
+                          cursor-default text-xs sm:text-sm font-medium inline-flex items-center shadow-sm"
+                                >
+                                  <span className="truncate">
+                                    {syllabus.subjectName || "Unknown Subject"}
+                                  </span>
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent className="bg-white px-2 py-1 rounded-md shadow-md">
+                                <p>
                                   {syllabus.subjectName || "Unknown Subject"}
-                                </span>
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent className="bg-white px-2 py-1 rounded-md shadow-md">
-                              <p>{syllabus.subjectName || "Unknown Subject"}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
 
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-xs sm:text-sm text-gray-600 font-medium">
-                          Uploaded by:
-                        </span>
-                        <TooltipProvider delayDuration={300}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span
-                                className="bg-[var(--hover-bg)] text-black px-2 py-0.5 rounded-md truncate max-w-[150px] 
-                              cursor-default text-xs sm:text-sm font-medium inline-flex items-center shadow-sm"
-                              >
-                                <span className="truncate">
-                                  {syllabus.uploadedBy}
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-xs sm:text-sm text-gray-600 font-medium">
+                            Uploaded by:
+                          </span>
+                          <TooltipProvider delayDuration={300}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span
+                                  className="bg-[var(--hover-bg)] text-black px-2 py-0.5 rounded-md truncate max-w-[150px] 
+                          cursor-default text-xs sm:text-sm font-medium inline-flex items-center shadow-sm"
+                                >
+                                  <span className="truncate">
+                                    {syllabus.uploadedBy}
+                                  </span>
                                 </span>
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent className="bg-white px-2 py-1 rounded-md shadow-md">
-                              <p>{syllabus.uploadedBy}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                              </TooltipTrigger>
+                              <TooltipContent className="bg-white px-2 py-1 rounded-md shadow-md">
+                                <p>{syllabus.uploadedBy}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Action buttons */}
-                <div className="flex justify-end gap-2 mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-200/50">
-                  <TooltipProvider delayDuration={300}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          className="flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 bg-white/70 rounded-lg 
-                                 transition-all duration-300 text-gray-800 text-xs sm:text-sm font-medium
-                                 border border-[var(--dark-color)] hover:bg-[var(--dark-color)] hover:text-white"
-                          onClick={() => handleViewClick(syllabus.link)}
-                          aria-label="View file"
-                          style={{ borderColor: colorSet.icon }}
-                        >
-                          <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>View</span>
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>View PDF</p>
-                      </TooltipContent>
-                    </Tooltip>
+                  {/* Action buttons */}
+                  <div className="flex justify-end gap-2 mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-200/50">
+                    <TooltipProvider delayDuration={300}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            className="flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 bg-white/70 rounded-lg 
+                             transition-all duration-300 text-gray-800 text-xs sm:text-sm font-medium
+                             border border-[var(--dark-color)] hover:bg-[var(--dark-color)] hover:text-white"
+                            onClick={() => handleViewClick(syllabus.link)}
+                            aria-label="View file"
+                            style={{ borderColor: colorSet.icon }}
+                          >
+                            <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span>View</span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>View PDF</p>
+                        </TooltipContent>
+                      </Tooltip>
 
-                    {/* Download button */}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          className="flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 bg-white/70 rounded-lg 
-                                 transition-all duration-300 text-gray-800 text-xs sm:text-sm font-medium
-                                 border border-[var(--dark-color)] hover:bg-[var(--dark-color)] hover:text-white"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            handleDownloadClick(syllabus.link)
-                          }}
-                          aria-label="Download file"
-                          style={{ borderColor: colorSet.icon }}
-                        >
-                          <Download className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Download</span>
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Download as PDF</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                      {/* Download button */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            className="flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 bg-white/70 rounded-lg 
+                             transition-all duration-300 text-gray-800 text-xs sm:text-sm font-medium
+                             border border-[var(--dark-color)] hover:bg-[var(--dark-color)] hover:text-white"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              handleDownloadClick(syllabus.link)
+                            }}
+                            aria-label="Download file"
+                            style={{ borderColor: colorSet.icon }}
+                          >
+                            <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span>Download</span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Download as PDF</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </Card>
+              )
+            })
+          ) : (
+            <div className="col-span-full">
+              <div className="flex flex-col items-center justify-center p-6 sm:p-8 rounded-xl bg-lamaSkyLight border border-dashed border-Primary shadow-sm">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-white mb-3 sm:mb-4 shadow-sm">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
                 </div>
-              </Card>
-            )
-          })
-        ) : (
-          <div className="col-span-full">
-            <div className="flex flex-col items-center justify-center p-6 sm:p-8 rounded-xl bg-lamaSkyLight border border-dashed border-Primary shadow-sm">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-white mb-3 sm:mb-4 shadow-sm">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
+                <p className="text-center text-gray-800 font-medium text-base sm:text-lg">
+                  No syllabus found
+                </p>
+                <p className="text-center text-gray-500 text-xs sm:text-sm mt-1 max-w-sm">
+                  Upload your first syllabus to get started.
+                </p>
               </div>
-              <p className="text-center text-gray-800 font-medium text-base sm:text-lg">
-                No syllabi found
-              </p>
-              <p className="text-center text-gray-500 text-xs sm:text-sm mt-1 max-w-sm">
-                Upload your first syllabus to get started.
-              </p>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

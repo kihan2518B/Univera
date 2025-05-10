@@ -59,41 +59,61 @@ export async function POST(req: Request) {
 export async function GET(req: Request) {
   const { searchParams } = await new URL(req.url)
   const courseId = await searchParams.get("courseId")
+  const userId = await searchParams.get("userId")
 
-  if (!courseId) {
-    return NextResponse.json(
-      { message: "Course ID is required" },
-      {
-        status: 400
-      }
-    )
-  }
-
-  try {
-    const subjects = await prisma.subject.findMany({
-      where: {
-        courseId: Number(courseId) // Ensure correct type handling for `courseId`
-      },
-      include: {
-        faculties: true
-      }
+  if (userId) {
+    const user = await prisma.faculty.findUnique({
+      where: { id: userId },
+      include: { subject: true }
     })
-    if (!subjects) {
-      throw new Error("Error while getting subjects")
+    if (!user) {
+      return NextResponse.json(
+        { message: "User not found" },
+        {
+          status: 404
+        }
+      )
     }
     return NextResponse.json(
-      { message: "Subjects found", subjects },
-      {
-        status: 200
-      }
+      { message: "Subjects found", subjects: user.subject },
+      { status: 200 }
     )
-  } catch (error) {
-    console.log(`Error while fetching subjects @api/subjects ${error}`)
-    return NextResponse.json(
-      { message: "Error fetching subjects" },
-      {
-        status: 500
+  } else {
+    if (!courseId) {
+      return NextResponse.json(
+        { message: "Course ID is required" },
+        {
+          status: 400
+        }
+      )
+    }
+
+    try {
+      const subjects = await prisma.subject.findMany({
+        where: {
+          courseId: Number(courseId) // Ensure correct type handling for `courseId`
+        },
+        include: {
+          faculties: true
+        }
+      })
+      if (!subjects) {
+        throw new Error("Error while getting subjects")
       }
-    )
+      return NextResponse.json(
+        { message: "Subjects found", subjects },
+        {
+          status: 200
+        }
+      )
+    } catch (error) {
+      console.log(`Error while fetching subjects @api/subjects ${error}`)
+      return NextResponse.json(
+        { message: "Error fetching subjects" },
+        {
+          status: 500
+        }
+      )
+    }
   }
 }

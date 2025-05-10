@@ -5,13 +5,12 @@ import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React, { useContext } from "react"
 import axios from "axios"
-import { RotateCcw } from "lucide-react"
+import { ArrowLeft, RotateCcw } from "lucide-react"
 import { ButtonV1 } from "@/components/(commnon)/ButtonV1"
 import { Subject } from "@prisma/client"
 import SubjectCard from "@/app/(module)/(LMS)/_components/SubjectCard"
 import Link from "next/link"
-import Left from "@/components/Icons/Left"
-import { CoursesSkeleton } from "@/components/(commnon)/Skeleton"
+import { Assignments_Subject_Skeleton } from "@/components/(commnon)/Skeleton"
 
 async function fetchClassById(classId: number, courseId: number) {
   const { data } = await axios.get(
@@ -53,7 +52,7 @@ export default function ClassAssignmentsPage() {
   }
 
   if (isLoading) {
-    return <CoursesSkeleton />
+    return <Assignments_Subject_Skeleton />
   }
 
   // Filter subjects that are not in mySubjects
@@ -68,10 +67,11 @@ export default function ClassAssignmentsPage() {
     <div className="p-6">
       {/* Back path */}
       <Link
-        className="flex items-center justify-center gap-2 border-2 border-black text-black w-[10%] font-semibold rounded-lg px-6 py-2 transition-transform transform hover:scale-105 hover:bg-gray-100"
         href={`/classes/my-class/${classId}`}
+        className="flex items-center text-TextTwo hover:bg-lamaSkyLight"
       >
-        <Left /> Back
+        <ArrowLeft size={18} className="mr-2" />
+        Back
       </Link>
       {/* show all subjects */}
       <h1 className="text-center font-bold text-2xl">My Subjects</h1>

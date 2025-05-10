@@ -78,7 +78,7 @@ export default function AttendancePage() {
     )
 
     setAttendance(initialAttendance)
-  }, [students.length, existingClassID, existingClassDate, attendance])
+  }, [students?.length, existingClassID, existingClassDate, attendance])
 
   useEffect(() => {
     const fetchAnnouncementDetails = async () => {
@@ -255,7 +255,7 @@ export default function AttendancePage() {
 
   console.log("attendance: ", attendance)
 
-  const filteredStudents = students.filter(
+  const filteredStudents = students?.filter(
     (student: any) =>
       student.rollNo.toString().includes(searchQuery) ||
       student.user.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -294,7 +294,7 @@ export default function AttendancePage() {
     )
   }
 
-  const totalStudents = students.length
+  const totalStudents = students?.length
   const presentCount = Object.values(attendance).filter(Boolean).length
   const absentCount = totalStudents - presentCount
   const attendancePercentage = totalStudents

@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
 export async function PATCH(req: Request) {
   try {
@@ -48,19 +48,24 @@ export async function PATCH(req: Request) {
       )
     }
 
+    console.log("Incoming timeTableData:", timeTableData)
+
     // Case 1: Fresh Timetable Creation (No `timeTableId` in request)
     if (!timeTableId) {
+      const { courseId, classId, departmentId } = timeTableData
       // Use Prisma transaction for atomicity
       const [createdTimeTable, createdSlots] = await prisma.$transaction(
         async (tx) => {
           // Create the TimeTable record
           const createdTimeTable = await tx.timeTable.create({
             data: {
-              courseId: timeTableData.courseId,
-              classId: timeTableData.classId,
-              departmentId: timeTableData.departmentId
+              courseId,
+              classId,
+              departmentId
             }
           })
+
+          console.log("Created TimeTable:", createdTimeTable)
 
           // Prepare Slot records with optional `facultyId` and `lecturerId`
           const newSlots = validSlotsData.map((slot) => ({
@@ -115,12 +120,6 @@ export async function PATCH(req: Request) {
         ])
       )
 
-      // Find slots to delete (exists in DB but not in incoming slotsData)
-      const slotsToDelete = Array.from(existingSlotsMap.keys())
-        .filter((key) => !newSlotsMap.has(key))
-        .map((key) => existingSlotsMap.get(key)?.id)
-        .filter(Boolean)
-
       // Find slots to update (exists in both but with changes)
       const slotsToUpdate = Array.from(newSlotsMap.keys())
         .filter((key) => existingSlotsMap.has(key))
@@ -148,11 +147,6 @@ export async function PATCH(req: Request) {
 
       // Perform database operations using transaction
       await prisma.$transaction(async (tx) => {
-        // Delete removed slots
-        if (slotsToDelete.length > 0) {
-          await tx.slot.deleteMany({ where: { id: { in: slotsToDelete } } })
-        }
-
         // Update existing slots
         for (const slot of slotsToUpdate) {
           await tx.slot.update({
@@ -242,7 +236,6 @@ export async function GET(request: Request) {
 
       return NextResponse.json(faculties, { status: 200 })
     } catch (error) {
-      // console.log("Error fetching faculties:", error)
       return NextResponse.json(
         { message: "Error fetching faculties", error: error },
         { status: 500 }
@@ -275,7 +268,77 @@ export async function GET(request: Request) {
         { status: 500 }
       )
     }
+  } else if (route === "allTimeTableSlots") {
+    try {
+      const slots = await prisma.slot.findMany({})
+
+      return NextResponse.json(slots, { status: 200 })
+    } catch (error) {
+      return NextResponse.json(
+        {
+          error: "Internal server error @api/subjects/forum/tags",
+          details: error
+        },
+        { status: 500 }
+      )
+    }
   } else {
     return NextResponse.json({ error: "Route not found" }, { status: 404 })
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { day, startTime, classId, timeTableId } = await req.json()
+
+    if (!day || !startTime || !classId || !timeTableId) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      )
+    }
+
+    const deleted = await prisma.slot.deleteMany({
+      where: {
+        day,
+        startTime,
+        classId: Number(classId),
+        timeTableId
+      }
+    })
+
+    if (deleted.count === 0) {
+      return NextResponse.json(
+        { error: "No matching slot found" },
+        { status: 404 }
+      )
+    }
+
+    // Check if any other slots remain for this timetable
+    const remainingSlots = await prisma.slot.count({
+      where: {
+        timeTableId
+      }
+    })
+
+    // If no slots remain, delete the timetable
+    if (remainingSlots === 0) {
+      await prisma.timeTable.delete({
+        where: {
+          id: timeTableId
+        }
+      })
+    }
+
+    return NextResponse.json(
+      { message: "Slot deleted successfully" },
+      { status: 200 }
+    )
+  } catch (error) {
+    console.error("DELETE slot error:", error)
+    return NextResponse.json(
+      { error: "Failed to delete slot" },
+      { status: 500 }
+    )
   }
 }

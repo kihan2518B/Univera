@@ -1,7 +1,6 @@
 import { ArrowLeft, Calendar, Edit, FileText, Tag, Users } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Prisma } from "@prisma/client"
-import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { getTagColor } from "./AssignmentTable"
 import {
@@ -14,6 +13,7 @@ import { ButtonV1 } from "@/components/(commnon)/ButtonV1"
 import AssignmentForm from "./AssignmentForm"
 import { useContext } from "react"
 import { UserContext } from "@/context/user"
+import Link from "next/link"
 
 // Dummy submissions data
 const submissions = [
@@ -59,20 +59,17 @@ export function AssignmentSubmissions({
   classId,
   subjectId
 }: AssignmentSubmissionsProps) {
-  const router = useRouter()
   const { user } = useContext(UserContext)
   return (
     <div className="min-h-screen bg-lamaSkyLight p-6">
       {/* Back Button */}
-      <button
-        className="flex items-center gap-2 mb-6 text-TextTwo hover:text-ColorThree transition-colors"
-        onClick={() =>
-          router.push(`/classes/my-class/${classId}/assignments/${subjectId}`)
-        }
+      <Link
+        href={`/classes/my-class/${classId}/assignments/${assignment.subjectId}`}
+        className="flex items-center text-TextTwo hover:bg-lamaSkyLight"
       >
-        <ArrowLeft size={20} />
-        <span>Back to Assignments</span>
-      </button>
+        <ArrowLeft size={18} className="mr-2" />
+        Back
+      </Link>
 
       {/* Assignment Details Card */}
       <Card className="mb-6 sm:mb-8 border-none shadow-lg bg-white">

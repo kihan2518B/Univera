@@ -58,6 +58,7 @@ model User {
 
   Policy Policy[]
   userProgress userProgress[]
+  Quiz   Quiz[]
 }
 
 model University {
@@ -127,7 +128,7 @@ model Faculty {
 }
 
 model Student {
-  id            String       @id @unique
+  id            String                 @id @unique
   prn           String
   year          Int
   semester      Int
@@ -140,17 +141,17 @@ model Student {
   departmentId  Int
   universityId  Int
   courseId      Int
-  clerkId       String       @unique
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @default(now())
+  clerkId       String                 @unique
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @default(now())
   attendance    Attendance[]
-  user          User         @relation(fields: [clerkId], references: [clerkId])
-  course        Course       @relation(fields: [courseId], references: [id])
-  department    Department   @relation(fields: [departmentId], references: [id])
-  mentor        Faculty?     @relation(fields: [mentorId], references: [id])
-  university    University   @relation(fields: [universityId], references: [id])
-  class         Class?       @relation(fields: [classId], references: [id])
-  submissions   Submission[]
+  user          User                   @relation(fields: [clerkId], references: [clerkId])
+  course        Course                 @relation(fields: [courseId], references: [id])
+  department    Department             @relation(fields: [departmentId], references: [id])
+  mentor        Faculty?               @relation(fields: [mentorId], references: [id])
+  university    University             @relation(fields: [universityId], references: [id])
+  class         Class?                 @relation(fields: [classId], references: [id])
+  submissions   AssignmentSubmission[]
 }
 
 model Department {
@@ -345,7 +346,7 @@ model Attendance {
   @@unique([studentId, classId, date]) // Composite unique constraint
 }
 
-model Submission {
+model AssignmentSubmission {
   id           Int        @id @unique @default(autoincrement())
   studentId    String
   assignmentId Int
@@ -357,13 +358,13 @@ model Submission {
 }
 
 model Assignment {
-  id             Int          @id @unique @default(autoincrement())
+  id             Int                    @id @unique @default(autoincrement())
   title          String
   startDate      String
   deadline       String
   attachmentUrl  String
-  tag            String[]     @default(["IMP"])
-  assignmentType String       @default("TUTORIAL")
+  tag            String[]               @default(["IMP"])
+  assignmentType String                 @default("TUTORIAL")
   subjectId      Int
   AuthorName     String
   facultyId      String
@@ -371,15 +372,15 @@ model Assignment {
   classId        Int?
   departmentId   Int
   universityId   Int
-  class          Class?       @relation(fields: [classId], references: [id])
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @default(now())
-  course         Course       @relation(fields: [courseId], references: [id])
-  department     Department   @relation(fields: [departmentId], references: [id])
-  faculty        Faculty      @relation(fields: [facultyId], references: [id])
-  subject        Subject      @relation(fields: [subjectId], references: [id])
-  university     University   @relation(fields: [universityId], references: [id])
-  submissions    Submission[]
+  class          Class?                 @relation(fields: [classId], references: [id])
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @default(now())
+  course         Course                 @relation(fields: [courseId], references: [id])
+  department     Department             @relation(fields: [departmentId], references: [id])
+  faculty        Faculty                @relation(fields: [facultyId], references: [id])
+  subject        Subject                @relation(fields: [subjectId], references: [id])
+  university     University             @relation(fields: [universityId], references: [id])
+  submissions    AssignmentSubmission[]
 }
 
 model Result {
@@ -506,11 +507,11 @@ model TimeTable {
 }
 
 model Slot {
-  id           Int        @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   timeTableId  Int
   day          String
-  startTime     String
-  endTime       String
+  startTime    String
+  endTime      String
   subjectId    Int?
   title        String
   tag          String
@@ -521,13 +522,13 @@ model Slot {
   departmentId Int
   facultyId    String?
   lecturerId   String?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @default(now()) 
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
 
-  facuty       Faculty?    @relation("FacultyToLecture", fields: [facultyId], references: [clerkId])
-  lecturer     Faculty?   @relation("ProxyToSlot", fields: [lecturerId], references: [clerkId])
-  subject      Subject?    @relation(fields: [subjectId], references: [id])
-  timetable    TimeTable  @relation(fields: [timeTableId], references: [id])
+  facuty    Faculty?  @relation("FacultyToLecture", fields: [facultyId], references: [clerkId])
+  lecturer  Faculty?  @relation("ProxyToSlot", fields: [lecturerId], references: [clerkId])
+  subject   Subject?  @relation(fields: [subjectId], references: [id])
+  timetable TimeTable @relation(fields: [timeTableId], references: [id])
 }
 
 model Event {
@@ -566,11 +567,57 @@ model Policy {
   university University @relation(fields: [universityId], references: [id])
 }
 
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+model Question {
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String?
+  options       String[] // Multiple-choice options
+  correctAnswer Int // Index of the correct option (0,1,2,3)
+  marks         Int
+  quizId        Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+  quiz Quiz @relation(fields: [quizId], references: [id])
+}
+
+model Quiz {
+  id                Int      @id @default(autoincrement())
+  title             String
+  description       String
+  documentUrl       String?
+  tags              String[]
+  createdByName     String
+  creatorId         String
+  duration          String // Time in minutes
+  numberOfQuestions Int
+  totalMarks        Int
+  visibility        String   @default("private") // "public" or "private"
+  status            String   @default("draft") // "draft", "published", "completed"
+  date              String?
+  from              String?
+  to                String?
+
+  classId      Int
+  subjectId    Int
+  departmentId Int
+  universityId Int
+
+  createdBy       User              @relation(fields: [creatorId], references: [clerkId])
+  questions       Question[]
+  quizSubmissions QuizSubmissions[]
+}
+
+model QuizSubmissions {
+  id        Int      @id @default(autoincrement())
+  studentId String
+  quizId    Int
+  answers   String[]
+  status    String
+  marks     Int
+
+  Quiz Quiz @relation(fields: [quizId], references: [id])
+}
 
 model LeaveType {
   id          String   @id @default(cuid())
