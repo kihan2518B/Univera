@@ -57,6 +57,7 @@ model User {
   university University? @relation("UserToUniversity", fields: [universityId], references: [id])
 
   Policy Policy[]
+  userProgress userProgress[]
 }
 
 model University {
@@ -264,6 +265,57 @@ model Subject {
   slots        Slot[]
   classes      Class[]      @relation("class_to_Subject")
   faculties    Faculty[]    @relation("faculty_to_Subject")
+  classNotes ClassNote[]
+}
+
+model ClassNote{
+  id Int @id @unique @default(autoincrement())
+  title String
+  creator String
+  status String @default("UNPUBLISHED") // PUBLISHED||UNPUBLISHED
+  lockLessions Boolean @default(false)
+  subjectId Int
+
+  subject Subject @relation(fields: [subjectId],references: [id])
+  lessions Lession[]
+  chapters Chapter[]
+  createdAt DateTime @default(now())
+}
+
+model Lession{
+  id Int @id @unique @default(autoincrement())
+  title String
+
+  classNoteId Int
+  chapters Chapter[]
+  classNote ClassNote @relation(fields: [classNoteId],references: [id],onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+}
+
+model Chapter{
+  id Int @id @unique @default(autoincrement())
+  title String
+  data Json[] //{title,description,link}
+
+  lessionId Int
+  classNoteId Int
+  lession Lession @relation(fields: [lessionId],references: [id],onDelete: Cascade)
+  classNote ClassNote @relation(fields: [classNoteId],references: [id],onDelete: Cascade)
+  userProgress userProgress[]
+
+  createdAt DateTime @default(now())
+}
+
+model userProgress{
+  id                Int @id @unique @default(autoincrement())
+  isviewing         Boolean
+  isCompleted       Boolean
+  chapterId         Int
+  userId            String
+
+  chapter           Chapter @relation(fields: [chapterId],references: [id])
+  user              User @relation(fields: [userId],references: [id])
 }
 
 model Attendance {
