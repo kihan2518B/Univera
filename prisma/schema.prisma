@@ -122,8 +122,8 @@ model Faculty {
   forumModerator Forum[]
   students       Student[]
   slots          Slot[]       @relation("FacultyToLecture")
-  proxySlots     Slot[]       @relation("ProxyToSlot")
   subject        Subject[]    @relation("faculty_to_Subject")
+  proxySlots ProxySlot[]  @relation("LectrurProxyToSlot")
 }
 
 model Student {
@@ -239,6 +239,7 @@ model Class {
   students    Student[]
   subjects    Subject[]    @relation("class_to_Subject")
   timeTable   TimeTable[]
+  Slot Slot[]
 }
 
 model Subject {
@@ -469,14 +470,29 @@ model Slot {
   classId      Int
   departmentId Int
   facultyId    String?
-  lecturerId   String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
 
-  facuty    Faculty?  @relation("FacultyToLecture", fields: [facultyId], references: [clerkId])
-  lecturer  Faculty?  @relation("ProxyToSlot", fields: [lecturerId], references: [clerkId])
+  class     Class   @relation(fields: [classId], references: [id])
+  faculty    Faculty?  @relation("FacultyToLecture", fields: [facultyId], references: [clerkId])
   subject   Subject?  @relation(fields: [subjectId], references: [id])
   timetable TimeTable @relation(fields: [timeTableId], references: [id])
+
+  ProxySlot ProxySlot[]
+}
+
+model ProxySlot {
+  id           Int      @id @default(autoincrement())
+  slotId       Int
+  lecturerId   String
+  status       String
+  reason       String?
+  date         String 
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+
+  slot         Slot     @relation(fields: [slotId], references: [id])
+  lecturer     Faculty  @relation("LectrurProxyToSlot", fields: [lecturerId], references: [clerkId])
 }
 
 model Event {

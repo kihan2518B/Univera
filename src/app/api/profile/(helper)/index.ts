@@ -26,7 +26,6 @@ const findUserData = async (userId: string) => {
       where: { clerkId: userId },
       include: {
         roles: true,
-        faculty: true,
         student: true,
         course: true,
         university: true,

@@ -11,7 +11,12 @@ export async function GET(req: Request, context: any) {
         id: Number(courseId) // Ensure the ID is a number if your database expects it
       },
       include: {
-        subjects: true
+        subjects: true,
+        faculties: {
+          include: {
+            user: true
+          }
+        }
       }
     })
     if (!course) {
