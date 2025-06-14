@@ -160,6 +160,13 @@ export default function Page() {
     year: "numeric"
   })
 
+  const todayDate = new Date().toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  })
+
   const sortedSlots = useMemo(() => {
     const approvedProxySlots = receivedProxies
       ?.filter(
@@ -403,6 +410,9 @@ export default function Page() {
     )
   }
 
+  console.log("Current Slots:", sortedSlots)
+  console.log("currentDate:", currentDate)
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <MyTimeTableHeader />
@@ -416,6 +426,7 @@ export default function Page() {
       <CurrentDayDisplay
         currentDay={currentDay}
         currentDate={currentDate}
+        todayDate={todayDate}
         pendingCount={pendingCount}
         currentPage={currentPage}
         goToToday={goToToday}

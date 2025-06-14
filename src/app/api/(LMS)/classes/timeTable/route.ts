@@ -303,6 +303,45 @@ export async function GET(request: Request) {
     } catch (error) {
       return NextResponse.json(
         {
+          error: "Internal server error @api/classes/timeTable",
+          details: error
+        },
+        { status: 500 }
+      )
+    }
+  } else if (route === "selectdSlot") {
+    const slotId = url.searchParams.get("slotId")
+
+    if (!slotId) {
+      return NextResponse.json(
+        { message: "slotId Id is required" },
+        { status: 400 }
+      )
+    }
+
+    try {
+      const slot = await prisma.slot.findUnique({
+        where: {
+          id: Number(slotId)
+        },
+        include: {
+          class: {
+            include: {
+              students: {
+                include: {
+                  user: true
+                }
+              }
+            }
+          },
+          ProxySlot: true
+        }
+      })
+
+      return NextResponse.json(slot, { status: 200 })
+    } catch (error) {
+      return NextResponse.json(
+        {
           error: "Internal server error @api/subjects/forum/tags",
           details: error
         },

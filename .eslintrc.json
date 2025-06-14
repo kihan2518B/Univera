@@ -8,8 +8,8 @@
   "plugins": ["prettier"],
   "rules": {
     "prettier/prettier": "warn",
-    "react/no-unescaped-entities": "on",
-    "no-unused-vars": "on",
+    "react/no-unescaped-entities": 2,
+    "no-unused-vars": "off",
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-unused-vars": [
       "error",

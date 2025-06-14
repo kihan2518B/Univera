@@ -170,3 +170,18 @@ export interface ProxySlot {
   reason?: string
   status: string
 }
+
+export interface attendacePayload {
+  classId: any
+  slotId: string | string[] | undefined
+  subjectId: any
+  facultyId: any
+  courseId: any
+  departmentId: any
+  universityId: any
+  date: string
+  attendance: Record<string, string>
+  attendanceId?: string
+  attendanceDate?: string
+  isLock?: boolean
+}
