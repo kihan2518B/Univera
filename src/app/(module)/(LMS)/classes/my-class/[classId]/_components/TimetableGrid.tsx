@@ -66,7 +66,7 @@ const TimetableGrid: React.FC<TimetableGridProps> = ({
           }}
         >
           <div className="grid grid-cols-7 bg-lamaSkyLight">
-            <div className="top-0 z-10 border-b border-r p-3 text-center font-bold bg-gradient-to-r from-blue-50 to-blue-100 text-gray-800 shadow-sm flex items-center justify-center">
+            <div className="top-0 z-10 sticky border-b border-r p-3 text-center font-bold bg-gradient-to-r from-blue-50 to-blue-100 text-gray-800 shadow-sm flex items-center justify-center">
               <Clock size={18} className="mr-2 text-blue-500" />
               <span>Time</span>
             </div>
@@ -75,10 +75,10 @@ const TimetableGrid: React.FC<TimetableGridProps> = ({
             {days.map((day, index) => (
               <div
                 key={index}
-                className="top-0 z-10 border-b border-r p-3 text-center font-bold bg-gradient-to-r from-blue-50 to-blue-100 text-gray-800 shadow-sm"
+                className="top-0 z-10 sticky flex items-center justify-center border-b border-r p-3 text-center font-bold bg-gradient-to-r from-blue-50 to-blue-100 text-gray-800 shadow-sm"
               >
-                {<Calendar size={16} className="mb-1 mx-auto text-blue-500" />}{" "}
-                {day}
+                <Calendar size={18} className="mr-2 text-blue-500" />
+                {day.charAt(0).toUpperCase() + day.slice(1)}
               </div>
             ))}
 
@@ -99,7 +99,7 @@ const TimetableGrid: React.FC<TimetableGridProps> = ({
                   return (
                     <div
                       key={`slot-${i}-${j}`}
-                      className={`border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md flex justify-center items-center relative overflow-hidden group`}
+                      className={`border rounded-lg p-3 ${isCoordinator ? "cursor-pointer" : "cursor-default"} transition-all hover:shadow-md flex justify-center items-center relative overflow-hidden group`}
                       style={{
                         minHeight: "80px",
                         gridRow: `span ${slotStatus.span || 1}`,

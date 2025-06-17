@@ -81,8 +81,7 @@ export async function PATCH(req: Request) {
             classId: createdTimeTable.classId,
             departmentId: createdTimeTable.departmentId,
             subjectId: slot.subjectId || null,
-            facultyId: slot.facultyId || null, // Set optional fields to null if not provided
-            lecturerId: slot.lecturerId || null
+            facultyId: slot.facultyId || null // Set optional fields to null if not provided
           }))
 
           // Bulk create Slot records
@@ -155,7 +154,6 @@ export async function PATCH(req: Request) {
               title: slot.subject,
               subjectId: slot.subjectId || null,
               facultyId: slot.facultyId || null,
-              lecturerId: slot.lecturerId || null,
               tag: slot.tag || null,
               location: slot.location || null,
               remarks: slot.remarks || null
@@ -179,8 +177,7 @@ export async function PATCH(req: Request) {
               classId: timeTableData.classId,
               departmentId: timeTableData.departmentId,
               subjectId: slot.subjectId || null,
-              facultyId: slot.facultyId || null,
-              lecturerId: slot.lecturerId || null
+              facultyId: slot.facultyId || null
             })),
             skipDuplicates: true
           })
@@ -271,6 +268,36 @@ export async function GET(request: Request) {
   } else if (route === "allTimeTableSlots") {
     try {
       const slots = await prisma.slot.findMany({})
+
+      return NextResponse.json(slots, { status: 200 })
+    } catch (error) {
+      return NextResponse.json(
+        {
+          error: "Internal server error @api/subjects/forum/tags",
+          details: error
+        },
+        { status: 500 }
+      )
+    }
+  } else if (route === "myTimeTableSlots") {
+    const userId = url.searchParams.get("userId")
+
+    if (!userId) {
+      return NextResponse.json(
+        { message: "userId Id is required" },
+        { status: 400 }
+      )
+    }
+
+    try {
+      const slots = await prisma.slot.findMany({
+        where: {
+          facultyId: String(userId)
+        },
+        include: {
+          class: true
+        }
+      })
 
       return NextResponse.json(slots, { status: 200 })
     } catch (error) {

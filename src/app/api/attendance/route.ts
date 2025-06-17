@@ -64,8 +64,6 @@ export async function PATCH(req: Request) {
       )
     }
 
-    console.log("id, date", id, date)
-
     // If `id` and `date` are provided, delete records for the specific date and class
     if (id && date) {
       const inputDate = new Date(date)

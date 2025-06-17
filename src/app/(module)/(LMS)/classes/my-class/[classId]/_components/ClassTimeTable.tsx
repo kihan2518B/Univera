@@ -1,27 +1,36 @@
 "use client"
 
 import React, { useContext, useState, useRef, useEffect } from "react"
-import { BookOpen, Coffee, FlaskConical, Users } from "lucide-react"
+import * as XLSX from "xlsx"
 import axios from "axios"
 import { UserContext } from "@/context/user"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import toast from "react-hot-toast"
-import { TimeTableSlot } from "@/types/globals"
+import { SlotData, TimeTableSlot } from "@/types/globals"
 import TimetableHeader from "./TimetableHeader"
 import TimetableGrid from "./TimetableGrid"
 import SlotDialog from "./SlotDialog"
+import { BookOpen, FlaskConical, Users, Coffee } from "lucide-react"
 
-// Helper functions for styling
+const days = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday"
+]
+
 const getBackgroundColor = (tag: string) => {
   switch (tag) {
-    case "Lecture":
+    case "lecture":
       return "#E3F2FD" // Soft blue
-    case "Lab":
+    case "lab":
       return "#F3E5F5" // Soft purple
-    case "Seminar":
+    case "seminar":
       return "#FFF8E1" // Soft yellow
-    case "Break":
+    case "break":
       return "#CBF5CB" // Soft Blue Romance
     default:
       return "#ffffff" // White
@@ -30,13 +39,13 @@ const getBackgroundColor = (tag: string) => {
 
 const getBorderColor = (tag: string) => {
   switch (tag) {
-    case "Lecture":
+    case "lecture":
       return "#90CAF9" // Darker blue border
-    case "Lab":
+    case "lab":
       return "#CE93D8" // Darker purple border
-    case "Seminar":
+    case "seminar":
       return "#FFE082" // Darker yellow border
-    case "Break":
+    case "break":
       return "#7BE37B" // Darker paster green
     default:
       return "#e5e7eb" // Default gray border
@@ -45,13 +54,13 @@ const getBorderColor = (tag: string) => {
 
 const getTagClass = (tag: string) => {
   switch (tag) {
-    case "Lecture":
+    case "lecture":
       return "bg-blue-100 text-blue-800"
-    case "Lab":
+    case "lab":
       return "bg-purple-100 text-purple-800"
-    case "Seminar":
+    case "seminar":
       return "bg-amber-100 text-amber-800"
-    case "Break":
+    case "break":
       return "bg-green-100 text-green-900"
     default:
       return "bg-gray-100 text-gray-800"
@@ -61,34 +70,22 @@ const getTagClass = (tag: string) => {
 // Function to render appropriate icons based on slot type
 const getIconForTag = (tag: string) => {
   switch (tag) {
-    case "Lecture":
+    case "lecture":
       return <BookOpen size={40} className="text-blue-300" />
-    case "Lab":
+    case "lab":
       return <FlaskConical size={40} className="text-purple-300" />
-    case "Seminar":
+    case "seminar":
       return <Users size={40} className="text-amber-300" />
-    case "Break":
+    case "break":
       return <Coffee size={40} className="text-green-300" />
     default:
       return null
   }
 }
 
-const days = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday"
-]
+const timeSlots = Array.from({ length: 15 }, (_, i) => `${6 + i}:00`)
 
-const timeSlots = Array.from(
-  { length: 15 },
-  (_, i) => `${6 + i}:00 ${i + 6 < 12 ? "AM" : "PM"}`
-)
-
-const tags = ["Lecture", "Lab", "Seminar", "Break"]
+const tags = ["lecture", "lab", "seminar", "break"]
 
 const fetchSubjects = async (courseId: string) => {
   const response = await axios.get(`/api/subjects?courseId=${courseId}`)
@@ -262,12 +259,12 @@ export default function ClassTimeTable() {
     const updatedScheduleData = { ...scheduleData }
 
     // If "Break" is selected, update all days from Monday to Saturday
-    if (currentSubject === "Break" && selectedTime && endTime) {
+    if (currentSubject === "break" && selectedTime && endTime) {
       days.forEach((day) => {
         updatedScheduleData[`${day}-${selectedTime}`] = {
           ...data,
           day,
-          subject: "Break",
+          subject: "break",
           faculty: "",
           subjectId: null,
           facultyId: null,
@@ -465,12 +462,133 @@ export default function ClassTimeTable() {
     }
   }
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls")) {
+      toast.error("Please upload a valid Excel file")
+      return
+    }
+
+    try {
+      const data = await file.arrayBuffer()
+      const workbook = XLSX.read(data)
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]]
+      const jsonData: SlotData[] = XLSX.utils.sheet_to_json(worksheet, {
+        defval: "",
+        raw: false
+      })
+      const updatedScheduleData = { ...scheduleData }
+
+      let conflictMessages = 0
+
+      jsonData.forEach((row) => {
+        const {
+          day,
+          subject,
+          faculty,
+          startTime,
+          endTime,
+          tag,
+          location,
+          remarks
+        } = row
+
+        const slotKey = `${day}-${startTime}`
+
+        const subjectData = subjects.find((s: any) => s.name === subject)
+        const subjectId = subjectData ? subjectData.id : null
+
+        const facultyData = faculties.find((f: any) => f.user.name === faculty)
+        const facultyId = facultyData ? facultyData.id : null
+
+        const data = {
+          subject,
+          faculty: faculty || null,
+          startTime,
+          endTime,
+          tag,
+          location: location || "",
+          remarks: remarks || "",
+          subjectId,
+          facultyId
+        }
+
+        // check for the conflict of slot of same faculty in different class
+        if (allSlots.length > 0 && subject !== "break" && facultyId) {
+          const conflictSlot = allSlots.some(
+            (slot: any) =>
+              slot.classId !== Number(classId) &&
+              slot.facultyId === facultyId &&
+              slot.day === day.toLocaleLowerCase &&
+              slot.startTime === startTime &&
+              slot.endTime === endTime
+          )
+
+          if (conflictSlot) {
+            toast.error(
+              `The ${faculty} has already slot on ${day} at ${startTime} - ${endTime} in another class.`
+            )
+            conflictMessages++
+            return // skip this slot
+          }
+        }
+
+        if (subject === "break" && startTime && endTime) {
+          days.forEach((d) => {
+            updatedScheduleData[`${d}-${startTime}`] = {
+              ...data,
+              day: d,
+              faculty: "",
+              subjectId: null,
+              facultyId: null,
+              location: "",
+              remarks: ""
+            }
+          })
+        } else {
+          updatedScheduleData[slotKey] = {
+            ...data,
+            day
+          }
+        }
+      })
+
+      if (conflictMessages > 0) {
+        toast.error(`${conflictMessages} slot(s) skipped due to conflicts.`)
+      }
+
+      toast.success("Timetable imported successfully!")
+
+      setScheduleData(updatedScheduleData)
+      localStorage.setItem(
+        `classId-${classId}`,
+        JSON.stringify(updatedScheduleData)
+      )
+    } catch (error) {
+      console.log("Error reading Excel file:", error)
+      toast.error("Failed to import timetable")
+    }
+  }
+  const downloadTemplate = () => {
+    const link = document.createElement("a")
+    link.href =
+      "https://drive.google.com/uc?export=download&id=1uY4ejj4x75DavcGOUzHllOwiS_uKr3jn"
+    link.setAttribute("download", "Timetable Template.xlsx")
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="mx-auto p-4">
       <TimetableHeader
         isCoordinator={isCoordinator}
         handleZoom={handleZoom}
         saveTimetableSlotsToDb={saveTimetableSlotsToDb}
+        handleFileChange={handleFileChange}
+        downloadTemplate={downloadTemplate}
       />
 
       <TimetableGrid

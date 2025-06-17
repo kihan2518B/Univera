@@ -170,7 +170,8 @@ const dashboardItems = [
   {
     icon: Calendar,
     title: "Time-Table",
-    desc: "description"
+    desc: "description",
+    link: `/dashboard/time-table`
   },
   {
     icon: ScrollText,
