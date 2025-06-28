@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import { Chapter } from "@prisma/client"
-// import AddChapterWiseContent from "./_lessionComponents/AddChapterWiseContent"
+import AddChapterWiseContent from "./_lessionComponents/AddChapterWiseContent"
 
 export default function ChapterWiseContentPage({
   chapter
@@ -19,7 +19,7 @@ export default function ChapterWiseContentPage({
         >
           <span className="text-sm font-bold">Add Lesson Content</span>
         </button>
-        {/* {isButtonactive && <AddChapterWiseContent />} */}
+        {isButtonactive && <AddChapterWiseContent />}
       </div>
 
       {/* Display */}
