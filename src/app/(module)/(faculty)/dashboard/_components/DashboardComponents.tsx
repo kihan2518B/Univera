@@ -1,11 +1,14 @@
 import {
-  Home,
   FileText,
   Users,
   Calendar,
   BookOpen,
   ClipboardList,
-  ScrollText
+  ScrollText,
+  UserCircle,
+  MessagesSquare,
+  Notebook,
+  Pencil
 } from "lucide-react"
 
 import React from "react"
@@ -16,9 +19,17 @@ import Link from "next/link"
 import { FaBullhorn } from "react-icons/fa"
 import { IconType } from "react-icons"
 
-export function ProfileBanner({ user }: { user: any }) {
+export function ProfileBanner({
+  user,
+  isStudent
+}: {
+  user: any
+  isStudent: boolean
+}) {
   const { user: ClerkUser } = useUser()
+
   if (!user) return null
+
   return (
     <div className="w-full overflow-hidden mb-6">
       <div className="relative h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl border-2 md:border-4 border-white">
@@ -47,7 +58,7 @@ export function ProfileBanner({ user }: { user: any }) {
                 {user.name}
               </h2>
               <p className="text-xs sm:text-sm md:text-base font-semibold text-TextTwo">
-                {user.faculty?.position ?? "faculty"}
+                {isStudent ? "Student" : (user.faculty?.position ?? "faculty")}
               </p>
               <p className="text-xs sm:text-sm md:text-base text-TextTwo">
                 {user.email}
@@ -136,31 +147,30 @@ function ExploreItem({
   )
 }
 
-const dashboardItems = [
-  {
-    icon: Home,
-    title: "Home",
-    desc: "description"
-  },
+const facultyDashboardItems = [
   {
     icon: FileText,
     title: "Leave",
-    desc: "description"
+    desc: "description",
+    link: `/leave`
   },
   {
     icon: FaBullhorn,
     title: "Announcement",
-    desc: "description"
+    desc: "description",
+    link: `/announcements`
   },
   {
     icon: Users,
     title: "My Team",
-    desc: "description"
+    desc: "description",
+    link: `/myTeam`
   },
   {
     icon: BookOpen,
     title: "Courses",
-    desc: "description"
+    desc: "description",
+    link: `/courses`
   },
   {
     icon: ClipboardList,
@@ -169,13 +179,79 @@ const dashboardItems = [
   },
   {
     icon: Calendar,
-    title: "Time-Table",
+    title: "Time Table",
     desc: "description",
     link: `/dashboard/time-table`
   },
   {
     icon: ScrollText,
     title: "Policies",
+    desc: "description",
+    link: `/policy`
+  }
+]
+
+const studentDashboardItems = (classId?: string) => [
+  {
+    icon: Calendar,
+    title: "Time Table",
+    desc: "description",
+    link: `/classes/my-class/${classId}/time-table`
+  },
+  {
+    icon: FileText,
+    title: "Attendance",
+    desc: "description",
+    link: "/attendance"
+  },
+  {
+    icon: Notebook,
+    title: "Class Notes",
+    desc: "description"
+  },
+  {
+    icon: Pencil,
+    title: "Assignment",
+    desc: "description",
+    link: `/classes/my-class/${classId}/assignments`
+  },
+  {
+    icon: FaBullhorn,
+    title: "Quizes",
+    desc: "description",
+    link: `/announcements`
+  },
+  {
+    icon: MessagesSquare,
+    title: "Forums",
+    desc: "description",
+    link: `/forum`
+  },
+  {
+    icon: ScrollText,
+    title: "Syllabus",
+    desc: "description",
+    link: `/classes/my-class/${classId}/syllabus`
+  },
+  {
+    icon: FaBullhorn,
+    title: "Announcement",
+    desc: "description",
+    link: `/announcements`
+  },
+  {
+    icon: UserCircle,
+    title: "Mentor",
+    desc: "description"
+  },
+  {
+    icon: ClipboardList,
+    title: "Exam",
+    desc: "description"
+  },
+  {
+    icon: BookOpen,
+    title: "Result",
     desc: "description"
   }
 ]
@@ -220,13 +296,19 @@ const classPageItems = (classId?: string) => [
 
 export function ExploreGrid({
   isClassPage,
-  classId
+  classId,
+  isStudent
 }: {
   isClassPage?: boolean
   classId?: string
+  isStudent?: boolean
 }) {
   const exploreItems =
-    isClassPage && classId ? classPageItems(classId) : dashboardItems
+    isClassPage && classId
+      ? classPageItems(classId)
+      : isStudent
+        ? studentDashboardItems(classId)
+        : facultyDashboardItems
 
   return (
     <div className="grid grid-cols-2 small:grid-cols-3 gap-2 sm:gap-4">

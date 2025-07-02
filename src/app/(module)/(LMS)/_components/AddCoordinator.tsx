@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { DropdownInput } from "@/components/(commnon)/EditableInputField"
 import { Prisma } from "@prisma/client"
 import axios from "axios"
@@ -208,10 +208,12 @@ export function AddMentor({ MentorUsers, classId, refetch }: AddMentorProps) {
 interface UpdateCoordinatorProps extends AddCoordinatorProps {
   open: boolean
   setOpen: (open: boolean) => void
+  coordinatorId: string
 }
 
 export function UpdateCoordinator({
   CoordinatorUsers,
+  coordinatorId,
   classId,
   refetch,
   open,
@@ -230,6 +232,15 @@ export function UpdateCoordinator({
     }
     return options
   }, [])
+
+  console.log("UserOption c", UserOption)
+
+  useEffect(() => {
+    // Set the initial selected coordinator if provided
+    if (coordinatorId) {
+      setSelectedCoordinator(coordinatorId)
+    }
+  }, [coordinatorId])
 
   const handleChange = ({ value }: { name: string; value: string }) => {
     setSelectedCoordinator(value)
@@ -308,7 +319,11 @@ export function UpdateCoordinator({
               id="save-coordinator"
               label="Save"
               onClick={handleSave}
-              disabled={UserOption.length === 0 || submitting}
+              disabled={
+                UserOption.length === 0 ||
+                submitting ||
+                selectedCoordinator === coordinatorId
+              }
               className="bg-Primary hover:bg-Primary/90"
             />
           </div>
@@ -321,10 +336,12 @@ export function UpdateCoordinator({
 interface UpdateMentorProps extends AddMentorProps {
   open: boolean
   setOpen: (open: boolean) => void
+  mentorId: string
 }
 
 export function UpdateMentor({
   MentorUsers,
+  mentorId,
   classId,
   refetch,
   open,
@@ -344,6 +361,15 @@ export function UpdateMentor({
     },
     []
   )
+
+  console.log("UserOption", UserOption)
+
+  useEffect(() => {
+    // Set the initial selected coordinator if provided
+    if (mentorId) {
+      setSelectedMentor(mentorId)
+    }
+  }, [mentorId])
 
   const handleChange = ({ value }: { name: string; value: string }) => {
     setSelectedMentor(value)
@@ -417,7 +443,11 @@ export function UpdateMentor({
               id="save-coordinator"
               label="Save"
               onClick={handleSave}
-              disabled={UserOption.length === 0 || submitting}
+              disabled={
+                UserOption.length === 0 ||
+                submitting ||
+                selectedMentor === mentorId
+              }
               className="bg-Primary hover:bg-Primary/90"
             />
           </div>

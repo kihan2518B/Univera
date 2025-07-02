@@ -26,6 +26,8 @@ export default function EditSubjectPage() {
   const [defaults, setDefaults] = useState<any>(initForm)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const roles = user?.roles?.map((role: any) => role.id) || []
+  const isAllowedUpdatation = roles.includes(2) || roles.includes(3)
 
   useEffect(() => {
     const fetchSubjects = async () => {
@@ -55,18 +57,18 @@ export default function EditSubjectPage() {
     fetchSubjects()
   }, [subjectId, courseId])
 
-  const handleUpdateSubject = async (updatedData: any) => {
-    try {
-      const res = await axios.put(`/api/subjects/${subjectId}`, updatedData)
-      if (res.status === 200) {
-        toast.success("Subject updated successfully!")
-        router.push(`/subject/${courseId}`)
-      }
-    } catch (error) {
-      console.error("Error updating subject:", error)
-      toast.error("Something went wrong while updating the subject.")
-    }
-  }
+  // const handleUpdateSubject = async (updatedData: any) => {
+  //   try {
+  //     const res = await axios.put(`/api/subjects/${subjectId}`, updatedData)
+  //     if (res.status === 200) {
+  //       toast.success("Subject updated successfully!")
+  //       router.push(`/subject/${courseId}`)
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating subject:", error)
+  //     toast.error("Something went wrong while updating the subject.")
+  //   }
+  // }
 
   const handleDeleteClick = async () => {
     try {
@@ -121,16 +123,19 @@ export default function EditSubjectPage() {
               courseName={course?.name}
               departmentName={String(user?.Department?.name)}
               submitBtnLabel={"Update"}
+              isAllowedUpdatation={isAllowedUpdatation}
             />
 
             {/* Delete Button */}
-            <div className="mt-6">
-              <DeleteButton
-                label="Delete This Subject"
-                onDelete={handleDeleteClick}
-                className="bg-red-500 text-white w-full hover:bg-red-600 font-semibold rounded-lg px-4 py-2 transition duration-200"
-              />
-            </div>
+            {isAllowedUpdatation && (
+              <div className="mt-6">
+                <DeleteButton
+                  label="Delete This Subject"
+                  onDelete={handleDeleteClick}
+                  className="bg-red-500 text-white w-full hover:bg-red-600 font-semibold rounded-lg px-4 py-2 transition duration-200"
+                />
+              </div>
+            )}
           </div>
         )
       )}

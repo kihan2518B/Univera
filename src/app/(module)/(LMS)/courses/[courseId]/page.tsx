@@ -22,6 +22,8 @@ const fetchCourse = async (courseId: string | undefined) => {
 const CourseDetailsPage = () => {
   const { user } = useContext(UserContext)
   const { courseId } = useParams()
+  const roles = user?.roles?.map((role: any) => role.id) || []
+  const isUpdateAllowed = roles?.includes(2) || roles?.includes(3)
 
   const {
     data: defaults,
@@ -52,7 +54,14 @@ const CourseDetailsPage = () => {
       </div>
     )
 
-  return <CourseDetials courseId={courseId} user={user} defaults={defaults} />
+  return (
+    <CourseDetials
+      courseId={courseId}
+      user={user}
+      defaults={defaults}
+      isUpdateAllowed={isUpdateAllowed}
+    />
+  )
 }
 
 export default CourseDetailsPage

@@ -185,6 +185,7 @@ const Profile: React.FC<ProfileProps> = ({
               <EditableInputField
                 key={"name"}
                 label={"Name"}
+                isUpdateAllowed={true}
                 placeholder={"Enter your Name"}
                 name={"name"}
                 value={formData["name"]}
@@ -198,6 +199,7 @@ const Profile: React.FC<ProfileProps> = ({
               <EditableInputField
                 key={"phone"}
                 label={"Phone number"}
+                isUpdateAllowed={true}
                 placeholder={"Enter your Phone number"}
                 name={"phone"}
                 value={formData["phone"]}
@@ -211,6 +213,7 @@ const Profile: React.FC<ProfileProps> = ({
               <EditableInputField
                 key={"email"}
                 label={"Email"}
+                isUpdateAllowed={true}
                 placeholder={"Enter your Email"}
                 name={"email"}
                 value={formData["email"]}
@@ -226,6 +229,7 @@ const Profile: React.FC<ProfileProps> = ({
               <EditableInputField
                 key={"address"}
                 label={"Address"}
+                isUpdateAllowed={true}
                 placeholder={"Enter your Address"}
                 name={"address"}
                 value={formData["address"]}
@@ -239,6 +243,7 @@ const Profile: React.FC<ProfileProps> = ({
               <EditableInputField
                 key={"dob"}
                 label={"Date of Birth"}
+                isUpdateAllowed={true}
                 placeholder={"Enter your dob"}
                 name={"dob"}
                 type={"date"}
@@ -253,6 +258,7 @@ const Profile: React.FC<ProfileProps> = ({
               <EditableInputField
                 key={"birthPlace"}
                 label={"Place of Birth"}
+                isUpdateAllowed={true}
                 placeholder={"Enter your birthPlace"}
                 name={"birthPlace"}
                 value={formData["birthPlace"]}

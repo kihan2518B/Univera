@@ -52,7 +52,7 @@ export default clerkMiddleware(async (authPromise, req) => {
 
         //teacher role redirection
         if (role == "student" && req.nextUrl.pathname === "/") {
-          return NextResponse.redirect(new URL("/student", req.url))
+          return NextResponse.redirect(new URL("/dashboard", req.url))
         }
 
         //prevent non admin user to go to admin paths

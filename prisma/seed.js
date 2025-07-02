@@ -198,7 +198,7 @@ async function main() {
       courseId: 1,
       universityId: 1,
       roles: {
-        connect: { id: 4 }
+        connect: [4, 13].map((id) => ({ id }))
       }
     }
   })
@@ -244,14 +244,14 @@ async function main() {
   const studentUser1 = await prisma.user.create({
     data: {
       phone: "9898989898",
-      id: "user_2qcpGWy1HfRZAtNQrQqI2Ypj1fS",
+      id: "user_2vcrShCzi0FpMpTJaLhD3N411CO",
       email: "dev-student1@ku.edu.in",
       name: "student 1",
       imageUrl: "https://img.clerk.com/eyJ0eXBlIjoiZGVmYXVsdCIsImlpZCI6Imluc18yb21XZWFLSWtueG5RZFFSSWlsaDBZa2JlUEMiLCJyaWQiOiJ1c2VyXzJxdHpNR25LQTJPcTNQS0hQdzM3YXdiMHB5dSIsImluaXRpYWxzIjoiViJ9",
       departmentId: department.id,
       courseId: course1.id,
       universityId: university.id,
-      clerkId: "user_2qcpGWy1HfRZAtNQrQqI2Ypj1fS",
+      clerkId: "user_2vcrShCzi0FpMpTJaLhD3N411CO",
       roles: {
         connect: {
           id: 7

@@ -304,7 +304,7 @@ const ProxyManagementDrawer: React.FC<ProxyManagementDrawerProps> = ({
                     All Clear! 🎉
                   </h3>
                   <p className="text-lg font-medium text-TextTwo">
-                    No pending proxy requests at the moment. You're all caught
+                    No pending proxy requests at the moment. You are all caught
                     up!
                   </p>
                 </div>
@@ -491,7 +491,7 @@ const ProxyManagementDrawer: React.FC<ProxyManagementDrawerProps> = ({
                     <div className="absolute inset-0 h-24 w-24 mx-auto rounded-full bg-ColorTwo opacity-20"></div>
                   </div>
                   <p className="text-lg font-medium text-TextTwo">
-                    You haven't sent any proxy requests yet.
+                    You have not sent any proxy requests yet.
                   </p>
                 </div>
               )}

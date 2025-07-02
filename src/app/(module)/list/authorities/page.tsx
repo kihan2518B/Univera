@@ -1,13 +1,12 @@
 "use client"
 
-import Pagination from "../_components/Pagination"
 import Image from "next/image"
 import Link from "next/link"
 import TableSearch from "../_components/TableSearch"
 import Table from "../_components/Table"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
-import { useContext } from "react"
+import { useContext, useState } from "react"
 import { UserContext } from "@/context/user"
 import { Role } from "@prisma/client"
 import DeleteButton from "@/components/(commnon)/DeleteButton"
@@ -15,6 +14,7 @@ import toast from "react-hot-toast"
 import { ButtonV1 } from "@/components/(commnon)/ButtonV1"
 import { RotateCcw } from "lucide-react"
 import { CoursesSkeleton } from "@/components/(commnon)/Skeleton"
+import PaginationWrapper from "../_components/Pagination"
 
 type Teacher = {
   id: number
@@ -44,11 +44,28 @@ const fetchDepartment = async (dId: number) => {
 const TeacherListPage = () => {
   const { user } = useContext(UserContext)
   const userRoles = user?.roles.map((r: Role) => r.id)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
+
   const { data, error, isLoading, refetch } = useQuery({
     queryKey: ["department"],
     queryFn: () => fetchDepartment(Number(user?.departmentId)),
     enabled: !!user?.departmentId
   })
+
+  // Filter logic for search input
+  const filteredData = data?.filter(
+    (user: any) =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  // Apply pagination after filtering
+  const startIdx = (currentPage - 1) * itemsPerPage
+  const endIdx = startIdx + itemsPerPage
+  const paginatedData = filteredData?.slice(startIdx, endIdx)
+  const totalPages = Math.ceil((filteredData?.length || 0) / itemsPerPage)
 
   if (isLoading) {
     return <CoursesSkeleton />
@@ -117,12 +134,12 @@ const TeacherListPage = () => {
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
       {/* TOP */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-2">
         <h1 className="hidden md:block text-lg font-semibold">
           All Authorities
         </h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-          <TableSearch />
+          <TableSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <div className="flex items-center gap-4 self-end"></div>
         </div>
       </div>
@@ -137,11 +154,20 @@ const TeacherListPage = () => {
         </Link>
       )}
       {/* LIST */}
-      {!isLoading && (
-        <Table columns={columns} renderRow={renderRow} data={data} />
+      {!isLoading ? (
+        <>
+          <Table columns={columns} renderRow={renderRow} data={paginatedData} />
+          <PaginationWrapper
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+        </>
+      ) : (
+        <div className="flex items-center justify-center h-64">
+          <p className="text-gray-500">Loading authorities...</p>
+        </div>
       )}
-      {/* PAGINATION */}
-      <Pagination />
     </div>
   )
 }

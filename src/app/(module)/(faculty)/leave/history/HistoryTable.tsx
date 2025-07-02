@@ -50,6 +50,13 @@ const HistoryTable = ({ history, isError, isLoading }: HistoryProps) => {
         <FacultyUserTableSkeleton />
       ) : (
         <TableBody className="whitespace-nowrap">
+          {history.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={8} className="text-center">
+                No leave history found.
+              </TableCell>
+            </TableRow>
+          )}
           {history &&
             history.map((history) => (
               <TableRow key={history.id}>

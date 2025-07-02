@@ -106,6 +106,7 @@ export default function UserCard({
           setOpen={setOpen}
           refetch={refetch}
           classId={classId}
+          coordinatorId={User?.id}
           CoordinatorUsers={Users}
         />
       ) : (
@@ -114,6 +115,7 @@ export default function UserCard({
           setOpen={setOpen}
           refetch={refetch}
           classId={classId}
+          mentorId={User?.id}
           MentorUsers={Users}
         />
       )}

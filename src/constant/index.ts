@@ -75,7 +75,7 @@ export const Menuitems = {
     { title: "Policy", url: "/policy", icon: MdPolicy }
   ],
   student: [
-    { title: "Dashboard", url: "/student", icon: MdSpaceDashboard },
+    { title: "Dashboard", url: "/dashboard", icon: MdSpaceDashboard },
     { title: "Curriculum", url: "/curriculum", icon: FaBook },
     { title: "Subjects", url: "/subjects", icon: MdClass },
     { title: "Events", url: "/events", icon: FaRegCalendarAlt },

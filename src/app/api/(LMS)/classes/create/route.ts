@@ -9,6 +9,15 @@ export async function POST(req: Request) {
     const clerkU = await currentUser()
     const role = clerkU?.publicMetadata.role
 
+    console.log("Creating class with data:", {
+      name,
+      code,
+      semister,
+      courseId,
+      departmentId,
+      universityId
+    })
+
     //check user authorization
     if (role !== "authority" && role !== "super_user") {
       return NextResponse.json(
@@ -27,7 +36,10 @@ export async function POST(req: Request) {
       !departmentId ||
       !universityId
     ) {
-      throw new Error("All fields are required")
+      return NextResponse.json(
+        { message: "All fields are required" },
+        { status: 400 }
+      )
     }
     const existingClass = await prisma.class.findFirst({
       where: {

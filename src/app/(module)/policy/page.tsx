@@ -22,7 +22,6 @@ async function fetchPolicy(departmentId: string, universityId: string) {
 export default function PolicyPage() {
   const router = useRouter()
   const { user } = useContext(UserContext)
-  console.log("user: ", user)
   // Check if the user has any of the required role IDs
   const allowedRoleIds = [1, 3, 10, 11, 12]
 

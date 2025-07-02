@@ -6,6 +6,7 @@ import ProxyManagementDrawer from "./ProxyManagementDrawer"
 type CurrentDayDisplayProps = {
   currentDay: { label: string } | null
   currentDate: string
+  todayDate: string
   pendingCount: number
   currentPage: number
   goToToday: () => void
@@ -21,6 +22,7 @@ type CurrentDayDisplayProps = {
   sortedSlots: any[]
   getProxyStatusForSlot: (slot: any) => string
   openProxyDialog: (slot: any) => void
+  isLoading: boolean
   ConfirmationDialogContent: React.FC<{
     action: string
     onConfirm: () => void
@@ -35,6 +37,7 @@ type CurrentDayDisplayProps = {
 const CurrentDayDisplay: React.FC<CurrentDayDisplayProps> = ({
   currentDay,
   currentDate,
+  todayDate,
   pendingCount,
   currentPage,
   goToToday,
@@ -53,6 +56,7 @@ const CurrentDayDisplay: React.FC<CurrentDayDisplayProps> = ({
   ConfirmationDialogContent,
   deleteDialogOpen,
   handleDeleteClick,
+  isLoading,
   handleDeleteCancel,
   handleDeleteConfirm,
   isDeleting
@@ -107,6 +111,9 @@ const CurrentDayDisplay: React.FC<CurrentDayDisplayProps> = ({
         </div>
       </div>
       <SlotsContent
+        isLoading={isLoading}
+        currentDate={currentDate}
+        todayDate={todayDate}
         sortedSlots={sortedSlots}
         getProxyStatusForSlot={getProxyStatusForSlot}
         openProxyDialog={openProxyDialog}

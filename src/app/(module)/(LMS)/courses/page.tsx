@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useContext, Suspense, useEffect, useState } from "react"
+import React, { useContext, Suspense, useState } from "react"
 import { UserContext } from "@/context/user"
 import { useQuery } from "@tanstack/react-query"
 import { fetchCourses } from "../_helper"
@@ -15,7 +15,8 @@ import Link from "next/link"
 const CoursesGrid = () => {
   const { user } = useContext(UserContext)
   const [filter, setFilter] = useState("")
-  const [roles, setRoles] = useState<number[]>([])
+  const roles = user?.roles?.map((role: any) => role.id) || []
+
   const {
     data: courses,
     error,
@@ -26,9 +27,8 @@ const CoursesGrid = () => {
     queryFn: () => fetchCourses(String(user?.departmentId), user?.id as string),
     enabled: !!user?.Department?.id && !!user?.id
   })
-  useEffect(() => {
-    setRoles(user?.roles.map((role: any) => role.id) ?? [])
-  }, [user?.roles])
+
+  const isUpdateAllowed = roles?.includes(2) || roles?.includes(3)
 
   if (isLoading) {
     return (
@@ -66,7 +66,7 @@ const CoursesGrid = () => {
           onChange={(e) => setFilter(e.target.value)}
           className="max-w-sm"
         />
-        {roles && roles.includes(3) && (
+        {isUpdateAllowed && (
           <Link href="/courses/create">
             <Button variant="default">
               <PlusCircle className="h-4 w-4 mr-2" />
@@ -77,7 +77,11 @@ const CoursesGrid = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredCourses.map((course: any) => (
-          <Courcecard_c key={course.id} course={course} />
+          <Courcecard_c
+            key={course.id}
+            course={course}
+            isUpdateAllowed={isUpdateAllowed}
+          />
         ))}
       </div>
       {filteredCourses.length === 0 && (

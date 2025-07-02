@@ -13,9 +13,13 @@ interface FullCourseData extends Course {
 
 interface CourseCardProps {
   course: FullCourseData
+  isUpdateAllowed: boolean
 }
 
-export const Courcecard_c: React.FC<CourseCardProps> = ({ course }) => {
+export const Courcecard_c: React.FC<CourseCardProps> = ({
+  course,
+  isUpdateAllowed
+}) => {
   return (
     <Card className="w-full overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
       <div className="relative w-full h-60">
@@ -54,7 +58,7 @@ export const Courcecard_c: React.FC<CourseCardProps> = ({ course }) => {
             variant="outline"
             className="w-full transition-all duration-300 hover:bg-gray-700 hover:text-white border-gray-400 text-gray-700"
           >
-            Edit Course
+            {isUpdateAllowed ? "Edit" : "View"} Course
           </Button>
         </Link>
       </CardFooter>

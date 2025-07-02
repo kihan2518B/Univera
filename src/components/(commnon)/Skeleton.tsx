@@ -754,3 +754,336 @@ export const QuizReviewSkeleton: React.FC = () => {
     </div>
   )
 }
+
+const IndividualSkeleton = ({ className = "" }) => (
+  <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
+)
+
+export function AttendancePageSkeleton() {
+  return (
+    <div className="min-h-screen p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header Section IndividualSkeleton */}
+        <div className="bg-white rounded-xl shadow-lg border border-blue-100 overflow-hidden">
+          <div className="bg-ColorThree text-white p-6">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div className="flex-1">
+                <IndividualSkeleton className="h-8 w-64 mb-2 bg-white/20" />
+                <IndividualSkeleton className="h-4 w-80 bg-white/20" />
+              </div>
+              <IndividualSkeleton className="h-6 w-16 bg-white/20 self-start lg:self-center" />
+            </div>
+          </div>
+
+          {/* Slot Details IndividualSkeleton */}
+          <div className="p-6 bg-gray-50">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm"
+                >
+                  <IndividualSkeleton className="w-5 h-5" />
+                  <div className="flex-1">
+                    <IndividualSkeleton className="h-3 w-12 mb-1" />
+                    <IndividualSkeleton className="h-4 w-20" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Attendance Summary IndividualSkeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            { bg: "bg-green-50", border: "border-green-200" },
+            { bg: "bg-red-50", border: "border-red-200" },
+            { bg: "bg-blue-50", border: "border-blue-200" }
+          ].map((style, i) => (
+            <Card key={i} className={`${style.bg} ${style.border}`}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <IndividualSkeleton className="h-4 w-16 mb-2" />
+                    <IndividualSkeleton className="h-8 w-12" />
+                  </div>
+                  <IndividualSkeleton className="w-8 h-8" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Bulk Actions Section IndividualSkeleton */}
+        <Card className="bg-white shadow-lg border border-gray-200">
+          <CardHeader className="bg-blue-50 border-b border-gray-200">
+            <div className="flex items-center gap-2">
+              <IndividualSkeleton className="w-5 h-5" />
+              <IndividualSkeleton className="h-5 w-32" />
+            </div>
+            <IndividualSkeleton className="h-4 w-64 mt-2" />
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Make All Present IndividualSkeleton */}
+              <div className="space-y-3">
+                <IndividualSkeleton className="h-4 w-32" />
+                <IndividualSkeleton className="h-10 w-full" />
+              </div>
+
+              {/* Bulk Roll Number Input IndividualSkeleton */}
+              <div className="space-y-3">
+                <IndividualSkeleton className="h-4 w-48" />
+                <div className="flex gap-2">
+                  <IndividualSkeleton className="h-10 flex-1" />
+                  <IndividualSkeleton className="h-10 w-16" />
+                </div>
+                <IndividualSkeleton className="h-3 w-64" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Attendance Table IndividualSkeleton */}
+        <Card className="bg-white shadow-lg border border-gray-200">
+          <CardHeader className="bg-gray-50 border-b border-gray-200">
+            <IndividualSkeleton className="h-6 w-48" />
+            <IndividualSkeleton className="h-4 w-80 mt-2" />
+          </CardHeader>
+          <CardContent className="p-0">
+            {/* Desktop/Tablet Table View IndividualSkeleton */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-100 border-b border-gray-200">
+                  <tr>
+                    <th className="text-left p-4">
+                      <IndividualSkeleton className="h-4 w-16" />
+                    </th>
+                    <th className="text-left p-4">
+                      <IndividualSkeleton className="h-4 w-24" />
+                    </th>
+                    <th className="text-left p-4 hidden md:table-cell">
+                      <IndividualSkeleton className="h-4 w-12" />
+                    </th>
+                    <th className="text-left p-4 hidden lg:table-cell">
+                      <IndividualSkeleton className="h-4 w-16" />
+                    </th>
+                    <th className="text-center p-4">
+                      <IndividualSkeleton className="h-4 w-20 mx-auto" />
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                    <tr key={i} className="border-b border-gray-100 bg-gray-50">
+                      <td className="p-4">
+                        <IndividualSkeleton className="h-5 w-8" />
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <IndividualSkeleton className="w-8 h-8 rounded-full" />
+                          <IndividualSkeleton className="h-4 w-32" />
+                        </div>
+                      </td>
+                      <td className="p-4 hidden md:table-cell">
+                        <IndividualSkeleton className="h-4 w-24" />
+                      </td>
+                      <td className="p-4 hidden lg:table-cell">
+                        <IndividualSkeleton className="h-4 w-40" />
+                      </td>
+                      <td className="p-4 text-center">
+                        <div className="flex items-center justify-center gap-3">
+                          <IndividualSkeleton className="w-5 h-5" />
+                          <IndividualSkeleton className="h-4 w-12" />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View IndividualSkeleton */}
+            <div className="block sm:hidden">
+              <div className="space-y-3 p-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div
+                    key={i}
+                    className="rounded-lg p-4 border-l-4 border-l-gray-300 bg-gray-50 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between">
+                      {/* Student Info IndividualSkeleton */}
+                      <div className="flex items-center gap-3 flex-1">
+                        <IndividualSkeleton className="w-12 h-12 rounded-full" />
+                        <div className="flex-1 min-w-0">
+                          <IndividualSkeleton className="h-5 w-32 mb-1" />
+                          <IndividualSkeleton className="h-4 w-24" />
+                        </div>
+                      </div>
+
+                      {/* Attendance Toggle IndividualSkeleton */}
+                      <div className="flex flex-col items-center gap-2 ml-4">
+                        <IndividualSkeleton className="w-6 h-6" />
+                        <IndividualSkeleton className="h-3 w-12" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Submit Button IndividualSkeleton */}
+        <div className="flex justify-center pb-6">
+          <IndividualSkeleton className="h-12 w-48" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export const SlotsContentSkeleton: React.FC = () => {
+  return (
+    <div className="p-4 sm:p-6">
+      <div className="space-y-4 sm:space-y-6">
+        {/* Header Summary Section Skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-blue-50/80 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-blue-100/50">
+          <div className="flex items-center mb-3 sm:mb-0">
+            <div className="p-2 bg-blue-100 rounded-lg mr-3">
+              <IndividualSkeleton className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
+            </div>
+            <IndividualSkeleton className="h-6 w-24 sm:h-7 sm:w-32" />
+          </div>
+          <div className="flex flex-wrap gap-1 sm:gap-2">
+            {[1, 2, 3].map((i) => (
+              <IndividualSkeleton
+                key={i}
+                className="h-6 w-16 sm:w-20 rounded-full"
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Slots List IndividualSkeleton */}
+        <div className="space-y-4 md:space-y-6">
+          {[1, 2, 3, 4].map((slotIndex) => (
+            <div
+              key={slotIndex}
+              className="group relative rounded-2xl md:rounded-3xl shadow-lg border-l-4 md:border-l-6 overflow-hidden bg-gradient-to-r from-white/95 to-white/90 backdrop-blur-sm border border-gray-100/50"
+              style={{
+                borderLeftColor: "#CE93D8"
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-gray-50/20 pointer-events-none" />
+              <div className="relative p-4 md:p-6">
+                <div className="flex flex-col space-y-4">
+                  {/* Header Section */}
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-3 sm:space-y-0 sm:space-x-4">
+                    <div className="flex items-start space-x-3 md:space-x-4 flex-1 min-w-0">
+                      <div className="flex-1 min-w-0">
+                        <IndividualSkeleton className="h-6 w-48 md:h-7 md:w-64 lg:h-8 lg:w-80 mb-2" />
+                        <IndividualSkeleton className="h-4 w-32 md:h-5 md:w-40 lg:h-6 lg:w-48" />
+                      </div>
+                    </div>
+                    {/* Desktop Action Buttons */}
+                    <div className="hidden sm:flex gap-2">
+                      <IndividualSkeleton className="h-9 w-24 md:h-10 md:w-28 rounded-xl" />
+                      <IndividualSkeleton className="h-9 w-28 md:h-10 md:w-32 rounded-xl" />
+                    </div>
+                  </div>
+
+                  {/* Info Grid Section */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                    {/* Time Card */}
+                    <div className="flex items-center space-x-3 p-3 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100/50">
+                      <div className="flex-shrink-0 p-2 rounded-lg bg-blue-500/10">
+                        <IndividualSkeleton className="h-4 w-4 md:h-5 md:w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <IndividualSkeleton className="h-3 w-8 mb-1" />
+                        <IndividualSkeleton className="h-4 w-20 md:h-5 md:w-24" />
+                      </div>
+                    </div>
+
+                    {/* Location Card */}
+                    <div className="flex items-center space-x-3 p-3 rounded-xl bg-gradient-to-r from-red-50 to-pink-50 border border-red-100/50">
+                      <div className="flex-shrink-0 p-2 rounded-lg bg-red-500/10">
+                        <IndividualSkeleton className="h-4 w-4 md:h-5 md:w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <IndividualSkeleton className="h-3 w-12 mb-1" />
+                        <IndividualSkeleton className="h-4 w-16 md:h-5 md:w-20" />
+                      </div>
+                    </div>
+
+                    {/* Tag Card */}
+                    <div className="flex">
+                      <div className="w-full flex items-center justify-center px-4 py-3 rounded-xl bg-purple-100 shadow-md ring-1 ring-white/30">
+                        <IndividualSkeleton className="h-4 w-16" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mobile Action Buttons */}
+                  <div className="sm:hidden space-y-2">
+                    <IndividualSkeleton className="h-10 w-full max-w-xs mx-auto rounded-xl" />
+                    <IndividualSkeleton className="h-10 w-full max-w-xs mx-auto rounded-xl" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export const AttendanceCardSkeleton = () => {
+  return (
+    <section className="max-w-5xl mx-auto px-4">
+      {[...Array(5)].map((_, index) => (
+        <Card key={index} className="mb-4 p-4 animate-pulse">
+          <CardHeader className="flex flex-row justify-between items-center">
+            <div className="flex items-center gap-3">
+              <Skeleton circle width={20} height={20} />
+              <div>
+                <Skeleton width={120} height={16} />
+                <Skeleton width={80} height={12} />
+              </div>
+            </div>
+            <Skeleton width={20} height={20} />
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3">
+              {[...Array(2)].map((_, i) => (
+                <div
+                  key={i}
+                  className="p-4 rounded-xl border bg-white/50 border-border"
+                >
+                  <Skeleton height={20} width={`60%`} />
+                  <Skeleton height={16} width={`40%`} className="mt-2" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </section>
+  )
+}
+
+export const AttendanceStateSkeleton = () => {
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 py-6">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="rounded-2xl p-4 border animate-pulse">
+          <Skeleton width={80} height={16} />
+          <Skeleton width={40} height={24} className="mt-2" />
+        </div>
+      ))}
+    </div>
+  )
+}

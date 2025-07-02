@@ -1,9 +1,14 @@
 import React from "react"
 import { Calendar, Clock, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { SlotsContentSkeleton } from "@/components/(commnon)/Skeleton"
 
 type SlotsContentProps = {
+  currentDate: string
+  todayDate: string
   sortedSlots: any[]
+  isLoading?: boolean
   getProxyStatusForSlot: (slot: any) => string
   openProxyDialog: (slot: any) => void
   ConfirmationDialogContent: React.FC<{
@@ -14,11 +19,15 @@ type SlotsContentProps = {
 
 const SlotsContent: React.FC<SlotsContentProps> = ({
   sortedSlots,
+  currentDate,
+  isLoading,
+  todayDate,
   getProxyStatusForSlot,
   openProxyDialog
 }) => {
   return (
     <div className="p-4 sm:p-6">
+      {isLoading && <SlotsContentSkeleton />}
       {sortedSlots.length > 0 ? (
         <div className="space-y-4 sm:space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-blue-50/80 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-blue-100/50">
@@ -88,23 +97,42 @@ const SlotsContent: React.FC<SlotsContentProps> = ({
                             </span>
                           </div>
                         </div>
-                        {!slot.isProxy && (
-                          <div
-                            className={`hidden sm:flex ${proxyStatus === "APPROVED" ? "sm:hidden" : ""}`}
-                          >
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => openProxyDialog(slot.id)}
-                              className="font-semibold px-4 md:px-6 py-2 md:py-2.5 rounded-xl border-2 transition-all duration-300 hover:border-ColorTwo transform hover:text-ColorTwo hover:scale-105 shadow-sm hover:shadow-md whitespace-nowrap"
+                        <div
+                          className={`hidden sm:flex gap-2 ${proxyStatus === "APPROVED" ? "sm:hidden" : ""}`}
+                        >
+                          {proxyStatus !== "APPROVED" &&
+                            new Date(currentDate) <= new Date(todayDate) && (
+                              <Link
+                                href={`/dashboard/time-table/${slot.isProxy ? slot.slot.id : slot.id}/attendance?date=${currentDate}`}
+                              >
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="font-semibold px-4 md:px-6 py-2 md:py-2.5 rounded-xl border-2 transition-all duration-300 hover:border-ColorTwo transform hover:text-ColorTwo hover:scale-105 shadow-sm hover:shadow-md whitespace-nowrap"
+                                >
+                                  Attendance
+                                </Button>
+                              </Link>
+                            )}
+                        </div>
+                        {!slot.isProxy &&
+                          new Date(currentDate) >= new Date(todayDate) && (
+                            <div
+                              className={`hidden sm:flex gap-2 ${proxyStatus === "APPROVED" ? (currentDate === todayDate ? "sm:hidden" : "") : ""}`}
                             >
-                              {proxyStatus === "DECLINE" ||
-                              proxyStatus === "PENDING"
-                                ? "Update Proxy"
-                                : "Request Proxy"}
-                            </Button>
-                          </div>
-                        )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openProxyDialog(slot.id)}
+                                className="font-semibold px-4 md:px-6 py-2 md:py-2.5 rounded-xl border-2 transition-all duration-300 hover:border-ColorTwo transform hover:text-ColorTwo hover:scale-105 shadow-sm hover:shadow-md whitespace-nowrap"
+                              >
+                                {proxyStatus === "DECLINE" ||
+                                proxyStatus === "PENDING"
+                                  ? "Update Proxy"
+                                  : "Request Proxy"}
+                              </Button>
+                            </div>
+                          )}
                         {slot.isProxy && (
                           <div className="hidden sm:flex items-center px-4 text-sm font-semibold text-gray-700">
                             Proxy Slot
@@ -154,23 +182,44 @@ const SlotsContent: React.FC<SlotsContentProps> = ({
                           </div>
                         </div>
                       </div>
-                      {!slot.isProxy && (
-                        <div
-                          className={`sm:hidden flex justify-center pt-2 border-t border-gray-100 group-hover:border-gray-200 transition-colors duration-300 ${proxyStatus === "APPROVED" ? "hidden" : ""}`}
-                        >
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openProxyDialog(slot.id)}
-                            className="font-semibold px-6 py-2.5 rounded-xl border-2 transition-all duration-300 hover:border-ColorTwo transform hover:text-ColorTwo hover:scale-105 shadow-sm hover:shadow-md w-full max-w-xs"
+
+                      <div
+                        className={`sm:hidden ${proxyStatus === "APPROVED" ? "hidden" : ""}`}
+                      >
+                        {proxyStatus !== "APPROVED" &&
+                          new Date(currentDate) <= new Date(todayDate) && (
+                            <Link
+                              href={`/dashboard/time-table/${slot.isProxy ? slot.slot.id : slot.id}/attendance?date=${currentDate}`}
+                            >
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="font-semibold mx-auto px-6 py-2.5 rounded-xl border-2 transition-all duration-300 hover:border-ColorTwo transform hover:text-ColorTwo hover:scale-105 shadow-sm hover:shadow-md w-full max-w-xs"
+                              >
+                                Attendance
+                              </Button>
+                            </Link>
+                          )}
+                      </div>
+
+                      {!slot.isProxy &&
+                        new Date(currentDate) >= new Date(todayDate) && (
+                          <div
+                            className={`sm:hidden flex group-hover:border-gray-200 transition-colors duration-300 ${proxyStatus === "APPROVED" ? (currentDate === todayDate ? "hidden" : "") : ""}`}
                           >
-                            {proxyStatus === "DECLINE" ||
-                            proxyStatus === "PENDING"
-                              ? "Update Proxy"
-                              : "Request Proxy"}
-                          </Button>
-                        </div>
-                      )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openProxyDialog(slot.id)}
+                              className="font-semibold px-6 py-2.5 rounded-xl border-2 transition-all duration-300 hover:border-ColorTwo transform hover:text-ColorTwo hover:scale-105 shadow-sm hover:shadow-md w-full max-w-xs"
+                            >
+                              {proxyStatus === "DECLINE" ||
+                              proxyStatus === "PENDING"
+                                ? "Update Proxy"
+                                : "Request Proxy"}
+                            </Button>
+                          </div>
+                        )}
                       {slot.isProxy && (
                         <div className="sm:hidden flex justify-center pt-2 border-t border-gray-100 text-sm font-semibold text-gray-700">
                           Proxy Slot
@@ -190,20 +239,22 @@ const SlotsContent: React.FC<SlotsContentProps> = ({
           </div>
         </div>
       ) : (
-        <div className="text-center py-12 sm:py-16 lg:py-24">
-          <div className="mb-6 sm:mb-8">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mx-auto mb-4 p-4 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full">
-              <Calendar className="w-full h-full text-blue-500" />
+        !isLoading && (
+          <div className="text-center py-12 sm:py-16 lg:py-24">
+            <div className="mb-6 sm:mb-8">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mx-auto mb-4 p-4 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full">
+                <Calendar className="w-full h-full text-blue-500" />
+              </div>
             </div>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black mb-3 sm:mb-4 text-gray-800">
+              No Classes Scheduled
+            </h3>
+            <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-md mx-auto px-4">
+              You have a free day! Perfect time to relax or catch up on other
+              tasks.
+            </p>
           </div>
-          <h3 className="text-xl sm:text-2xl lg:text-3xl font-black mb-3 sm:mb-4 text-gray-800">
-            No Classes Scheduled
-          </h3>
-          <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-md mx-auto px-4">
-            You have a free day! Perfect time to relax or catch up on other
-            tasks.
-          </p>
-        </div>
+        )
       )}
     </div>
   )

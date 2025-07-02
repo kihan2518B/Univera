@@ -161,6 +161,7 @@ export const ClassEditForm: React.FC<ClassDetailsProps> = ({
                     <EditableInputField
                       key={"name"}
                       label={"Class Name"}
+                      isUpdateAllowed={true}
                       placeholder={"Enter your Class Name"}
                       name={"name"}
                       value={formData["name"] as string}
@@ -188,6 +189,7 @@ export const ClassEditForm: React.FC<ClassDetailsProps> = ({
                     <EditableInputField
                       key={"code"}
                       label={"Class Code"}
+                      isUpdateAllowed={true}
                       placeholder={"Enter your Class Code"}
                       name={"code"}
                       value={formData["code"] as string}
@@ -215,6 +217,7 @@ export const ClassEditForm: React.FC<ClassDetailsProps> = ({
                     <EditableInputField
                       key={"semister"}
                       label={"Total Semister"}
+                      isUpdateAllowed={true}
                       placeholder={"Enter total sem of the Class"}
                       name={"semister"}
                       value={formData["semister"]}

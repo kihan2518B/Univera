@@ -137,16 +137,25 @@ export type TimeTableSlot = {
 }
 
 export type SlotData = {
+  id: number
   subject: string
-  faculty: string
   startTime: string
   endTime: string
   subjectId?: string
   facultyId?: string
   tag: string
   location: string
+  title: string
   remarks: string
   day: string
+  faculty:
+    | string
+    | {
+        user: {
+          name: string
+        }
+      }
+  ProxySlot: ProxySlot
 }
 
 export interface FileWithPreview extends File {
@@ -167,6 +176,35 @@ export interface ProxySlot {
     location: string
     title: string
   }
+  lecturer: {
+    user: {
+      name: string
+    }
+  }
   reason?: string
   status: string
+}
+
+export interface attendacePayload {
+  classId: any
+  slotId: string | string[] | undefined
+  subjectId: any
+  facultyId: any
+  courseId: any
+  departmentId: any
+  universityId: any
+  date: string
+  attendance: Record<string, string>
+  attendanceId?: string
+  attendanceDate?: string
+  isLock?: boolean
+  todayDate: string
+}
+
+export interface SlotDetail {
+  slot: SlotData
+  date: string
+  status: string
+  facultyName: any
+  subjectName: string
 }

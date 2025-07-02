@@ -12,6 +12,7 @@ interface EditableInputFieldProps {
   isEditing: boolean
   disabled?: boolean
   type?: string
+  isUpdateAllowed: boolean
   setEditingField: (field: string | null) => void
   isDirty?: boolean
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
@@ -24,6 +25,7 @@ export function EditableInputField({
   name,
   className,
   isEditing,
+  isUpdateAllowed,
   type,
   setEditingField,
   onChange,
@@ -72,7 +74,7 @@ export function EditableInputField({
           placeholder={placeholder}
           value={value ?? ""}
           name={name}
-          disabled={!isEditing}
+          disabled={!isEditing || !isUpdateAllowed}
           onChange={onChange}
         />
         {!disabled && (
@@ -89,7 +91,7 @@ export function EditableInputField({
           />
         )}
       </div>
-      {isEditing && (
+      {isUpdateAllowed && isEditing && (
         <span className="text-sm text-gray-500">
           Update your {label} and submit to save.
         </span>

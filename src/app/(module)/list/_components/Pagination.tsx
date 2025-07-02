@@ -1,24 +1,75 @@
-const Pagination = () => {
+"use client"
+
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from "@/components/ui/pagination"
+
+type PaginationProps = {
+  currentPage: number
+  totalPages: number
+  onPageChange: (page: number) => void
+}
+
+const PaginationWrapper = ({
+  currentPage,
+  totalPages,
+  onPageChange
+}: PaginationProps) => {
+  if (totalPages <= 1) return null
+
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
+
   return (
-    <div className="p-4 flex items-center justify-between text-gray-500">
-      <button
-        disabled
-        className="py-2 px-4 rounded-md bg-slate-200 text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Prev
-      </button>
-      <div className="flex items-center gap-2 text-sm">
-        <button className="px-2 rounded-sm bg-lamaSky">1</button>
-        <button className="px-2 rounded-sm ">2</button>
-        <button className="px-2 rounded-sm ">3</button>
-        ...
-        <button className="px-2 rounded-sm ">10</button>
-      </div>
-      <button className="py-2 px-4 rounded-md bg-slate-200 text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
-        Next
-      </button>
-    </div>
+    <Pagination className="my-4">
+      <PaginationContent>
+        <PaginationItem>
+          <PaginationPrevious
+            href="#"
+            onClick={(e) => {
+              e.preventDefault()
+              if (currentPage > 1) onPageChange(currentPage - 1)
+            }}
+            className={
+              currentPage === 1 ? "pointer-events-none opacity-50" : ""
+            }
+          />
+        </PaginationItem>
+
+        {pages.map((page) => (
+          <PaginationItem key={page}>
+            <PaginationLink
+              href="#"
+              isActive={currentPage === page}
+              onClick={(e) => {
+                e.preventDefault()
+                onPageChange(page)
+              }}
+            >
+              {page}
+            </PaginationLink>
+          </PaginationItem>
+        ))}
+
+        <PaginationItem>
+          <PaginationNext
+            href="#"
+            onClick={(e) => {
+              e.preventDefault()
+              if (currentPage < totalPages) onPageChange(currentPage + 1)
+            }}
+            className={
+              currentPage === totalPages ? "pointer-events-none opacity-50" : ""
+            }
+          />
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
   )
 }
 
-export default Pagination
+export default PaginationWrapper

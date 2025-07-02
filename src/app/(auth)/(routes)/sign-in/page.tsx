@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 
-import { Loader } from "lucide-react"
+import { Eye, EyeOff, Loader } from "lucide-react"
 import { useSignIn } from "@clerk/nextjs"
 import { AlertCircle } from "lucide-react"
 
@@ -13,11 +13,13 @@ import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import OauthGoogle from "@/components/GoogleAuth"
 import { ButtonV1 } from "@/components/(commnon)/ButtonV1"
+import toast from "react-hot-toast"
 
 export default function SignIn() {
   const { isLoaded, signIn, setActive } = useSignIn()
   const [emailAddress, setEmailAddress] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -44,12 +46,14 @@ export default function SignIn() {
 
       if (res.status === "complete") {
         await setActive({ session: res.createdSessionId })
+        toast.success("Sign in successful!")
         router.push("/")
       } else {
         console.log(JSON.stringify(res, null, 2))
+        toast.error("Sign in failed. Please check your credentials.")
       }
     } catch (err: any) {
-      console.error("Error", err.errors[0].message)
+      toast.error("Sign in failed. Please try again.")
       setError(err.errors[0].message)
     } finally {
       setIsLoading(false)
@@ -117,16 +121,24 @@ export default function SignIn() {
                 />
               </div>
 
-              <div>
+              <div className="relative">
                 <Input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   required
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-[#E7E7FF] rounded-full"
+                  className="bg-[#E7E7FF] rounded-full pr-12"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors duration-200 outline-none rounded-md p-1"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
             </div>
             {error && (

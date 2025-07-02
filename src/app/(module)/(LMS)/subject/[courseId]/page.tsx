@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useState, useEffect, useContext } from "react"
+import { useContext } from "react"
 import { useParams } from "next/navigation"
 import { Subject } from "@prisma/client"
 import axios from "axios"
@@ -21,11 +21,7 @@ async function fetchSubjects(courseId: string) {
 export default function SubjectsPage() {
   const { courseId } = useParams()
   const { user } = useContext(UserContext)
-  const [roles, setRoles] = useState<number[]>([])
-
-  useEffect(() => {
-    setRoles(user?.roles.map((role: any) => role.id) ?? [])
-  }, [user?.roles])
+  const roles = user?.roles?.map((role: any) => role.id) || []
 
   const {
     data: subjects,
@@ -77,9 +73,6 @@ export default function SubjectsPage() {
       {/* Subject Cards */}
       <div className="flex flex-col items-center text-center mb-8">
         <h1 className="text-2xl font-bold text-gray-700 uppercase">Subjects</h1>
-        <p className="text-gray-500 mt-2 ">
-          Select a subject below to edit its details.
-        </p>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

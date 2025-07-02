@@ -95,7 +95,7 @@ export default function Page() {
   const [proxyRequestLoading, setProxyRequestLoading] = useState(false)
   const [statusUpdateLoading, setStatusUpdate] = useState(false)
 
-  const { data: mySlots } = useQuery({
+  const { data: mySlots, isLoading } = useQuery({
     queryKey: ["mySlots"],
     queryFn: () => myTimeTableSlots(user?.id || ""),
     enabled: !!user?.id
@@ -154,6 +154,13 @@ export default function Page() {
   const currentDay = rolling[1]
   const currentSlots = mySlotsByDay[currentDay?.name] || []
   const currentDate = currentDay?.date.toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  })
+
+  const todayDate = new Date().toLocaleDateString(undefined, {
     weekday: "long",
     month: "long",
     day: "numeric",
@@ -403,6 +410,9 @@ export default function Page() {
     )
   }
 
+  console.log("Current Slots:", sortedSlots)
+  console.log("currentDate:", currentDate)
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <MyTimeTableHeader />
@@ -414,8 +424,10 @@ export default function Page() {
         setCurrentPage={setCurrentPage}
       />
       <CurrentDayDisplay
+        isLoading={isLoading}
         currentDay={currentDay}
         currentDate={currentDate}
+        todayDate={todayDate}
         pendingCount={pendingCount}
         currentPage={currentPage}
         goToToday={goToToday}

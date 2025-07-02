@@ -1,13 +1,12 @@
 "use client"
 
-import Pagination from "../_components/Pagination"
 import Image from "next/image"
 import Link from "next/link"
 import TableSearch from "../_components/TableSearch"
 import Table from "../_components/Table"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
-import { useContext } from "react"
+import { useContext, useState } from "react"
 import { UserContext } from "@/context/user"
 import DeleteButton from "@/components/(commnon)/DeleteButton"
 import toast from "react-hot-toast"
@@ -15,6 +14,7 @@ import { ButtonV1 } from "@/components/(commnon)/ButtonV1"
 import { RotateCcw } from "lucide-react"
 import { CoursesSkeleton } from "@/components/(commnon)/Skeleton"
 import { Prisma } from "@prisma/client"
+import PaginationWrapper from "../_components/Pagination"
 
 const columns = [
   {
@@ -35,12 +35,32 @@ const fetchStudents = async (cId: number) => {
 const StudentListPage = () => {
   const { user } = useContext(UserContext)
   const roles = user?.roles.map((r: any) => r.id)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
+
   const { data, error, isLoading, refetch } = useQuery({
     queryKey: ["course"],
     queryFn: () => fetchStudents(user?.courseId as number),
     enabled: !!user?.course?.id
   })
+
+  // Filter logic for search input
+  const filteredData = data?.filter(
+    (student: StudentWithRelations) =>
+      student.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  // Apply pagination after filtering
+  const startIdx = (currentPage - 1) * itemsPerPage
+  const endIdx = startIdx + itemsPerPage
+  const paginatedData = filteredData?.slice(startIdx, endIdx)
+  const totalPages = Math.ceil((filteredData?.length || 0) / itemsPerPage)
+
   const deleteStudent = async (id: string) => {
+    setIsDeleting(true)
     try {
       const res = await axios.delete(`/api/list/student/${id}`)
       if (res.status == 200) {
@@ -55,8 +75,11 @@ const StudentListPage = () => {
       } else {
         toast.error("An unexpected error occurred")
       }
+    } finally {
+      setIsDeleting(false)
     }
   }
+
   if (isLoading) {
     return <CoursesSkeleton />
   }
@@ -72,6 +95,7 @@ const StudentListPage = () => {
       </div>
     )
   }
+
   type StudentWithRelations = Prisma.StudentGetPayload<{
     include: {
       user: true
@@ -98,6 +122,7 @@ const StudentListPage = () => {
           {roles && (roles.includes(11) || roles.includes(5)) && (
             <DeleteButton
               label={"Delete"}
+              isDeleting={isDeleting}
               onDelete={() => deleteStudent(String(item.id))}
               className="px-2 py-2"
             />
@@ -109,29 +134,40 @@ const StudentListPage = () => {
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
       {/* TOP */}
-      <div className="flex items-center justify-between">
-        <h1 className="hidden md:block text-lg font-semibold">All Students</h1>
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-2 w-full">
+        <div className="flex justify-between items-center w-full sm:w-1/2 mb-2 sm:mb-0 mx-2">
+          <h1 className="block text-lg font-semibold">All Students</h1>
+          {roles && (roles.includes(11) || roles.includes(5)) && (
+            <Link href={`/list/students/create`}>
+              <div className="flex justify-end">
+                <button className="flex items-center justify-center rounded-lg bg-Primary p-2">
+                  Add Student
+                </button>
+                {/* <FormModal table="teacher" type="create"/> */}
+              </div>
+            </Link>
+          )}
+        </div>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-          <TableSearch />
+          <TableSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <div className="flex items-center gap-4 self-end"></div>
         </div>
       </div>
-      {roles && (roles.includes(11) || roles.includes(5)) && (
-        <Link href={`/list/students/create`}>
-          <div className="flex justify-end mt-2">
-            <button className="flex items-center justify-center rounded-lg bg-Primary p-2">
-              Add Student
-            </button>
-            {/* <FormModal table="teacher" type="create"/> */}
-          </div>
-        </Link>
-      )}
       {/* LIST */}
-      {!isLoading && (
-        <Table columns={columns} renderRow={renderRow} data={data} />
+      {!isLoading ? (
+        <>
+          <Table columns={columns} renderRow={renderRow} data={paginatedData} />
+          <PaginationWrapper
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+        </>
+      ) : (
+        <div className="flex items-center justify-center h-64">
+          <p className="text-gray-500">Loading students...</p>
+        </div>
       )}
-      {/* PAGINATION */}
-      <Pagination />
     </div>
   )
 }
