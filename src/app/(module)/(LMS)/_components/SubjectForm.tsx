@@ -16,7 +16,7 @@ interface SubjectFormProps {
   subject?: Subject
   submitBtnId?: string
   submitBtnLabel?: string
-  isAllowedUpdatation?: boolean
+  isAllowedUpdatation: boolean
 }
 
 export function SubjectForm({

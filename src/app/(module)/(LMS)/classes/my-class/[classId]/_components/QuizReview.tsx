@@ -1,5 +1,4 @@
-import React, { useContext, useState } from "react"
-import { UserContext } from "@/context/user"
+import React, { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -10,7 +9,6 @@ import {
   FileText,
   Tag,
   CheckCircle,
-  AlertCircle,
   Pencil,
   Save,
   Trash2,
@@ -21,41 +19,15 @@ import { Textarea } from "@/components/ui/textarea"
 import toast from "react-hot-toast"
 import axios from "axios"
 import { useRouter } from "next/navigation"
-
-interface QuizQuestion {
-  id: number
-  title: string
-  description?: string | null
-  options: string[]
-  correctAnswer: number
-  marks: number
-}
-
-interface Quiz {
-  id: number
-  title: string
-  description: string
-  documentUrl?: string | null
-  tags: string[]
-  createdByName: string
-  creatorId: string
-  duration: string
-  numberOfQuestions: number
-  totalMarks: number
-  visibility: "public" | "private"
-  status: "draft" | "published" | "completed"
-  classId: number
-  subjectId: number
-  departmentId: number
-  universityId: number
-  questions: QuizQuestion[]
-}
+import { Quiz, QuizQuestion } from "@/types/globals"
+import Link from "next/link"
 
 interface QuizReviewProps {
   quiz: Quiz
   onUpdateStatus: (quizId: number, newStatus: string) => void
   onUpdateVisibility: (quizId: number, newVisibility: string) => void
   onBack?: () => void
+  classId: string
 }
 
 const OnDelete = async (classId: string, id: string) => {
@@ -80,11 +52,9 @@ const QuizReview: React.FC<QuizReviewProps> = ({
   quiz,
   onUpdateStatus,
   onUpdateVisibility,
-  onBack
+  onBack,
+  classId
 }) => {
-  const { user } = useContext(UserContext)
-  const userRoles = user?.roles.map((role: any) => role.id)
-  const isStudent = userRoles?.includes(7)
   const router = useRouter()
 
   // State to track which question is being edited
@@ -97,19 +67,6 @@ const QuizReview: React.FC<QuizReviewProps> = ({
   )
   const [questions, setQuestions] = useState(quiz.questions)
   const [isDeleting, setIsDeleting] = useState(false)
-
-  if (!user || isStudent) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center p-8 bg-lamaSkyLight rounded-lg border border-lamaSky">
-          <AlertCircle className="mx-auto mb-2 text-gray-500" size={32} />
-          <p className="text-TextTwo font-medium">
-            You are not authorized to view this page.
-          </p>
-        </div>
-      </div>
-    )
-  }
 
   const isViewMode = quiz.status === "completed"
   const isPublished = quiz.status === "published"
@@ -146,14 +103,6 @@ const QuizReview: React.FC<QuizReviewProps> = ({
       } finally {
         setIsDeleting(false)
       }
-    }
-  }
-
-  const handleBack = () => {
-    if (onBack) {
-      onBack()
-    } else {
-      router.back()
     }
   }
 
@@ -230,15 +179,14 @@ const QuizReview: React.FC<QuizReviewProps> = ({
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6">
       {/* Back Button */}
-      <div className="mb-4">
-        <Button
-          onClick={handleBack}
-          variant="ghost"
-          className="flex items-center text-TextTwo hover:bg-lamaSkyLight"
+      <div className="px-2 py-1 rounded w-fit border border-Dark mb-2">
+        <Link
+          href={`/classes/my-class/${classId}/quizzes/`}
+          className="flex items-center text-TextTwo "
         >
           <ArrowLeft size={18} className="mr-2" />
-          Back to Quizzes
-        </Button>
+          Back
+        </Link>
       </div>
 
       {/* Quiz Header */}
@@ -251,6 +199,13 @@ const QuizReview: React.FC<QuizReviewProps> = ({
             <p className="text-gray-600 mt-1">{quiz.description}</p>
           </div>
           <div className="flex flex-wrap gap-2 mt-3 md:mt-0">
+            <Link
+              href={`/classes/my-class/${quiz.classId}/quizzes/${quiz.id}/submissions`}
+            >
+              <Badge className="px-3 py-1 rounded-md bg-lamaSky text-TextTwo hover:bg-lamaSky/90">
+                View Submissions
+              </Badge>
+            </Link>
             <Badge
               className={`px-3 py-1 ${isDraft ? "bg-lamaYellow text-TextTwo" : isPublished ? "bg-ColorThree text-white" : "bg-green-500 text-white"}`}
             >

@@ -103,28 +103,28 @@ model NonTeachingStaff {
 }
 
 model Faculty {
-  id             String       @id @unique
+  id             String             @id @unique
   achievements   Json[]
   documents      Json[]
   position       String?
   departmentId   Int
-  clerkId        String       @unique
+  clerkId        String             @unique
   courseId       Int
   universityId   Int
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @default(now())
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @default(now())
   Assignment     Assignment[]
   attendance     AttendanceRecord[]
   class          Class[]
-  user           User         @relation(fields: [clerkId], references: [clerkId])
-  course         Course       @relation(fields: [courseId], references: [id])
-  department     Department   @relation(fields: [departmentId], references: [id])
-  university     University   @relation(fields: [universityId], references: [id])
+  user           User               @relation(fields: [clerkId], references: [clerkId])
+  course         Course             @relation(fields: [courseId], references: [id])
+  department     Department         @relation(fields: [departmentId], references: [id])
+  university     University         @relation(fields: [universityId], references: [id])
   forumModerator Forum[]
   students       Student[]
-  slots          Slot[]       @relation("FacultyToLecture")
-  subject        Subject[]    @relation("faculty_to_Subject")
-  proxySlots ProxySlot[]  @relation("LectrurProxyToSlot")
+  slots          Slot[]             @relation("FacultyToLecture")
+  subject        Subject[]          @relation("faculty_to_Subject")
+  proxySlots     ProxySlot[]        @relation("LectrurProxyToSlot")
 }
 
 model Student {
@@ -151,6 +151,8 @@ model Student {
   university    University             @relation(fields: [universityId], references: [id])
   class         Class?                 @relation(fields: [classId], references: [id])
   submissions   AssignmentSubmission[]
+
+  quizSubmissions QuizSubmissions[]
 }
 
 model Department {
@@ -187,20 +189,20 @@ model Department {
 }
 
 model Course {
-  id            Int          @id @unique @default(autoincrement())
+  id            Int                @id @unique @default(autoincrement())
   name          String
-  code          String       @unique
+  code          String             @unique
   departmentId  Int
   universityId  Int
-  hodId         String?      @unique
+  hodId         String?            @unique
   totalSemister Int
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @default(now())
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @default(now())
   assignment    Assignment[]
   attendance    AttendanceRecord[]
-  department    Department   @relation(fields: [departmentId], references: [id])
-  hod           User?        @relation("hod_to_course", fields: [hodId], references: [clerkId])
-  university    University   @relation(fields: [universityId], references: [id])
+  department    Department         @relation(fields: [departmentId], references: [id])
+  hod           User?              @relation("hod_to_course", fields: [hodId], references: [clerkId])
+  university    University         @relation(fields: [universityId], references: [id])
   exam          Exam[]
   faculties     Faculty[]
   forums        Forum[]
@@ -209,7 +211,7 @@ model Course {
   subjects      Subject[]
   timeTable     TimeTable[]
   classes       Class[]
-  users         User[]       @relation("UserToCourse")
+  users         User[]             @relation("UserToCourse")
 }
 
 model Class {
@@ -227,23 +229,23 @@ model Class {
 
   assignment  Assignment[]
   attendance  AttendanceRecord[]
-  course      Course       @relation(fields: [courseId], references: [id])
-  department  Department   @relation(fields: [departmentId], references: [id])
-  university  University   @relation(fields: [universityId], references: [id])
+  course      Course             @relation(fields: [courseId], references: [id])
+  department  Department         @relation(fields: [departmentId], references: [id])
+  university  University         @relation(fields: [universityId], references: [id])
   exam        Exam[]
-  coordinator User?        @relation("coordinator_to_class", fields: [coordinatorId], references: [clerkId])
-  mentor      User?        @relation("mentor_to_class", fields: [mentorId], references: [id])
+  coordinator User?              @relation("coordinator_to_class", fields: [coordinatorId], references: [clerkId])
+  mentor      User?              @relation("mentor_to_class", fields: [mentorId], references: [id])
   faculties   Faculty[]
   forums      Forum[]
   result      Result[]
   students    Student[]
-  subjects    Subject[]    @relation("class_to_Subject")
+  subjects    Subject[]          @relation("class_to_Subject")
   timeTable   TimeTable[]
-  Slot Slot[]
+  Slot        Slot[]
 }
 
 model Subject {
-  id           Int          @id @unique @default(autoincrement())
+  id           Int                @id @unique @default(autoincrement())
   name         String
   credits      Int
   semester     Int
@@ -254,15 +256,15 @@ model Subject {
   resultId     Int?
   syllabus     Json[] //{title,link}
   forumTags    String[]
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @default(now())
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @default(now())
   assignment   Assignment[]
   attendance   AttendanceRecord[]
   forums       Forum[]
-  course       Course       @relation(fields: [courseId], references: [id])
-  department   Department   @relation(fields: [departmentId], references: [id])
-  result       Result?      @relation(fields: [resultId], references: [id])
-  university   University   @relation(fields: [universityId], references: [id])
+  course       Course             @relation(fields: [courseId], references: [id])
+  department   Department         @relation(fields: [departmentId], references: [id])
+  result       Result?            @relation(fields: [resultId], references: [id])
+  university   University         @relation(fields: [universityId], references: [id])
   slots        Slot[]
   classes      Class[]      @relation("class_to_Subject")
   faculties    Faculty[]    @relation("faculty_to_Subject")
@@ -324,7 +326,7 @@ model AttendanceRecord {
   slotId       Int
   classId      Int
   date         String
-  attendance   Json       // key = rollNo, value = status
+  attendance   Json // key = rollNo, value = status
   facultyId    String
   subjectId    Int
   courseId     Int
@@ -344,15 +346,24 @@ model AttendanceRecord {
   @@unique([classId, slotId, date]) // Composite unique constraint
 }
 
+enum AssignmentSubmissionStatus {
+  PENDING
+  SUBMITTED
+  APPROVED
+  REJECTED
+  LATE
+}
+
 model AssignmentSubmission {
-  id           Int        @id @unique @default(autoincrement())
+  id           Int                        @id @unique @default(autoincrement())
   studentId    String
   assignmentId Int
-  studentName  String
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @default(now())
-  assignment   Assignment @relation(fields: [assignmentId], references: [id])
-  student      Student    @relation(fields: [studentId], references: [clerkId])
+  attachments  Json[]
+  status       AssignmentSubmissionStatus @default(PENDING)
+  createdAt    DateTime                   @default(now())
+  updatedAt    DateTime                   @default(now())
+  assignment   Assignment                 @relation(fields: [assignmentId], references: [id])
+  student      Student                    @relation(fields: [studentId], references: [clerkId])
 }
 
 model Assignment {
@@ -522,8 +533,8 @@ model Slot {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
 
-  class     Class   @relation(fields: [classId], references: [id])
-  faculty    Faculty?  @relation("FacultyToLecture", fields: [facultyId], references: [clerkId])
+  class     Class     @relation(fields: [classId], references: [id])
+  faculty   Faculty?  @relation("FacultyToLecture", fields: [facultyId], references: [clerkId])
   subject   Subject?  @relation(fields: [subjectId], references: [id])
   timetable TimeTable @relation(fields: [timeTableId], references: [id])
 
@@ -533,17 +544,17 @@ model Slot {
 }
 
 model ProxySlot {
-  id           Int      @id @default(autoincrement())
-  slotId       Int
-  lecturerId   String
-  status       String
-  reason       String?
-  date         String 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  slotId     Int
+  lecturerId String
+  status     String
+  reason     String?
+  date       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
 
-  slot         Slot     @relation(fields: [slotId], references: [id])
-  lecturer     Faculty  @relation("LectrurProxyToSlot", fields: [lecturerId], references: [clerkId])
+  slot     Slot    @relation(fields: [slotId], references: [id])
+  lecturer Faculty @relation("LectrurProxyToSlot", fields: [lecturerId], references: [clerkId])
 }
 
 model Event {
@@ -631,7 +642,8 @@ model QuizSubmissions {
   status    String
   marks     Int
 
-  Quiz Quiz @relation(fields: [quizId], references: [id])
+  quiz    Quiz    @relation(fields: [quizId], references: [id])
+  student Student @relation(fields: [studentId], references: [clerkId])
 }
 
 model LeaveType {

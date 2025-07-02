@@ -10,7 +10,7 @@ export default function Page() {
   const { classId, subjectId } = useParams()
 
   return (
-    <div className="min-h-screen max-w-full bg-lamaSkyLight p-4 md:p-6 flex flex-col overflow-x-hidden">
+    <div className="min-h-screen max-w-full p-3 flex flex-col overflow-x-hidden">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6 md:mb-8">
         <Link
           href={`/classes/my-class/${classId}`}

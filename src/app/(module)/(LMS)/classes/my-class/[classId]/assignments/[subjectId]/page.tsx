@@ -4,10 +4,10 @@ import axios from "axios"
 import { useParams } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import { UserContext } from "@/context/user"
-import toast from "react-hot-toast"
-import { AssignmentTableComponent } from "../../_components/AssignmentTable"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { AssignmentTableComponent } from "../../_components/AssignmentTable"
+import toast from "react-hot-toast"
 
 async function fetchAssignments(classId: string, subjectId: string) {
   const res = await axios.get(
@@ -21,11 +21,17 @@ export default function AssignmentListPage() {
   const { classId, subjectId } = useParams()
   const roles = user?.roles?.map((role: any) => role.id)
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const {
+    data: assignmentsData,
+    isLoading: assignmentsIsLoading,
+    isError: assignmentsIsError,
+    refetch: refetchAssignments
+  } = useQuery({
     queryKey: ["assignments", classId, subjectId],
     queryFn: () => fetchAssignments(classId as string, subjectId as string),
     enabled: !!user
   })
+
   async function deleteAssignment(id: string) {
     try {
       const res = await axios.delete(
@@ -33,7 +39,7 @@ export default function AssignmentListPage() {
       )
       if (res.status == 200) {
         toast.success(res.data.message)
-        refetch()
+        refetchAssignments()
       } else {
         toast.error(res.data.message)
       }
@@ -45,6 +51,7 @@ export default function AssignmentListPage() {
       }
     }
   }
+
   return (
     <div>
       <div
@@ -59,10 +66,9 @@ export default function AssignmentListPage() {
         </Link>
       </div>
       <AssignmentTableComponent
-        data={data}
-        isLoading={isLoading}
-        isError={isError}
-        refetch={refetch}
+        assignmentsData={assignmentsData}
+        assignmentsIsLoading={assignmentsIsLoading}
+        assignmentsIsError={assignmentsIsError}
         userId={String(user?.id)}
         roles={roles as number[]}
         classId={classId as string}

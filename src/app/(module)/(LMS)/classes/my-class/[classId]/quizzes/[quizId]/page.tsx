@@ -1,10 +1,13 @@
 "use client"
 import { useParams } from "next/navigation"
-import React from "react"
+import React, { useContext } from "react"
 import QuizReview from "../../_components/QuizReview"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 import { QuizReviewSkeleton } from "@/components/(commnon)/Skeleton"
+import { UserContext } from "@/context/user"
+import { AlertCircle } from "lucide-react"
+import QuizSubmission from "../../_components/QuizSubmission"
 
 async function getQuizDetails(quizId: number, classId: number) {
   const res = await axios.get(
@@ -14,6 +17,8 @@ async function getQuizDetails(quizId: number, classId: number) {
 }
 
 export default function Page() {
+  const { user } = useContext(UserContext)
+  const roles = user?.roles.map((r) => r.id) || []
   const { quizId, classId } = useParams()
   const {
     data: quizDetails,
@@ -58,14 +63,31 @@ export default function Page() {
   if (isLoading) {
     return <QuizReviewSkeleton />
   }
+
   return (
     <div>
       {quizDetails && (
-        <QuizReview
-          onUpdateStatus={UpdateStatus}
-          onUpdateVisibility={UpdateVisibility}
-          quiz={quizDetails}
-        />
+        <>
+          {roles.includes(4) ? (
+            <QuizReview
+              onUpdateStatus={UpdateStatus}
+              onUpdateVisibility={UpdateVisibility}
+              quiz={quizDetails}
+              classId={classId as string}
+            />
+          ) : roles.includes(7) ? (
+            <QuizSubmission quiz={quizDetails} studentId={user?.id as string} />
+          ) : (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center p-8 bg-lamaSkyLight rounded-lg border border-lamaSky">
+                <AlertCircle className="mx-auto mb-2 text-gray-500" size={32} />
+                <p className="text-TextTwo font-medium">
+                  You are not authorized to view this page.
+                </p>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   )

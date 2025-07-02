@@ -57,7 +57,13 @@ export async function GET(req: Request, context: any) {
     const assignment = await prisma.assignment.findUnique({
       where: { id: Number(assignmentId) },
       include: {
-        submissions: true
+        submissions: {
+          include: {
+            student: {
+              include: { user: true }
+            }
+          }
+        }
       }
     })
 
@@ -84,6 +90,7 @@ type body = {
   deadline: string
   tag: string
   assignmentType: string
+  status: "PENDING" | "SUBMITTED" | "APPROVED" | "REJECTED" | "LATE"
 }
 
 export async function PATCH(req: Request) {
@@ -91,6 +98,11 @@ export async function PATCH(req: Request) {
     const user = await currentUser()
 
     const data: body = await req.json()
+    const { searchParams } = new URL(req.url)
+    const updateAssignmentSubmission = searchParams.get(
+      "updateAssignmentSubmission"
+    )
+    const SubmissionId = searchParams.get("SubmissionId")
     if (
       user?.publicMetadata.role !== "faculty" &&
       user?.publicMetadata.role !== "authority"
@@ -98,6 +110,38 @@ export async function PATCH(req: Request) {
       return NextResponse.json(
         { message: "You are not allowed to create an assignment" },
         { status: 401 }
+      )
+    }
+
+    if (updateAssignmentSubmission) {
+      const { status } = data
+      if (!status) {
+        return NextResponse.json(
+          { message: "Status is required to update assignment submission" },
+          { status: 400 }
+        )
+      }
+      if (!SubmissionId) {
+        return NextResponse.json(
+          {
+            message: "SubmissionId is required to update assignment submission"
+          },
+          { status: 400 }
+        )
+      }
+      const updatedAssignmentSubmission =
+        await prisma.assignmentSubmission.update({
+          where: { id: Number(SubmissionId) },
+          data: {
+            status: status
+          }
+        })
+      return NextResponse.json(
+        {
+          message: "Assignment submission updated successfully",
+          AssignmentSubmission: updatedAssignmentSubmission
+        },
+        { status: 200 }
       )
     }
     console.log("data: ", data)

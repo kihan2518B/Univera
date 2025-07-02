@@ -208,3 +208,35 @@ export interface SlotDetail {
   facultyName: any
   subjectName: string
 }
+
+export interface QuizQuestion {
+  id: number
+  title: string
+  description?: string | null
+  options: string[]
+  correctAnswer: number
+  marks: number
+}
+
+export interface Quiz {
+  id: number
+  title: string
+  description: string
+  documentUrl?: string | null
+  tags: string[]
+  createdByName: string
+  creatorId: string
+  duration: string
+  numberOfQuestions: number
+  totalMarks: number
+  visibility: "public" | "private"
+  status: "draft" | "published" | "completed"
+  classId: number
+  subjectId: number
+  departmentId: number
+  universityId: number
+  questions: QuizQuestion[]
+  date: string
+  from?: string | null
+  to?: string | null
+}

@@ -102,7 +102,16 @@ export const ClassDetailsSkeleton = () => {
 }
 
 import React from "react"
-import { Clock, Paperclip, User } from "lucide-react"
+import {
+  Award,
+  Calendar,
+  Clock,
+  Paperclip,
+  TrendingUp,
+  Trophy,
+  User,
+  Users
+} from "lucide-react"
 
 export const DashboardSkeleton = () => {
   return (
@@ -421,28 +430,9 @@ export function Assignments_Subject_Skeleton() {
   )
 }
 
-import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
-import { Button } from "../ui/button"
-
-interface AssignmentSubmissionsSkeletonProps {
-  classId: string
-}
-
-export function AssignmentSubmissionsSkeleton({
-  classId
-}: AssignmentSubmissionsSkeletonProps) {
+export function AssignmentSubmissionsSkeleton() {
   return (
     <div className="min-h-screen bg-lamaSkyLight p-6">
-      {/* Back Button */}
-      <Link
-        href={`/classes/my-class/${classId}`}
-        className="flex items-center text-TextTwo hover:bg-lamaSkyLight"
-      >
-        <ArrowLeft size={18} className="mr-2" />
-        Back
-      </Link>
-
       {/* Assignment Details Card Skeleton */}
       <Card className="mb-6 sm:mb-8 border-none shadow-lg bg-white">
         <CardHeader className="border-b border-gray-100 p-4 sm:p-6">
@@ -533,21 +523,6 @@ export function AssignmentSubmissionsSkeleton({
 export function FacultyQuizzesSkeleton() {
   return (
     <div className="p-3">
-      <div className="mb-4">
-        <Button
-          variant="ghost"
-          className="flex items-center text-TextTwo hover:bg-lamaSkyLight"
-          disabled
-        >
-          <ArrowLeft size={18} className="mr-2" />
-          Back
-        </Button>
-      </div>
-      <div className="flex justify-between items-start md:items-center mb-3">
-        <div className="h-8 w-32 bg-gray-200 rounded-md animate-pulse"></div>
-        <div className="h-10 w-28 bg-gray-200 rounded-md animate-pulse"></div>
-      </div>
-
       {/* Desktop Table View Skeleton - only visible on md screens and above */}
       <div className="hidden md:block overflow-x-auto bg-[#EDF9FD] rounded-lg shadow-md">
         <table className="min-w-full divide-y divide-[#C3EBFA]">
@@ -638,18 +613,6 @@ export function FacultyQuizzesSkeleton() {
 export const QuizReviewSkeleton: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6">
-      {/* Back Button */}
-      <div className="mb-4">
-        <Button
-          variant="ghost"
-          className="flex items-center text-TextTwo hover:bg-lamaSkyLight"
-          disabled
-        >
-          <ArrowLeft size={18} className="mr-2" />
-          Back to Quizzes
-        </Button>
-      </div>
-
       {/* Quiz Header Skeleton */}
       <Card className="mb-6 bg-white border border-gray-200 shadow-sm rounded-2xl p-4 md:p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
@@ -1084,6 +1047,187 @@ export const AttendanceStateSkeleton = () => {
           <Skeleton width={40} height={24} className="mt-2" />
         </div>
       ))}
+    </div>
+  )
+}
+
+export const QuizResultsSkeleton = () => {
+  return (
+    <div className="min-h-screen">
+      <div className="relative z-10 container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-12 text-center">
+          <div className="mb-4">
+            <Skeleton height={60} width={400} className="mx-auto" />
+          </div>
+          <div className="max-w-2xl mx-auto">
+            <Skeleton height={24} count={2} />
+          </div>
+        </div>
+
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+          {[
+            { icon: Users, color: "from-blue-500 to-cyan-500" },
+            { icon: TrendingUp, color: "from-green-500 to-emerald-500" },
+            { icon: Trophy, color: "from-purple-500 to-pink-500" },
+            { icon: Award, color: "from-indigo-500 to-blue-500" }
+          ].map((card, index) => (
+            <div
+              key={index}
+              className="group relative overflow-hidden bg-white/70 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-white/30"
+            >
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <div
+                    className={`w-14 h-14 bg-gradient-to-br ${card.color} rounded-2xl flex items-center justify-center shadow-lg`}
+                  >
+                    <card.icon className="w-7 h-7 text-white" />
+                  </div>
+                  <div className="text-right">
+                    <Skeleton width={60} height={16} className="mb-2" />
+                    <Skeleton width={80} height={40} />
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <Skeleton height={8} className="rounded-full" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12">
+          {/* Bar Chart Skeleton */}
+          <div className="bg-white/70 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 shadow-xl border border-white/30">
+            <div className="mb-4">
+              <Skeleton width={200} height={32} />
+            </div>
+            <div className="w-full">
+              <Skeleton height={350} />
+            </div>
+          </div>
+
+          {/* Pie Chart Skeleton */}
+          <div className="bg-white/70 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 shadow-xl border border-white/30">
+            <div className="mb-4">
+              <Skeleton width={180} height={32} />
+            </div>
+            <div className="w-full flex flex-col items-center">
+              <div className="w-80 h-80 flex items-center justify-center">
+                <Skeleton circle height={200} width={200} />
+              </div>
+              <div className="flex flex-col sm:flex-row justify-center items-center space-y-3 sm:space-y-0 sm:space-x-6 lg:space-x-8 mt-4 sm:mt-6">
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-400 rounded-full"></div>
+                  <Skeleton width={80} height={16} />
+                </div>
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-red-400 rounded-full"></div>
+                  <Skeleton width={80} height={16} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Student Submissions Skeleton */}
+        <div className="bg-white/70 backdrop-blur-md rounded-3xl shadow-xl border border-white/30 overflow-hidden">
+          <div className="p-4 border-b border-white/30 bg-gradient-to-r from-indigo-500/10 to-purple-500/10">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center">
+                <Users className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <Skeleton width={200} height={36} />
+                <div className="mt-1">
+                  <Skeleton width={180} height={20} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="divide-y divide-white/30">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="group p-8">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-6 lg:space-y-0">
+                  <div className="flex items-center space-x-6">
+                    <div className="relative">
+                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
+                        <Skeleton width={30} height={24} />
+                      </div>
+                      <div className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-lg">
+                        <Skeleton circle width={20} height={20} />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-4">
+                        <div>
+                          <Skeleton width={180} height={24} className="mb-2" />
+                          <Skeleton width={220} height={18} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-8">
+                    <div className="text-center bg-white/50 rounded-2xl p-4 min-w-[120px]">
+                      <Skeleton
+                        width={40}
+                        height={16}
+                        className="mb-1 mx-auto"
+                      />
+                      <Skeleton
+                        width={60}
+                        height={36}
+                        className="mb-1 mx-auto"
+                      />
+                      <Skeleton width={50} height={14} className="mx-auto" />
+                    </div>
+
+                    <div className="text-center">
+                      <Skeleton
+                        width={50}
+                        height={16}
+                        className="mb-2 mx-auto"
+                      />
+                      <Skeleton
+                        width={100}
+                        height={32}
+                        className="mx-auto rounded-xl"
+                      />
+                    </div>
+
+                    <div className="text-center">
+                      <Skeleton
+                        width={70}
+                        height={16}
+                        className="mb-2 mx-auto"
+                      />
+                      <div className="flex items-center justify-center bg-gray-50 rounded-xl px-3 py-2">
+                        <Calendar className="w-4 h-4 mr-2 text-gray-300" />
+                        <Skeleton width={80} height={14} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Progress Bar Skeleton */}
+                <div className="mt-6">
+                  <div className="flex justify-between items-center mb-2">
+                    <Skeleton width={60} height={16} />
+                    <Skeleton width={40} height={16} />
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                    <Skeleton height={12} className="rounded-full" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

@@ -219,7 +219,7 @@ const studentDashboardItems = (classId?: string) => [
     icon: FaBullhorn,
     title: "Quizes",
     desc: "description",
-    link: `/announcements`
+    link: `/classes/my-class/${classId}/quizzes`
   },
   {
     icon: MessagesSquare,

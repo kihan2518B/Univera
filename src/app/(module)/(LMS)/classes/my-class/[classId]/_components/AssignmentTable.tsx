@@ -1,10 +1,16 @@
-import React, { useState } from "react"
-import { MoreVertical, NotepadText, Search, Trash2 } from "lucide-react"
+import React, { useCallback, useEffect, useState } from "react"
+import {
+  MoreVertical,
+  NotepadText,
+  Search,
+  Trash2,
+  Upload,
+  FilePlus
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Prisma } from "@prisma/client"
 import { CoursesSkeleton } from "@/components/(commnon)/Skeleton"
 import { ButtonV1 } from "@/components/(commnon)/ButtonV1"
-import { FilePlus } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import Table from "@/app/(module)/list/_components/Table"
 import {
@@ -13,9 +19,38 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { UploadthingUploader } from "@/components/(commnon)/UploadthingUploader"
+import { FileWithPreview, UploadedFile } from "@/types/globals"
+import { useUploadThing } from "@/utils/uploadthing"
+import toast from "react-hot-toast"
+import { useQuery } from "@tanstack/react-query"
+import axios from "axios"
+
+async function fetchAssignmentSubmissions(
+  classId: string,
+  subjectId: string,
+  assignmentId: string,
+  userId: string
+) {
+  const res = await axios.get(
+    `/api/classes/my-class/${classId}/assignments/${subjectId}/${assignmentId}/submission`,
+    {
+      params: { userId }
+    }
+  )
+  return res.data?.submissions
+}
 
 type AssignmentTableProps = {
-  data: {
+  assignmentsData: {
     faculties: any
     assignments: Prisma.AssignmentGetPayload<{
       include: { faculty: true; subject: true }
@@ -24,10 +59,9 @@ type AssignmentTableProps = {
   roles: number[]
   classId: string
   subjectId: string
-  isLoading: boolean
-  isError: boolean
+  assignmentsIsLoading: boolean
+  assignmentsIsError: boolean
   userId: string
-  refetch: () => void
   deleteAssignment: (id: string) => Promise<void>
 }
 
@@ -128,17 +162,199 @@ const formatDeadline = (deadline: string) => {
 }
 
 export const AssignmentTableComponent = ({
-  data,
+  assignmentsData,
   roles,
   classId,
   subjectId,
   deleteAssignment,
-  isError,
-  isLoading,
+  assignmentsIsError,
+  assignmentsIsLoading,
   userId
 }: AssignmentTableProps) => {
   const [searchTerm, setSearchTerm] = useState("")
-  if (isError) return <>Error while fetching data</>
+  const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false)
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("")
+  const [selectedAssignmentTitle, setSelectedAssignmentTitle] =
+    useState<string>("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const [files, setFiles] = useState<FileWithPreview[]>([])
+  const [uploading, setUploading] = useState<boolean>(false)
+
+  const {
+    data: submissionsData,
+    isLoading: submissionsIsLoading,
+    refetch: refetchSubmissions
+  } = useQuery({
+    queryKey: ["assignmentSubmissions", selectedAssignmentId],
+    queryFn: () =>
+      fetchAssignmentSubmissions(
+        classId as string,
+        subjectId as string,
+        selectedAssignmentId,
+        userId
+      ),
+    enabled: !!selectedAssignmentId
+  })
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      const UniqueFiles = acceptedFiles.filter((file) => {
+        return !files.some((existingFile) => existingFile.name === file.name)
+      })
+      const filesWithPreviews = UniqueFiles.map((file) => generatePreview(file))
+      setFiles((prevFiles) => [...prevFiles, ...filesWithPreviews])
+    },
+    [files]
+  )
+
+  const removeFile = (indexToRemove: number) => {
+    setFiles((prevFiles) => {
+      const newFiles = prevFiles.filter((_, index) => index !== indexToRemove)
+      if (prevFiles[indexToRemove].preview) {
+        URL.revokeObjectURL(prevFiles[indexToRemove].preview!)
+      }
+      return newFiles
+    })
+  }
+
+  useEffect(() => {
+    return () => {
+      files.forEach((file) => {
+        if (file.preview) {
+          URL.revokeObjectURL(file.preview)
+        }
+      })
+    }
+  }, [files])
+
+  const generatePreview = (
+    file: File | UploadedFile,
+    isExisting: boolean = false
+  ): FileWithPreview => {
+    if (isExisting) {
+      // UploadedFile type guard
+      const uploadedFile = file as UploadedFile
+      return {
+        url: uploadedFile.url,
+        name: uploadedFile.fileName,
+        preview: uploadedFile.url,
+        existing: true
+      } as FileWithPreview
+    } else {
+      const fileWithPreview = file as FileWithPreview
+      if (file instanceof File && file.type.startsWith("image/")) {
+        fileWithPreview.preview = URL.createObjectURL(file)
+      }
+      return fileWithPreview
+    }
+  }
+
+  const { startUpload, routeConfig } = useUploadThing("attachmentsUploader", {
+    onClientUploadComplete: () => {
+      setUploading(false)
+      files.forEach((file) => {
+        if (file.preview) {
+          URL.revokeObjectURL(file.preview)
+        }
+      })
+    },
+    onUploadError: () => {
+      toast.error("Failed to upload file")
+      setUploading(false)
+    },
+    onUploadBegin: () => {
+      setUploading(true)
+    }
+  })
+
+  const handleSubmitAssignment = async () => {
+    if (files.length === 0) {
+      toast.error("Please select at least one file to submit")
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      let uploadedFileData: UploadedFile[] = []
+
+      // Handle new file uploads
+      const newFiles = files.filter((file) => !file.existing)
+
+      if (newFiles.length > 0) {
+        const uploadedFiles = await startUpload(newFiles)
+
+        if (uploadedFiles) {
+          uploadedFileData = uploadedFiles.map((file) => ({
+            url: file.url,
+            fileType: file.name.split(".").pop()?.toLowerCase() || "",
+            fileName: file.name
+          }))
+        }
+      }
+
+      // Keep existing files in the upload data
+      const existingFiles = files
+        .filter((file) => file.existing)
+        .map((file) => ({
+          url: file.url,
+          fileName: file.name,
+          fileType: file.name.split(".").pop()?.toLowerCase() || ""
+        }))
+
+      const submissionData = {
+        studentId: userId,
+        attachments: [...uploadedFileData, ...existingFiles]
+      }
+
+      const res = await axios.patch(
+        `/api/classes/my-class/${classId}/assignments/${subjectId}/${Number(selectedAssignmentId)}/submission${submissionsData ? `?submissionId=${submissionsData.id}` : ""}`,
+        submissionData
+      )
+
+      if (res.status >= 200 && res.status < 300) {
+        toast.success(res.data.message || `assignment submitted successfully!`)
+      }
+      closeSubmitDialog()
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data.message || "Something went wrong")
+      } else {
+        toast.error("An unexpected error occurred")
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const openSubmitDialog = (assignmentId: string, assignmentTitle: string) => {
+    setSelectedAssignmentId(assignmentId)
+    setSelectedAssignmentTitle(assignmentTitle)
+    setIsSubmitDialogOpen(true)
+
+    // IMPORTANT: Delay setting files until query refetches
+    refetchSubmissions().then((res) => {
+      const submission = res.data
+      if (submission?.attachments?.length) {
+        const existingFiles = submission.attachments.map(
+          (file: FileWithPreview) => generatePreview(file, true)
+        )
+        setFiles(existingFiles)
+      } else {
+        setFiles([])
+      }
+    })
+  }
+
+  const closeSubmitDialog = () => {
+    setIsSubmitDialogOpen(false)
+    setFiles([])
+    setSelectedAssignmentId("")
+    setSelectedAssignmentTitle("")
+  }
+
+  const canSubmitAssignment = submissionsData
+    ? submissionsData.status !== "APPROVED"
+    : true
   const renderRow = (
     item: Prisma.AssignmentGetPayload<{
       include: { faculty: true; subject: true }
@@ -147,10 +363,11 @@ export const AssignmentTableComponent = ({
   ) => {
     const deadlineInfo = getDeadlineStatus(item.deadline)
     const formattedDate = formatDeadline(item.deadline)
-    const canCreateAssignment = data.faculties
+    const canCreateAssignment = assignmentsData.faculties
       ?.map((f: any) => f.id)
       .includes(userId)
 
+    if (assignmentsIsError) return <>Error while fetching data</>
     return (
       <tr
         key={item.id}
@@ -228,18 +445,52 @@ export const AssignmentTableComponent = ({
               </DropdownMenuContent>
             </DropdownMenu>
           </td>
+        ) : roles.includes(7) ? (
+          <td className="px-4 py-3">
+            <DropdownMenu key={isSubmitDialogOpen ? "open" : "closed"}>
+              <DropdownMenuTrigger className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-150">
+                <MoreVertical size={16} />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-white">
+                <DropdownMenuItem
+                  className="cursor-pointer border-b border-gray-100 focus:bg-gray-100 rounded-sm shadow-sm"
+                  onClick={() => {
+                    window.location.href = `${item.attachmentUrl}`
+                  }}
+                >
+                  <NotepadText />
+                  View Assignment
+                </DropdownMenuItem>
+                {canSubmitAssignment && (
+                  <DropdownMenuItem
+                    className="cursor-pointer border-b border-gray-100 focus:bg-gray-100 rounded-sm shadow-sm"
+                    onClick={() =>
+                      openSubmitDialog(String(item.id), item.title)
+                    }
+                  >
+                    <Upload size={16} />
+                    {submissionsData?.attachments?.length > 0
+                      ? "Update Submission"
+                      : "Submit Assignment"}
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </td>
         ) : (
-          <td className="px-4 py-3">-</td>
+          <td className="px-4 py-3">
+            <span className="text-gray-500">-</span>
+          </td>
         )}
       </tr>
     )
   }
 
-  if (isLoading || !data) {
+  if (assignmentsIsLoading || !assignmentsData) {
     return <CoursesSkeleton />
   }
 
-  const filteredData = data.assignments?.filter((item: any) => {
+  const filteredData = assignmentsData.assignments?.filter((item: any) => {
     const searchString = searchTerm.toLowerCase()
     return (
       item.title?.toLowerCase().includes(searchString) ||
@@ -249,13 +500,27 @@ export const AssignmentTableComponent = ({
     )
   })
 
-  const canCreateAssignment = data.faculties
+  const canCreateAssignment = assignmentsData.faculties
     ?.map((f: any) => f.id)
     .includes(userId)
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <h1 className="text-2xl font-bold text-TextTwo">Assignments</h1>
+        <div className="relative w-full max-w-sm">
+          <Search
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={20}
+          />
+          <Input
+            type="text"
+            placeholder="Search assignments..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 w-full"
+          />
+        </div>
         {canCreateAssignment && (
           <ButtonV1
             className="flex items-center gap-2 bg-ColorThree hover:bg-ColorTwo text-white font-medium rounded-lg px-4 py-2 transition-colors duration-200"
@@ -265,19 +530,6 @@ export const AssignmentTableComponent = ({
           />
         )}
       </div>
-      <div className="relative w-full max-w-sm">
-        <Search
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-          size={20}
-        />
-        <Input
-          type="text"
-          placeholder="Search assignments..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 w-full"
-        />
-      </div>
 
       <div className="rounded-lg border border-gray-100 overflow-hidden">
         <Table
@@ -286,6 +538,82 @@ export const AssignmentTableComponent = ({
           data={filteredData || []}
         />
       </div>
+
+      {/* Submit Assignment Dialog */}
+      <Dialog
+        open={isSubmitDialogOpen && !submissionsIsLoading}
+        onOpenChange={setIsSubmitDialogOpen}
+      >
+        <DialogContent className="sm:max-w-[500px] w-[95vw] max-w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto bg-white">
+          <DialogHeader className="border-b border-gray-100 pb-4">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-xl font-semibold text-TextTwo">
+                {submissionsData?.attachments?.length > 0
+                  ? "Update your submission"
+                  : "Submit Assignment"}
+              </DialogTitle>
+            </div>
+            <p className="text-sm text-gray-600">
+              Assignment:{" "}
+              <span className="font-medium text-TextTwo">
+                {selectedAssignmentTitle}
+              </span>
+            </p>
+            {submissionsData && <p>Status: {submissionsData.status}</p>}
+          </DialogHeader>
+
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-TextTwo">Upload Files</h3>
+            <p className="text-xs text-gray-500">
+              Select files to submit for this assignment
+            </p>
+            {submissionsData?.attachments?.length > 0 && (
+              <div className="p-2 mb-2 bg-amber-50 text-amber-700 rounded border-l-2 border-amber-700 text-sm">
+                {canSubmitAssignment
+                  ? "You can update your existing submission."
+                  : `You assignment is ${submissionsData.status}`}
+              </div>
+            )}
+          </div>
+
+          <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 hover:border-ColorThree transition-colors">
+            <UploadthingUploader
+              files={files}
+              uploading={uploading}
+              setUploading={setUploading}
+              onDrop={onDrop}
+              removeFile={removeFile}
+              routeConfig={routeConfig}
+            />
+          </div>
+          <DialogFooter className="border-t border-gray-100 pt-4 flex flex-col sm:flex-row gap-3">
+            <Button
+              variant="outline"
+              onClick={closeSubmitDialog}
+              className="w-full sm:w-auto order-2 sm:order-1"
+              disabled={isSubmitting || uploading}
+            >
+              Cancel
+            </Button>
+            {canSubmitAssignment && (
+              <Button
+                onClick={handleSubmitAssignment}
+                disabled={files.length === 0 || isSubmitting || uploading}
+                className="w-full sm:w-auto order-1 sm:order-2 bg-ColorThree hover:bg-ColorTwo text-white"
+              >
+                {isSubmitting || uploading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    {uploading ? "Uploading..." : "Submitting..."}
+                  </div>
+                ) : (
+                  "Submit Assignment"
+                )}
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

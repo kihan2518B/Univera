@@ -17,7 +17,8 @@ export async function GET(req: Request, context: any) {
       {
         message: "Success",
         assignments: subjects?.assignment,
-        faculties: subjects?.faculties
+        faculties: subjects?.faculties,
+        subject: subjects
       }, //we want all faculties of the subject
       { status: 200 }
     )

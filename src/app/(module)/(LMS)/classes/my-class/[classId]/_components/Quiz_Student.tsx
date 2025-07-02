@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import axios from "axios"
 import { Quiz } from "@prisma/client"
+import Link from "next/link"
 
 async function fetchQuizzes(classId: string) {
   const response = await axios.get(`/api/classes/my-class/${classId}/quizzes`)
@@ -26,7 +27,8 @@ export default function Student() {
 
   // Format the time range for display
   const formatTimeRange = (from: string | null, to: string | null) => {
-    if (!from || !to) return "Not specified"
+    if (!from && !to) return "Any time in quiz date"
+    if (from && !to) return `${from} - 23:59`
     return `${from} - ${to}`
   }
 
@@ -66,40 +68,13 @@ export default function Student() {
     }`
   }
 
-  // Get status label and color
-  const getStatusInfo = (quiz: Quiz) => {
-    const today = new Date().toISOString().split("T")[0]
-    const quizDate = quiz.date || null
-    const now = new Date()
-    const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`
-
-    if (!quizDate) {
-      return { label: "Unscheduled", color: "bg-gray-400" }
-    } else if (quizDate === today) {
-      if (quiz.from && quiz.from > currentTime) {
-        return { label: "Today (Locked)", color: "bg-yellow-500" }
-      }
-      return { label: "Today", color: "bg-green-500" }
-    } else if (quizDate < today) {
-      return { label: "Past", color: "bg-gray-500" }
-    } else {
-      return { label: "Upcoming", color: "bg-blue-500" }
-    }
-  }
-
   // Check if quiz is currently locked
   const isQuizLocked = (quiz: Quiz) => {
     const today = new Date().toISOString().split("T")[0]
     const quizDate = quiz.date || null
-    const now = new Date()
-    const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`
 
-    // Lock quiz if it's in the future or if it's today but before the "from" time
-    return (
-      (quizDate && quizDate > today) ||
-      (quizDate === today && quiz.from && quiz.from > currentTime) ||
-      (quizDate === today && quiz.to && quiz.to < currentTime)
-    )
+    // Lock quiz if it's in the future
+    return quizDate && quizDate > today
   }
 
   // Format date for display
@@ -113,17 +88,12 @@ export default function Student() {
     return date.toLocaleDateString()
   }
 
-  // Handle back button click
-  const handleBackClick = () => {
-    router.push(`/classes/my-class/${classId}`)
-  }
-
   return (
     <div className="p-3 md:p-4 bg-gray-50 min-h-screen">
       <div className="flex justify-between items-start md:items-center mb-3">
         <div className="flex items-center">
-          <button
-            onClick={handleBackClick}
+          <Link
+            href="/dashboard"
             className="mr-3 p-1 rounded-full hover:bg-gray-200"
             aria-label="Go back"
           >
@@ -141,7 +111,7 @@ export default function Student() {
                 d="M15 19l-7-7 7-7"
               />
             </svg>
-          </button>
+          </Link>
           <h1 className="text-xl md:text-2xl font-bold text-[#112C71]">
             Quizzes
           </h1>
@@ -233,12 +203,6 @@ export default function Student() {
                     scope="col"
                     className="px-4 py-3 text-left text-xs font-medium text-[#0A2353] uppercase tracking-wider"
                   >
-                    Status
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-medium text-[#0A2353] uppercase tracking-wider"
-                  >
                     Actions
                   </th>
                 </tr>
@@ -274,19 +238,6 @@ export default function Student() {
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-[#0A2353]">
                           {quiz.numberOfQuestions}
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-[#0A2353]">
-                          <span
-                            className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusInfo(
-                              quiz
-                            )
-                              .color.replace("bg-", "bg-")
-                              .replace("500", "100")} ${getStatusInfo(
-                              quiz
-                            ).color.replace("bg-", "text-")}`}
-                          >
-                            {getStatusInfo(quiz).label}
-                          </span>
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
                           {locked ? (
@@ -339,7 +290,6 @@ export default function Student() {
           <div className="block md:hidden space-y-4">
             {filteredQuizzes.length > 0 ? (
               filteredQuizzes.map((quiz: Quiz) => {
-                const statusInfo = getStatusInfo(quiz)
                 const locked = isQuizLocked(quiz)
                 return (
                   <div
@@ -350,16 +300,6 @@ export default function Student() {
                       <h3 className="font-bold text-[#112C71] text-base">
                         {quiz.title}
                       </h3>
-                      <span
-                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusInfo.color
-                          .replace("bg-", "bg-")
-                          .replace("500", "100")} ${statusInfo.color.replace(
-                          "bg-",
-                          "text-"
-                        )}`}
-                      >
-                        {statusInfo.label}
-                      </span>
                     </div>
 
                     <p className="text-sm text-gray-600 mb-3 line-clamp-2">
@@ -395,13 +335,6 @@ export default function Student() {
 
                     {/* Status indicator */}
                     <div className="flex items-center mb-3">
-                      <div
-                        className={`w-2 h-2 rounded-full mr-2 ${statusInfo.color}`}
-                      ></div>
-                      <span className="text-xs font-medium">
-                        {statusInfo.label}
-                      </span>
-
                       {quiz.documentUrl && (
                         <div className="ml-auto">
                           <a

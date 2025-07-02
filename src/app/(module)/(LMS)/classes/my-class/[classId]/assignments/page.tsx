@@ -25,6 +25,7 @@ async function fetchClassById(classId: number, courseId: number) {
 export default function ClassAssignmentsPage() {
   const { user } = useContext(UserContext)
   const { classId } = useParams()
+  const roles = user?.roles?.map((role: any) => role.id) || []
 
   const {
     data: subjects,
@@ -55,14 +56,23 @@ export default function ClassAssignmentsPage() {
     return <Assignments_Subject_Skeleton />
   }
 
-  // Filter subjects that are not in mySubjects
-  const filteredSubjects =
-    subjects?.courseSubjects.filter(
-      (subject: Subject) =>
-        !subjects.mySubjects.some(
-          (mySubject: Subject) => mySubject.id === subject.id
-        )
-    ) || []
+  let filteredSubjects: Subject[] = []
+
+  // in this check the user role and if it's faculty then show only the subjects that are not in mySubjects
+  if (roles && roles.includes(4)) {
+    // Filter subjects that are not in mySubjects
+    filteredSubjects =
+      subjects?.courseSubjects.filter(
+        (subject: Subject) =>
+          !subjects.mySubjects.some(
+            (mySubject: Subject) => mySubject.id === subject.id
+          )
+      ) || []
+  } else if (roles && roles.includes(7)) {
+    // If the user is a student, show all subjects
+    filteredSubjects = subjects?.courseSubjects || []
+  }
+
   return (
     <div className="p-6">
       {/* Back path */}
@@ -74,20 +84,26 @@ export default function ClassAssignmentsPage() {
         Back
       </Link>
       {/* show all subjects */}
-      <h1 className="text-center font-bold text-2xl">My Subjects</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
-        {subjects &&
-          subjects.mySubjects.map((subject: Subject) => (
-            <Link
-              key={subject.id}
-              href={`/classes/my-class/${classId}/assignments/${subject.id}`}
-            >
-              <SubjectCard subject={subject} />
-            </Link>
-          ))}
-      </div>
+      {!roles.includes(7) && user && (
+        <>
+          <h1 className="text-center font-bold text-2xl">My Subjects</h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
+            {subjects &&
+              subjects.mySubjects.map((subject: Subject) => (
+                <Link
+                  key={subject.id}
+                  href={`/classes/my-class/${classId}/assignments/${subject.id}`}
+                >
+                  <SubjectCard subject={subject} />
+                </Link>
+              ))}
+          </div>
+        </>
+      )}
 
-      <h1 className="text-center font-bold text-2xl">Other Subjects</h1>
+      <h1 className="text-center font-bold text-2xl">
+        {roles.includes(7) ? "All" : "Other"} Subjects
+      </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
         {filteredSubjects &&
           filteredSubjects.map((subject: Subject) => (

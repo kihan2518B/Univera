@@ -42,7 +42,7 @@ export const Menuitems = {
     { title: "Policy", url: "/policy", icon: MdPolicy }
   ],
   department_admin: [
-    { title: "Dashborad", url: "/department_admin", icon: MdSpaceDashboard },
+    { title: "Dashboard", url: "/department_admin", icon: MdSpaceDashboard },
     { title: "Courses", url: "/courses", icon: MdEditDocument },
     { title: "Subjects", url: "/subject", icon: MdClass },
     { title: "Authorities", url: "/list/authorities", icon: FaUserTie },

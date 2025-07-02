@@ -17,6 +17,9 @@ export default function NewSubjectPage() {
     const res = await axios.get(`/api/courses/${courseId}?courseId=${courseId}`)
     return res.data.course
   }
+  const roles = user?.roles?.map((role: any) => role.id) || []
+  const isAllowedUpdatation = roles.includes(2) || roles.includes(3)
+
   const { data: course } = useQuery({
     queryKey: ["course", courseId],
     queryFn: () => fetchCourse(courseId as string),
@@ -48,6 +51,7 @@ export default function NewSubjectPage() {
           departmentName={String(user?.Department?.name)}
           submitBtnId="submit"
           submitBtnLabel={"Create"}
+          isAllowedUpdatation={isAllowedUpdatation}
         />
       </div>
     </section>

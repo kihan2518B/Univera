@@ -65,6 +65,7 @@ export function TeacherForm({ data }: TeacherFormProps) {
 
   const {
     data: courses,
+    isLoading: isCoursesLoading,
     error: coursesError,
     refetch: refetchCourses
   } = useQuery({
@@ -172,18 +173,22 @@ export function TeacherForm({ data }: TeacherFormProps) {
         />
       )}
       {step == 2 && (
-        <WorkForm
-          selectedSubjectIds={selectedSubjectIds}
-          setSelectedSubjectIds={setSelectedSubjectIds}
-          selectedCourse={selectedCourse}
-          setSelectedCourse={setSelectedCourse}
-          setStep={setStep}
-          courses={courses}
-          departmentId={Number(user?.departmentId)}
-          departmentName={
-            data?.department.name ?? String(user?.Department?.name)
-          }
-        />
+        <>
+          {!isCoursesLoading && (
+            <WorkForm
+              selectedSubjectIds={selectedSubjectIds}
+              setSelectedSubjectIds={setSelectedSubjectIds}
+              selectedCourse={selectedCourse}
+              setSelectedCourse={setSelectedCourse}
+              setStep={setStep}
+              courses={courses}
+              departmentId={Number(user?.departmentId)}
+              departmentName={
+                data?.department.name ?? String(user?.Department?.name)
+              }
+            />
+          )}
+        </>
       )}
       {step == 3 && (
         <RoleForm

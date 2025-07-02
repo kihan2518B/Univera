@@ -22,8 +22,10 @@ export async function POST(req: Request) {
     if (!department || !courseId || !name || !code || !credits || !semester) {
       return new NextResponse("Missing fields", { status: 400 })
     }
+    console.log(name, courseId, department)
+
     // Create a new course in the database
-    const course = await prisma.subject.create({
+    const subject = await prisma.subject.create({
       data: {
         name,
         code,
@@ -41,11 +43,11 @@ export async function POST(req: Request) {
       }
     })
 
-    if (!course) {
-      throw new Error("Error while creating course")
+    if (!subject) {
+      throw new Error("Error while creating subject")
     }
     return NextResponse.json(
-      { message: "Subject created", course },
+      { message: "Subject created", subject },
       {
         status: 201
       }

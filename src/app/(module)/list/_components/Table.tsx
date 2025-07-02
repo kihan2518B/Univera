@@ -26,9 +26,20 @@ const Table = ({
             </th>
           </tr>
         </thead>
-        {data && (
+        {data.length !== 0 ? (
           <tbody className="divide-y divide-gray-100">
             {data.map((item, index) => renderRow(item, index))}
+          </tbody>
+        ) : (
+          <tbody>
+            <tr>
+              <td
+                colSpan={columns.length + 1}
+                className="px-4 py-6 text-center text-gray-500"
+              >
+                No data available
+              </td>
+            </tr>
           </tbody>
         )}
       </table>

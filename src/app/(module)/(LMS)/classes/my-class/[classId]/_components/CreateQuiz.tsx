@@ -578,7 +578,7 @@ export default function CreateQuiz({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-[#5B58EB] to-[#BB63FF] text-white py-4 rounded-lg font-bold text-lg transition-all duration-300 ease-in-out hover:opacity-90 disabled:from-gray-400 disabled:to-gray-500 disabled:opacity-70 shadow-md"
+                  className="w-full bg-gradient-to-r from-[#5B58EB] to-[#BB63FF] text-white py-4 rounded-lg font-bold text-lg transition-all duration-300 ease-in-out hover:opacity-90 disabled:from-gray-400 disabled:to-gray-500 disabled:opacity-70 disabled:cursor-not-allowed shadow-md"
                 >
                   {loading ? (
                     <div className="flex items-center justify-center">

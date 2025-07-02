@@ -37,9 +37,7 @@ export default function SubmissionsPage() {
   }
   return (
     <div>
-      {isLoading && (
-        <AssignmentSubmissionsSkeleton classId={classId as string} />
-      )}
+      {isLoading && <AssignmentSubmissionsSkeleton />}
       {assignment && (
         <AssignmentSubmissions
           assignment={assignment}
