@@ -12,13 +12,17 @@ import {
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import AddChapterDialog from "../../../../_components/AddChapterDialog"
-import { Chapter } from "@prisma/client"
+import { Prisma } from "@prisma/client"
 import axios from "axios"
 import toast from "react-hot-toast"
 import { useQuery } from "@tanstack/react-query"
 import { UserContext } from "@/context/user"
 import EditChapterDialog from "../../../../_components/EditChapterDialog"
 import ChapterWiseContentPage from "../../../../_components/ChapterWiseContentPage"
+
+type ChapterWithRelation = Prisma.ChapterGetPayload<{
+  include: { userProgress: true }
+}>
 
 const fetchChapters = async (
   classId: string,
@@ -35,10 +39,13 @@ const fetchChapters = async (
 export default function LearningPlatform() {
   const { user } = useContext(UserContext)
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const role = user?.roles.map((r) => r.id)
+  const canEditChapter = role?.includes(4)
 
   const [isAddingChapter, setIsAddingChapter] = useState(false)
-  const [editingChapter, setEditingChapter] = useState(null)
-  const [activeChapter, setActiveChapter] = useState<Chapter | null>(null)
+  const [editingChapter, setEditingChapter] =
+    useState<ChapterWithRelation | null>(null)
+  const [activeChapter, setActiveChapter] = useState<number | null>(null)
   const { classId, subjectId, weekId, lessionId } = useParams()
 
   // Handle responsive behavior
@@ -76,7 +83,7 @@ export default function LearningPlatform() {
   // Set the first chapter as active initially when data is loaded
   useEffect(() => {
     if (data?.chapters && data.chapters.length > 0 && !activeChapter) {
-      setActiveChapter(data.chapters[0])
+      setActiveChapter(data.chapters[0].id)
     }
   }, [data, activeChapter])
 
@@ -114,12 +121,12 @@ export default function LearningPlatform() {
       if (res.status === 200) {
         toast.success(res.data.message || "Chapter Deleted successfully")
         // If the active chapter is deleted, set the first remaining chapter as active
-        if (activeChapter && activeChapter.id === chapterId) {
+        if (activeChapter && activeChapter === chapterId) {
           const remainingChapters = data.chapters.filter(
-            (ch: Chapter) => ch.id !== chapterId
+            (ch: ChapterWithRelation) => ch.id !== chapterId
           )
           setActiveChapter(
-            remainingChapters.length > 0 ? remainingChapters[0] : null
+            remainingChapters.length > 0 ? remainingChapters[0].id : null
           )
         }
         refetch()
@@ -141,8 +148,8 @@ export default function LearningPlatform() {
   }
 
   // When selecting a chapter on mobile, close the sidebar
-  const handleChapterSelect = (chapter: Chapter) => {
-    setActiveChapter(chapter)
+  const handleChapterSelect = (chapter: ChapterWithRelation) => {
+    setActiveChapter(chapter.id)
     if (window.innerWidth < 768) {
       setSidebarOpen(false)
     }
@@ -238,13 +245,15 @@ export default function LearningPlatform() {
                 <span className="text-TextTwo font-semibold text-sm sm:text-base">
                   Chapters
                 </span>
-                <button
-                  onClick={() => setIsAddingChapter(true)}
-                  className="p-1 sm:p-1.5 text-ColorThree hover:bg-lamaPurpleLight rounded-full transition duration-150 flex items-center justify-center"
-                  title="Add new chapter"
-                >
-                  <Plus size={18} />
-                </button>
+                {canEditChapter && (
+                  <button
+                    onClick={() => setIsAddingChapter(true)}
+                    className="p-1 sm:p-1.5 text-ColorThree hover:bg-lamaPurpleLight rounded-full transition duration-150 flex items-center justify-center"
+                    title="Add new chapter"
+                  >
+                    <Plus size={18} />
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -259,94 +268,105 @@ export default function LearningPlatform() {
                 </div>
               ) : data?.chapters && data.chapters.length > 0 ? (
                 <ul className="space-y-1 px-2">
-                  {data.chapters.map((chapter: Chapter) => (
-                    <li
-                      key={chapter.id}
-                      className={`rounded-lg transition duration-150 ${
-                        activeChapter && activeChapter.id === chapter.id
-                          ? "bg-gradient-to-r from-lamaSky to-lamaPurple border-l-4 border-ColorThree"
-                          : "hover:bg-gray-100"
-                      }`}
-                    >
-                      <div
-                        className="flex justify-between items-center p-2 sm:p-3 cursor-pointer"
-                        onClick={() => handleChapterSelect(chapter)}
+                  {data.chapters.map((chapter: ChapterWithRelation) => {
+                    const progress = chapter.userProgress?.find(
+                      (progress) => progress.userId === user?.id
+                    )
+
+                    const isCompleted = progress?.isCompleted || false
+
+                    return (
+                      <li
+                        key={chapter.id}
+                        className={`rounded-lg transition duration-150 ${
+                          activeChapter && activeChapter === chapter.id
+                            ? "bg-gradient-to-r from-lamaSky to-lamaPurple border-l-4 border-ColorThree"
+                            : "hover:bg-gray-100"
+                        }`}
                       >
-                        <div className="flex items-center">
-                          <div
-                            className={`w-6 h-6 mr-2 sm:mr-3 flex items-center justify-center rounded-full ${
-                              chapter.completed
-                                ? "bg-ColorThree text-white"
-                                : activeChapter &&
-                                    activeChapter.id === chapter.id
-                                  ? "bg-white/70"
-                                  : "bg-gray-100"
-                            }`}
-                          >
-                            {chapter.completed ? (
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            ) : (
-                              <span className="text-xs font-medium text-TextTwo">
-                                {data.chapters.indexOf(chapter) + 1}
-                              </span>
-                            )}
+                        <div
+                          className="flex justify-between items-center p-2 sm:p-3 cursor-pointer"
+                          onClick={() => handleChapterSelect(chapter)}
+                        >
+                          <div className="flex items-center">
+                            <div
+                              className={`w-6 h-6 mr-2 sm:mr-3 flex items-center justify-center rounded-full ${
+                                isCompleted
+                                  ? "bg-ColorThree text-white"
+                                  : activeChapter &&
+                                      activeChapter === chapter.id
+                                    ? "bg-white/70"
+                                    : "bg-gray-100"
+                              }`}
+                            >
+                              {isCompleted ? (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M5 13l4 4L19 7"
+                                  />
+                                </svg>
+                              ) : (
+                                <span className="text-xs font-medium text-TextTwo">
+                                  {data.chapters.indexOf(chapter) + 1}
+                                </span>
+                              )}
+                            </div>
+                            <span
+                              className={`text-sm truncate max-w-[150px] sm:max-w-[180px] ${
+                                activeChapter && activeChapter === chapter.id
+                                  ? "font-semibold text-TextTwo"
+                                  : "text-gray-700"
+                              }`}
+                            >
+                              {chapter.title}
+                            </span>
                           </div>
-                          <span
-                            className={`text-sm truncate max-w-[150px] sm:max-w-[180px] ${
-                              activeChapter && activeChapter.id === chapter.id
-                                ? "font-semibold text-TextTwo"
-                                : "text-gray-700"
-                            }`}
-                          >
-                            {chapter.title}
-                          </span>
+                          {/* Actions */}
+                          {canEditChapter && (
+                            <div className="flex space-x-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setEditingChapter(chapter)
+                                }}
+                                className={`p-1 sm:p-1.5 rounded-full ${
+                                  activeChapter && activeChapter === chapter.id
+                                    ? "text-TextTwo hover:bg-white/30"
+                                    : "text-gray-500 hover:bg-gray-200"
+                                }`}
+                                title="Edit chapter"
+                              >
+                                <Edit size={14} />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  deleteChapter(chapter.id)
+                                }}
+                                className={`p-1 sm:p-1.5 rounded-full ${
+                                  activeChapter && activeChapter === chapter.id
+                                    ? "text-TextTwo hover:bg-white/30"
+                                    : "text-gray-500 hover:bg-gray-200"
+                                }`}
+                                title="Delete chapter"
+                              >
+                                <Trash size={14} />
+                              </button>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex space-x-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setEditingChapter(chapter)
-                            }}
-                            className={`p-1 sm:p-1.5 rounded-full ${
-                              activeChapter && activeChapter.id === chapter.id
-                                ? "text-TextTwo hover:bg-white/30"
-                                : "text-gray-500 hover:bg-gray-200"
-                            }`}
-                            title="Edit chapter"
-                          >
-                            <Edit size={14} />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              deleteChapter(chapter.id)
-                            }}
-                            className={`p-1 sm:p-1.5 rounded-full ${
-                              activeChapter && activeChapter.id === chapter.id
-                                ? "text-TextTwo hover:bg-white/30"
-                                : "text-gray-500 hover:bg-gray-200"
-                            }`}
-                            title="Delete chapter"
-                          >
-                            <Trash size={14} />
-                          </button>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
+                      </li>
+                    )
+                  })}
                 </ul>
               ) : (
                 <div className="flex flex-col items-center justify-center p-6 text-center">
@@ -365,37 +385,49 @@ export default function LearningPlatform() {
               {/* Mini icons view when sidebar is collapsed */}
               {!isLoading &&
                 data?.chapters &&
-                data.chapters.map((chapter: Chapter, index: number) => (
-                  <button
-                    key={chapter.id}
-                    onClick={() => handleChapterSelect(chapter)}
-                    className={`w-10 h-10 mb-2 rounded-full flex items-center justify-center ${
-                      activeChapter && activeChapter.id === chapter.id
-                        ? "bg-gradient-to-r from-lamaSky to-lamaPurple text-TextTwo"
-                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                    }`}
-                    title={chapter.title}
-                  >
-                    {chapter.completed ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+                data.chapters.map(
+                  (chapter: ChapterWithRelation, index: number) => {
+                    const progress = chapter.userProgress?.find(
+                      (progress) => progress.userId === user?.id
+                    )
+
+                    const isCompleted = progress?.isCompleted || false
+
+                    return (
+                      <button
+                        key={chapter.id}
+                        onClick={() => handleChapterSelect(chapter)}
+                        className={`w-10 h-10 mb-2 rounded-full flex items-center justify-center ${
+                          activeChapter && activeChapter === chapter.id
+                            ? "bg-gradient-to-r from-lamaSky to-lamaPurple text-TextTwo"
+                            : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                        }`}
+                        title={chapter.title}
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    ) : (
-                      <span className="text-xs font-medium">{index + 1}</span>
-                    )}
-                  </button>
-                ))}
+                        {isCompleted ? (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        ) : (
+                          <span className="text-xs font-medium">
+                            {index + 1}
+                          </span>
+                        )}
+                      </button>
+                    )
+                  }
+                )}
 
               <button
                 onClick={() => {
@@ -443,48 +475,15 @@ export default function LearningPlatform() {
         {/* Main Content */}
         <div className="flex-grow overflow-y-auto bg-white">
           {activeChapter ? (
-            <div className="p-3 sm:p-6">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
-                <h2 className="text-xl sm:text-2xl font-bold text-TextTwo mb-4">
-                  {activeChapter.title}
-                </h2>
-
-                {/* Pass the active chapter to the component */}
-                <ChapterWiseContentPage chapter={activeChapter} />
-
-                {/* Chapter completion button */}
-                <div className="mt-6 sm:mt-8 flex justify-end">
-                  <button
-                    className={`px-3 sm:px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-150 text-sm sm:text-base ${
-                      activeChapter.completed
-                        ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        : "bg-gradient-to-r from-ColorThree to-ColorTwo text-white hover:shadow-md"
-                    }`}
-                  >
-                    <span>
-                      {activeChapter.completed
-                        ? "Completed"
-                        : "Mark as Complete"}
-                    </span>
-                    {activeChapter.completed && (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 sm:h-5 sm:w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-              </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+              {/* Pass the active chapter to the component */}
+              <ChapterWiseContentPage
+                classId={String(classId)}
+                subjectId={String(subjectId)}
+                lessionId={String(lessionId)}
+                classNoteId={String(weekId)}
+                chapter={activeChapter}
+              />
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-full p-4 sm:p-6 text-center">

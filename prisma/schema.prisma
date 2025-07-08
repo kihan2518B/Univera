@@ -245,7 +245,7 @@ model Class {
 }
 
 model Subject {
-  id           Int                @id @unique @default(autoincrement())
+  id           Int                @id @default(autoincrement())
   name         String
   credits      Int
   semester     Int
@@ -299,7 +299,7 @@ model Lession{
 model Chapter{
   id Int @id @unique @default(autoincrement())
   title String
-  data Json[] //{title,description,link}
+  data String[]
 
   lessionId Int
   classNoteId Int
@@ -312,13 +312,15 @@ model Chapter{
 
 model userProgress{
   id                Int @id @unique @default(autoincrement())
-  isviewing         Boolean
+  isViewing         Boolean
   isCompleted       Boolean
   chapterId         Int
   userId            String
 
   chapter           Chapter @relation(fields: [chapterId],references: [id])
   user              User @relation(fields: [userId],references: [id])
+  
+  @@unique([userId, chapterId])
 }
 
 model AttendanceRecord {

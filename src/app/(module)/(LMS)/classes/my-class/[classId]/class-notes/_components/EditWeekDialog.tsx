@@ -2,6 +2,13 @@
 import { Loader2, X } from "lucide-react"
 import { useEffect, useState } from "react"
 
+interface EditWeekDialogProps {
+  isOpen: boolean
+  onClose: () => void
+  weekId: number
+  initialTitle: string
+  onEditWeek: (weekId: number, title: string) => void
+}
 // Edit Week Dialog Component
 const EditWeekDialog = ({
   isOpen,
@@ -9,7 +16,7 @@ const EditWeekDialog = ({
   onEditWeek,
   weekId,
   initialTitle
-}) => {
+}: EditWeekDialogProps) => {
   const [title, setTitle] = useState(initialTitle)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -17,7 +24,7 @@ const EditWeekDialog = ({
     setTitle(initialTitle)
   }, [initialTitle])
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault()
     setIsSubmitting(true)
     try {

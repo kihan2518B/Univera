@@ -1,7 +1,13 @@
 "use client"
 import { Loader2, X } from "lucide-react"
 import { useEffect, useState } from "react"
-
+interface EditChapterDailogProps {
+  isOpen: boolean
+  onClose: () => void
+  onEditChapter: (chapterId: number, title: string) => void
+  chapterId: number
+  initialTitle: string
+}
 // Edit chapter Dialog Component
 const EditChapterDialog = ({
   isOpen,
@@ -9,7 +15,7 @@ const EditChapterDialog = ({
   onEditChapter,
   chapterId,
   initialTitle
-}) => {
+}: EditChapterDailogProps) => {
   const [title, setTitle] = useState(initialTitle)
   const [isSubmitting, setIsSubmitting] = useState(false)
 

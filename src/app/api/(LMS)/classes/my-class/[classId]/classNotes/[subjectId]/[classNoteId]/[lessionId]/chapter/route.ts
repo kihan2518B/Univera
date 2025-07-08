@@ -68,6 +68,9 @@ export async function GET(req: Request, context: any) {
       where: { lessionId: Number(lessionId) },
       orderBy: {
         createdAt: "asc"
+      },
+      include: {
+        userProgress: true
       }
     })
     const lession = await prisma.lession.findUnique({
@@ -76,6 +79,7 @@ export async function GET(req: Request, context: any) {
         classNote: true
       }
     })
+
     return NextResponse.json(
       {
         message: "Found Chapters",

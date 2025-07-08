@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useContext } from "react"
-import { Pencil, Plus, Check, Circle, Trash2 } from "lucide-react"
+import { Pencil, Plus, Trash2 } from "lucide-react"
 import Link from "next/link"
 import Left from "@/components/Icons/Left"
 import { useParams } from "next/navigation"
@@ -309,17 +309,17 @@ const CourseOutline = () => {
                   >
                     <div className="flex-1 flex items-center">
                       <div className="mr-4 text-TextTwo">
-                        {lession.completed ? (
+                        {/* {lession.completed ? (
                           <div className="w-5 h-5 rounded-full bg-ColorTwo flex items-center justify-center">
                             <Check size={14} className="text-white" />
                           </div>
-                        ) : (lession as any).status === "current" ? (
-                          <div className="w-5 h-5 rounded-full bg-ColorThree flex items-center justify-center">
-                            <div className="w-2 h-2 rounded-full bg-white"></div>
-                          </div>
-                        ) : (
+                        ) : (lession as any).status === "current" ? ( */}
+                        <div className="w-5 h-5 rounded-full bg-ColorThree flex items-center justify-center">
+                          <div className="w-2 h-2 rounded-full bg-white"></div>
+                        </div>
+                        {/* ) : (
                           <Circle size={20} className="text-gray-400" />
-                        )}
+                        )} */}
                       </div>
                       <div className="flex-1 text-TextTwo font-medium">
                         {lession.title}
