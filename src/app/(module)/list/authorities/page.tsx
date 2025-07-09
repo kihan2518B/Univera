@@ -104,18 +104,18 @@ const TeacherListPage = () => {
   }
 
   const renderRow = (item: Teacher) => (
-    <tr
+    <td
       key={item.id}
-      className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
+      className="relative border-b flex justify-between border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
     >
-      <td className="flex items-center gap-4 p-4">
-        <div className="flex flex-col">
+      <div className="flex items-center w-full gap-4 p-4">
+        <div className="flex flex-col justify-between">
           <h3 className="font-semibold">{item.name}</h3>
           <p className="text-xs text-gray-500">{item?.email}</p>
         </div>
-      </td>
-      <td>
-        <div className="flex items-center gap-2">
+      </div>
+      <div>
+        <div className="flex items-center gap-2 mt-2">
           <Link href={`/list/authorities/${item.id}`}>
             <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky">
               <Image src="/view.png" alt="" width={16} height={16} />
@@ -127,8 +127,8 @@ const TeacherListPage = () => {
             className="px-2 py-2"
           />
         </div>
-      </td>
-    </tr>
+      </div>
+    </td>
   )
 
   return (
