@@ -1,4 +1,5 @@
 import React from "react"
+
 const Table = ({
   columns,
   renderRow,
@@ -9,29 +10,35 @@ const Table = ({
   data: any[]
 }) => {
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
-      <table className="w-full overflow-x-auto">
-        <thead className="bg-lamaSkyLight border-b border-ColorThree/20">
-          <tr>
-            {columns.map((col) => (
-              <th
-                key={col.accessor}
-                className={`px-4 py-3 text-left text-TextTwo font-semibold text-sm ${col.className}`}
-              >
-                {col.header}
+    <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-200">
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm text-left">
+          <thead className="bg-blue-50 sticky top-0 z-10 border-b border-gray-200">
+            <tr>
+              {columns.map((col) => (
+                <th
+                  key={col.accessor}
+                  className={`px-5 py-4 text-gray-700 font-medium whitespace-nowrap ${col.className}`}
+                >
+                  {col.header}
+                </th>
+              ))}
+              <th className="px-5 py-4 text-gray-700 font-medium whitespace-nowrap">
+                Actions
               </th>
-            ))}
-            <th className="px-4 py-3 text-left text-TextTwo font-semibold text-sm">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        {data && (
-          <tbody className="divide-y divide-gray-100">
-            {data.map((item, index) => renderRow(item, index))}
-          </tbody>
-        )}
-      </table>
+            </tr>
+          </thead>
+          {data && (
+            <tbody className="divide-y divide-gray-100">
+              {data.map((item, index) => (
+                <tr key={index} className=" hover:bg-gray-50 duration-200">
+                  {renderRow(item, index)}
+                </tr>
+              ))}
+            </tbody>
+          )}
+        </table>
+      </div>
     </div>
   )
 }

@@ -1,6 +1,5 @@
 import {
   FaUsers,
-  FaChalkboardTeacher,
   FaRegCalendarAlt,
   FaBullhorn,
   FaBook,
@@ -9,7 +8,6 @@ import {
 } from "react-icons/fa"
 import {
   MdSpaceDashboard,
-  MdGroups,
   MdClass,
   MdOutlineHealthAndSafety,
   MdPerson,
@@ -24,16 +22,16 @@ export const Menuitems = {
   university_admin: [
     { title: "Dashboard", url: "/admin", icon: MdSpaceDashboard },
     { title: "Departments", url: "/departments", icon: FaBuilding },
-    {
-      title: "Non-Teaching Staff",
-      url: "/non-teaching-staff",
-      icon: MdGroups
-    },
-    {
-      title: "Teachers",
-      url: "/teachers",
-      icon: FaChalkboardTeacher
-    },
+    // {
+    //   title: "Non-Teaching Staff",
+    //   url: "/non-teaching-staff",
+    //   icon: MdGroups
+    // },
+    // {
+    //   title: "Teachers",
+    //   url: "/teachers",
+    //   icon: FaChalkboardTeacher
+    // },
     { title: "Policy", url: "/policy", icon: MdPolicy }
   ],
   university_admin_staff: [
