@@ -1,18 +1,19 @@
 "use client"
 
 import Link from "next/link"
-import TableSearch from "../_components/TableSearch"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 import { useContext, useState } from "react"
 import { UserContext } from "@/context/user"
-import DeleteButton from "@/components/(commnon)/DeleteButton"
 import toast from "react-hot-toast"
-import { ButtonV1 } from "@/components/(commnon)/ButtonV1"
-import { RotateCcw, Users, Plus, Eye, Filter } from "lucide-react"
-import { CoursesSkeleton } from "@/components/(commnon)/Skeleton"
+import { RotateCcw, Users, Search, Filter, Eye, Trash2 } from "lucide-react"
 import { Prisma } from "@prisma/client"
-import PaginationWrapper from "../_components/Pagination"
+
+type StudentWithRelations = Prisma.StudentGetPayload<{
+  include: {
+    user: true
+  }
+}>
 
 const fetchStudents = async (cId: number) => {
   const course = await axios.get("/api/list/student", {
@@ -73,190 +74,199 @@ const StudentListPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-        <CoursesSkeleton />
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6 flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <RotateCcw className="w-8 h-8 text-red-600" />
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Oops! Something went wrong
-          </h2>
-          <p className="text-red-600 mb-2">
-            Failed to load student data. Please try again.
-          </p>
-          <p className="text-sm text-gray-500 mb-6">
-            {error?.message || "An unexpected error occurred."}
-          </p>
-          <ButtonV1
-            icon={RotateCcw}
-            label="Retry"
-            onClick={() => refetch()}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors"
-          />
-        </div>
+      <div className="flex flex-col items-center justify-center h-screen text-red-500">
+        <p>Failed to load students. Please try again later.</p>
+        <p className="text-sm text-gray-500">
+          {error?.message || "An unexpected error occurred."}
+        </p>
+        <button
+          onClick={() => refetch()}
+          className="mt-4 flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+        >
+          <RotateCcw className="w-4 h-4" />
+          Retry
+        </button>
       </div>
     )
   }
 
-  type StudentWithRelations = Prisma.StudentGetPayload<{
-    include: {
-      user: true
-    }
-  }>
-
-  const renderRow = (item: StudentWithRelations) => (
-    <tr
-      key={item.id}
-      className="border-b border-gray-100 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
-    >
-      <td className="px-6 py-5">
-        <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-lg shadow-lg">
-            {item.user.name.charAt(0).toUpperCase()}
-          </div>
-          <div className="flex flex-col">
-            <h3 className="font-semibold text-gray-900 text-base">
-              {item.user.name}
-            </h3>
-            <p className="text-sm text-gray-600">{item?.user.email}</p>
-          </div>
-        </div>
-      </td>
-      <td className="px-6 py-5">
-        <div className="flex items-center space-x-3">
-          <Link href={`/list/students/${item.id}`}>
-            <button className="group relative w-10 h-10 flex items-center justify-center rounded-lg bg-blue-500 hover:bg-blue-600 transition-all duration-200 shadow-md hover:shadow-lg">
-              <Eye className="w-5 h-5 text-white" />
-              <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-            </button>
-          </Link>
-          {roles && (roles.includes(11) || roles.includes(5)) && (
-            <DeleteButton
-              label={"Delete"}
-              isDeleting={isDeleting}
-              onDelete={() => deleteStudent(String(item.id))}
-              className="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
-            />
-          )}
-        </div>
-      </td>
-    </tr>
-  )
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between space-y-6 lg:space-y-0">
-            {/* Title Section */}
-            <div className="flex items-center space-x-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Users className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Students</h1>
-                <p className="text-gray-600 mt-1">
-                  Manage and view all students in your course
-                </p>
-                <div className="flex items-center mt-2 text-sm text-gray-500">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  {filteredData?.length || 0} students found
-                </div>
-              </div>
-            </div>
-
-            {/* Add Student Button */}
-            {roles && (roles.includes(11) || roles.includes(5)) && (
-              <Link href={`/list/students/create`}>
-                <button className="group flex items-center space-x-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                  <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-200" />
-                  <span>Add New Student</span>
-                </button>
-              </Link>
-            )}
+    <div className="min-h-screen bg-gray-50 p-6">
+      {/* Header Section */}
+      <div className="bg-white rounded-2xl shadow-sm p-8 mb-6">
+        <div className="flex items-start gap-4 mb-6">
+          <div className="bg-indigo-600 rounded-2xl p-4 flex items-center justify-center">
+            <Users className="w-8 h-8 text-white" />
           </div>
-
-          {/* Search and Filter Section */}
-          <div className="mt-8 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
-            <div className="relative flex-1 max-w-md">
-              <TableSearch
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Students</h1>
+            <p className="text-gray-600 mb-4">
+              Manage and view all students in your course
+            </p>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-sm text-gray-600">
+                {filteredData?.length || 0} students found
+              </span>
             </div>
-            <button className="flex items-center space-x-2 px-6 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors duration-200">
-              <Filter className="w-5 h-5 text-gray-600" />
-              <span className="text-gray-600 font-medium">Filters</span>
-            </button>
           </div>
         </div>
 
-        {/* Table Section */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          {!isLoading ? (
-            <>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gradient-to-r from-gray-50 to-blue-50">
-                    <tr>
-                      <th className="px-6 py-5 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">
-                        Student Information
-                      </th>
-                      <th className="px-6 py-5 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {paginatedData?.map((item: any) => renderRow(item))}
-                  </tbody>
-                </table>
-              </div>
-
-              {filteredData && filteredData.length === 0 && (
-                <div className="text-center py-16">
-                  <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Users className="w-10 h-10 text-gray-400" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    No students found
-                  </h3>
-                  <p className="text-gray-500">
-                    Try adjusting your search criteria or add new students.
-                  </p>
-                </div>
-              )}
-
-              {/* Pagination */}
-              <div className="px-6 py-5 border-t border-gray-100 bg-gray-50">
-                <PaginationWrapper
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={(page) => setCurrentPage(page)}
-                />
-              </div>
-            </>
-          ) : (
-            <div className="flex items-center justify-center py-20">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                </div>
-                <p className="text-gray-600 font-medium">Loading students...</p>
-              </div>
-            </div>
-          )}
+        {/* Search and Filter Bar */}
+        <div className="flex gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            />
+          </div>
+          <button className="flex items-center gap-2 px-6 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+            <Filter className="w-5 h-5 text-gray-600" />
+            <span className="text-gray-700">Filters</span>
+          </button>
         </div>
       </div>
+
+      {/* Table Section */}
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">
+                  STUDENT INFORMATION
+                </th>
+                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900 uppercase tracking-wider">
+                  ACTIONS
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {paginatedData && paginatedData.length > 0 ? (
+                paginatedData.map((item: StudentWithRelations) => (
+                  <tr
+                    key={item.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <h3 className="text-base font-semibold text-gray-900">
+                          {item.user.name}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          {item?.user.email}
+                        </p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link href={`/list/students/${item.id}`}>
+                          <button className="p-2 rounded-lg bg-indigo-100 hover:bg-indigo-200 transition-colors">
+                            <Eye className="w-5 h-5 text-indigo-600" />
+                          </button>
+                        </Link>
+                        {roles && (roles.includes(11) || roles.includes(5)) && (
+                          <button
+                            onClick={() => deleteStudent(String(item.id))}
+                            disabled={isDeleting}
+                            className="p-2 rounded-lg bg-red-100 hover:bg-red-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <Trash2 className="w-5 h-5 text-red-600" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={2}
+                    className="px-6 py-12 text-center text-gray-500"
+                  >
+                    No students found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              Showing {startIdx + 1} to{" "}
+              {Math.min(endIdx, filteredData?.length || 0)} of{" "}
+              {filteredData?.length || 0} results
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className={`px-4 py-2 rounded-lg border ${
+                  currentPage === 1
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                Previous
+              </button>
+              <div className="flex gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-4 py-2 rounded-lg ${
+                        currentPage === page
+                          ? "bg-indigo-600 text-white"
+                          : "border border-gray-300 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
+              </div>
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
+                disabled={currentPage === totalPages}
+                className={`px-4 py-2 rounded-lg border ${
+                  currentPage === totalPages
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Add Student Button - Conditional */}
+      {roles && (roles.includes(11) || roles.includes(5)) && (
+        <Link href={`/list/students/create`}>
+          <button className="fixed bottom-8 right-8 px-6 py-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-all hover:shadow-xl">
+            + Add Student
+          </button>
+        </Link>
+      )}
     </div>
   )
 }

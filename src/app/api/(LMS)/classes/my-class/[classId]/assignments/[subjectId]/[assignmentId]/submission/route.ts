@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 
 export async function PATCH(req: Request, context: any) {
   const { searchParams } = new URL(req.url)
-  const { params } = await context
+  const params = await context.params
   const assignmentId = params.assignmentId
   const submissionData = await req.json()
   const { studentId, attachments } = submissionData

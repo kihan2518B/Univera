@@ -10,31 +10,27 @@ const Table = ({
   data: any[]
 }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-200">
+    <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-full text-sm text-left">
-          <thead className="bg-blue-50 sticky top-0 z-10 border-b border-gray-200">
+        <table className="w-full">
+          <thead className="bg-gradient-to-r from-gray-50 to-blue-50">
             <tr>
               {columns.map((col) => (
                 <th
                   key={col.accessor}
-                  className={`px-5 py-4 text-gray-700 font-medium whitespace-nowrap ${col.className}`}
+                  className={`px-6 py-5 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ${col.className}`}
                 >
                   {col.header}
                 </th>
               ))}
-              <th className="px-5 py-4 text-gray-700 font-medium whitespace-nowrap">
+              <th className="px-6 py-5 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
           {data && (
             <tbody className="divide-y divide-gray-100">
-              {data.map((item, index) => (
-                <tr key={index} className=" hover:bg-gray-50 duration-200">
-                  {renderRow(item, index)}
-                </tr>
-              ))}
+              {data.map((item, index) => renderRow(item, index))}
             </tbody>
           )}
         </table>

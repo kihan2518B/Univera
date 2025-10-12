@@ -1232,33 +1232,57 @@ export const QuizResultsSkeleton = () => {
   )
 }
 
-export const ChapterContentSkeleton = () => {
+export function SkeletonAnnouncement() {
   return (
-    <div className="space-y-6 animate-pulse">
-      {/* Header skeleton */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border border-gray-200">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
-          <div className="h-6 bg-gray-300 rounded w-48"></div>
-        </div>
-        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+    <div className="relative bg-white border border-gray-200 rounded-xl p-4 overflow-visible animate-pulse">
+      {/* thin priority indicator */}
+      <div className="absolute top-0 left-0 w-1 h-full rounded-l-xl bg-gray-200" />
+
+      {/* badge top-right */}
+      <div className="absolute top-1 right-1">
+        <div className="h-6 px-2 rounded-full bg-gray-200" />
       </div>
 
-      {/* Content skeleton */}
-      {[1, 2, 3].map((item) => (
-        <div
-          key={item}
-          className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm"
-        >
-          <div className="space-y-3">
-            <div className="h-5 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 rounded w-full"></div>
-            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+      <div className="flex flex-col sm:flex-row justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          {/* Title */}
+          <div className="mb-2">
+            <Skeleton className="h-4 w-1/2 rounded-md" />
+          </div>
+
+          {/* badges */}
+          <div className="flex items-center gap-2 mb-2">
+            <Skeleton className="h-6 w-16 rounded-full" />
+            <Skeleton className="h-6 w-12 rounded-full" />
+          </div>
+
+          {/* description */}
+          <div className="mb-2">
+            <Skeleton className="h-10 w-full rounded-md" />
+          </div>
+
+          {/* meta small badges */}
+          <div className="flex flex-wrap items-center gap-2">
+            <Skeleton className="h-6 w-24 rounded-md" />
+            <Skeleton className="h-6 w-20 rounded-md" />
+            <Skeleton className="h-6 w-28 rounded-md" />
           </div>
         </div>
-      ))}
+
+        {/* date box */}
+        <div className="flex-shrink-0 sm:w-16 flex items-center justify-center">
+          <div className="rounded-xl p-2 border border-gray-100 bg-gray-50">
+            <Skeleton className="h-6 w-8 rounded-md mb-1" />
+            <Skeleton className="h-3 w-10 rounded-md mb-1" />
+            <Skeleton className="h-3 w-8 rounded-md" />
+          </div>
+        </div>
+      </div>
+
+      {/* attachments */}
+      <div className="mt-2 pt-2 border-t border-gray-100">
+        <Skeleton className="h-6 w-36 rounded-md" />
+      </div>
     </div>
   )
 }

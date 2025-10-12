@@ -89,6 +89,8 @@ type body = {
   startDate: string
   deadline: string
   tag: string
+  feedback?: string
+  marks?: number
   assignmentType: string
   status: "PENDING" | "SUBMITTED" | "APPROVED" | "REJECTED" | "LATE"
 }
@@ -114,10 +116,19 @@ export async function PATCH(req: Request) {
     }
 
     if (updateAssignmentSubmission) {
-      const { status } = data
-      if (!status) {
+      const { status, feedback, marks } = data
+      if (status === "APPROVED" && !marks) {
         return NextResponse.json(
-          { message: "Status is required to update assignment submission" },
+          { message: "Marks are required to approve assignment submission" },
+          { status: 400 }
+        )
+      }
+      if (!status || !feedback) {
+        return NextResponse.json(
+          {
+            message:
+              "Status and feedback is required to update assignment submission"
+          },
           { status: 400 }
         )
       }
@@ -129,12 +140,22 @@ export async function PATCH(req: Request) {
           { status: 400 }
         )
       }
+      const updatedData: any = {
+        status: status
+      }
+      if (marks) {
+        updatedData.marks = Number(marks)
+      }
+      if (status !== "APPROVED") {
+        updatedData.marks = null
+      }
+      if (feedback) {
+        updatedData.feedback = feedback
+      }
       const updatedAssignmentSubmission =
         await prisma.assignmentSubmission.update({
           where: { id: Number(SubmissionId) },
-          data: {
-            status: status
-          }
+          data: updatedData
         })
       return NextResponse.json(
         {
@@ -144,7 +165,7 @@ export async function PATCH(req: Request) {
         { status: 200 }
       )
     }
-    console.log("data: ", data)
+
     const assignment = await prisma.assignment.update({
       where: { id: Number(data.id) },
       data: {

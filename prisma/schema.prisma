@@ -328,7 +328,7 @@ model AttendanceRecord {
   slotId       Int
   classId      Int
   date         String
-  attendance   Json // key = rollNo, value = status
+  attendance   Json // key = rollNo, value = status("present"|"absent")
   facultyId    String
   subjectId    Int
   courseId     Int
@@ -362,6 +362,8 @@ model AssignmentSubmission {
   assignmentId Int
   attachments  Json[]
   status       AssignmentSubmissionStatus @default(PENDING)
+  marks        Int?
+  feedback     String?
   createdAt    DateTime                   @default(now())
   updatedAt    DateTime                   @default(now())
   assignment   Assignment                 @relation(fields: [assignmentId], references: [id])

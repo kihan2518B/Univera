@@ -40,6 +40,7 @@ async function fetchAssignmentSubmissions(
   assignmentId: string,
   userId: string
 ) {
+  console.log("subjectId, assignmentId:", subjectId, assignmentId)
   const res = await axios.get(
     `/api/classes/my-class/${classId}/assignments/${subjectId}/${assignmentId}/submission`,
     {
@@ -196,6 +197,7 @@ export const AssignmentTableComponent = ({
       ),
     enabled: !!selectedAssignmentId
   })
+
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       const UniqueFiles = acceptedFiles.filter((file) => {
@@ -351,7 +353,6 @@ export const AssignmentTableComponent = ({
     setSelectedAssignmentId("")
     setSelectedAssignmentTitle("")
   }
-
   const canSubmitAssignment = submissionsData
     ? submissionsData.status !== "APPROVED"
     : true
@@ -461,19 +462,15 @@ export const AssignmentTableComponent = ({
                   <NotepadText />
                   View Assignment
                 </DropdownMenuItem>
-                {canSubmitAssignment && (
-                  <DropdownMenuItem
-                    className="cursor-pointer border-b border-gray-100 focus:bg-gray-100 rounded-sm shadow-sm"
-                    onClick={() =>
-                      openSubmitDialog(String(item.id), item.title)
-                    }
-                  >
-                    <Upload size={16} />
-                    {submissionsData?.attachments?.length > 0
-                      ? "Update Submission"
-                      : "Submit Assignment"}
-                  </DropdownMenuItem>
-                )}
+                <DropdownMenuItem
+                  className="cursor-pointer border-b border-gray-100 focus:bg-gray-100 rounded-sm shadow-sm"
+                  onClick={() => openSubmitDialog(String(item.id), item.title)}
+                >
+                  <Upload size={16} />
+                  {submissionsData?.attachments?.length > 0
+                    ? "Update Submission"
+                    : "Submit Assignment"}
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </td>
@@ -503,6 +500,7 @@ export const AssignmentTableComponent = ({
   const canCreateAssignment = assignmentsData.faculties
     ?.map((f: any) => f.id)
     .includes(userId)
+  console.log("submissionsData: ", submissionsData)
 
   return (
     <div className="p-6 space-y-6">
@@ -544,53 +542,358 @@ export const AssignmentTableComponent = ({
         open={isSubmitDialogOpen && !submissionsIsLoading}
         onOpenChange={setIsSubmitDialogOpen}
       >
-        <DialogContent className="sm:max-w-[500px] w-[95vw] max-w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto bg-white">
-          <DialogHeader className="border-b border-gray-100 pb-4">
-            <div className="flex items-center justify-between">
-              <DialogTitle className="text-xl font-semibold text-TextTwo">
-                {submissionsData?.attachments?.length > 0
-                  ? "Update your submission"
-                  : "Submit Assignment"}
-              </DialogTitle>
+        <DialogContent className="sm:max-w-[650px] w-[95vw] max-w-[95vw] sm:w-full max-h-[85vh] overflow-y-auto bg-white">
+          <DialogHeader className="border-b border-gray-200 pb-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <DialogTitle className="text-2xl font-semibold text-gray-900 mb-2">
+                  {submissionsData?.attachments?.length > 0
+                    ? "Update Submission"
+                    : "Submit Assignment"}
+                </DialogTitle>
+                <p className="text-base text-gray-600">
+                  Assignment:{" "}
+                  <span className="font-semibold text-gray-900">
+                    {selectedAssignmentTitle}
+                  </span>
+                </p>
+              </div>
+
+              {/* Status Badge */}
+              {submissionsData && (
+                <div className="flex flex-col items-end gap-2">
+                  <span
+                    className={cn(
+                      "px-4 py-2 rounded-full text-sm font-semibold border-2",
+                      submissionsData.status === "APPROVED" &&
+                        "bg-green-50 text-green-700 border-green-200",
+                      submissionsData.status === "REJECTED" &&
+                        "bg-red-50 text-red-700 border-red-200",
+                      submissionsData.status === "PENDING" &&
+                        "bg-amber-50 text-amber-700 border-amber-200",
+                      submissionsData.status === "SUBMITTED" &&
+                        "bg-blue-50 text-blue-700 border-blue-200",
+                      submissionsData.status === "LATE" &&
+                        "bg-orange-50 text-orange-700 border-orange-200"
+                    )}
+                  >
+                    {submissionsData.status}
+                  </span>
+                  <p className="text-xs text-gray-500">Current Status</p>
+                </div>
+              )}
             </div>
-            <p className="text-sm text-gray-600">
-              Assignment:{" "}
-              <span className="font-medium text-TextTwo">
-                {selectedAssignmentTitle}
-              </span>
-            </p>
-            {submissionsData && <p>Status: {submissionsData.status}</p>}
           </DialogHeader>
 
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-TextTwo">Upload Files</h3>
-            <p className="text-xs text-gray-500">
-              Select files to submit for this assignment
-            </p>
-            {submissionsData?.attachments?.length > 0 && (
-              <div className="p-2 mb-2 bg-amber-50 text-amber-700 rounded border-l-2 border-amber-700 text-sm">
-                {canSubmitAssignment
-                  ? "You can update your existing submission."
-                  : `You assignment is ${submissionsData.status}`}
+          <div className="space-y-6 py-2">
+            {/* Status-Specific Messages */}
+            {submissionsData && (
+              <div className="space-y-4">
+                {submissionsData.status === "APPROVED" && (
+                  <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded-r-lg">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <svg
+                          className="h-5 w-5 text-green-400"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <div className="ml-3">
+                        <h3 className="text-sm font-medium text-green-800">
+                          Assignment Approved
+                        </h3>
+                        <p className="text-sm text-green-700 mt-1">
+                          Congratulations! Your submission has been approved.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {submissionsData.status === "REJECTED" && (
+                  <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <svg
+                          className="h-5 w-5 text-red-400"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <div className="ml-3">
+                        <h3 className="text-sm font-medium text-red-800">
+                          Assignment Needs Revision
+                        </h3>
+                        <p className="text-sm text-red-700 mt-1">
+                          Please review the feedback and resubmit your
+                          assignment.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {submissionsData.status === "LATE" && (
+                  <div className="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-r-lg">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <svg
+                          className="h-5 w-5 text-orange-400"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <div className="ml-3">
+                        <h3 className="text-sm font-medium text-orange-800">
+                          Late Submission
+                        </h3>
+                        <p className="text-sm text-orange-700 mt-1">
+                          This assignment was submitted after the deadline.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {(submissionsData.status === "PENDING" ||
+                  submissionsData.status === "SUBMITTED") && (
+                  <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <svg
+                          className="h-5 w-5 text-blue-400"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <div className="ml-3">
+                        <h3 className="text-sm font-medium text-blue-800">
+                          {submissionsData.status === "PENDING"
+                            ? "Review Pending"
+                            : "Under Review"}
+                        </h3>
+                        <p className="text-sm text-blue-700 mt-1">
+                          Your submission is being reviewed by the instructor.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
+
+            {/* Evaluation Section - Show if marks or feedback exist */}
+            {submissionsData &&
+              (submissionsData?.marks !== null ||
+                submissionsData?.feedback) && (
+                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-purple-900 mb-4 flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    Evaluation Results
+                  </h3>
+
+                  <div className="grid gap-4">
+                    {submissionsData && submissionsData?.marks !== null && (
+                      <div className="bg-white rounded-lg p-4 border border-purple-200">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-700">
+                              Your Score
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Out of 100 points
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-3xl font-bold text-purple-600">
+                              {submissionsData.marks}
+                            </span>
+                            <span className="text-lg text-gray-500 ml-1">
+                              /100
+                            </span>
+                          </div>
+                        </div>
+                        <div className="mt-3">
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${submissionsData.marks}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {submissionsData?.feedback && (
+                      <div className="bg-white rounded-lg p-4 border border-purple-200">
+                        <div className="flex items-center gap-2 mb-3">
+                          <svg
+                            className="w-4 h-4 text-purple-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                            />
+                          </svg>
+                          <p className="font-medium text-gray-900">
+                            Instructor Feedback
+                          </p>
+                        </div>
+                        <div className="bg-gray-50 rounded-lg p-4 border-l-4 border-purple-400">
+                          <p className="text-gray-800 leading-relaxed">
+                            {submissionsData.feedback}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+            {/* Upload Section */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Upload Files
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Select files to submit for this assignment
+                  </p>
+                </div>
+                {submissionsData?.attachments?.length > 0 && (
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500">Current submission</p>
+                    <p className="text-sm font-medium text-gray-700">
+                      {submissionsData.attachments.length} file(s)
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {submissionsData?.attachments?.length > 0 && (
+                <div
+                  className={cn(
+                    "p-4 rounded-xl border-2 text-sm",
+                    submissionsData.status === "PENDING" &&
+                      "bg-amber-50 text-amber-800 border-amber-200",
+                    submissionsData.status === "SUBMITTED" &&
+                      "bg-blue-50 text-blue-800 border-blue-200",
+                    submissionsData.status === "APPROVED" &&
+                      "bg-green-50 text-green-800 border-green-200",
+                    submissionsData.status === "REJECTED" &&
+                      "bg-red-50 text-red-800 border-red-200",
+                    submissionsData.status === "LATE" &&
+                      "bg-orange-50 text-orange-800 border-orange-200"
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <svg
+                      className="w-5 h-5 mt-0.5 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <div className="flex-1">
+                      <p className="font-semibold mb-1">
+                        {canSubmitAssignment
+                          ? "Update Your Submission"
+                          : `Assignment ${submissionsData.status}`}
+                      </p>
+                      {canSubmitAssignment ? (
+                        <p className="text-xs opacity-90">
+                          Upload new files to update your existing submission.
+                          Previous files will be replaced.
+                        </p>
+                      ) : (
+                        <p className="text-xs opacity-90">
+                          {submissionsData.status === "APPROVED" &&
+                            "Your assignment has been approved. No further action needed."}
+                          {submissionsData.status === "REJECTED" &&
+                            "Please review the feedback above and resubmit if allowed."}
+                          {(submissionsData.status === "SUBMITTED" ||
+                            submissionsData.status === "PENDING") &&
+                            "Your submission is under review."}
+                          {submissionsData.status === "LATE" &&
+                            "This submission was marked as late."}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <fieldset disabled={!canSubmitAssignment}>
+              {/* Upload Area */}
+              <div
+                className={`${!canCreateAssignment ? "opacity-50 cursor-not-allowed" : ""} border-2 border-dashed border-gray-300 rounded-xl p-6 hover:border-purple-400 hover:bg-purple-50/30 transition-all duration-300`}
+              >
+                <UploadthingUploader
+                  files={files}
+                  uploading={uploading}
+                  setUploading={setUploading}
+                  onDrop={onDrop}
+                  removeFile={removeFile}
+                  routeConfig={routeConfig}
+                />
+              </div>
+            </fieldset>
           </div>
 
-          <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 hover:border-ColorThree transition-colors">
-            <UploadthingUploader
-              files={files}
-              uploading={uploading}
-              setUploading={setUploading}
-              onDrop={onDrop}
-              removeFile={removeFile}
-              routeConfig={routeConfig}
-            />
-          </div>
-          <DialogFooter className="border-t border-gray-100 pt-4 flex flex-col sm:flex-row gap-3">
+          <DialogFooter className="border-t border-gray-200 pt-6 flex flex-col sm:flex-row gap-3">
             <Button
               variant="outline"
               onClick={closeSubmitDialog}
-              className="w-full sm:w-auto order-2 sm:order-1"
+              className="w-full sm:w-auto order-2 sm:order-1 border-gray-300 text-gray-700 hover:bg-gray-50 px-6 py-2"
               disabled={isSubmitting || uploading}
             >
               Cancel
@@ -599,13 +902,15 @@ export const AssignmentTableComponent = ({
               <Button
                 onClick={handleSubmitAssignment}
                 disabled={files.length === 0 || isSubmitting || uploading}
-                className="w-full sm:w-auto order-1 sm:order-2 bg-ColorThree hover:bg-ColorTwo text-white"
+                className="w-full sm:w-auto order-1 sm:order-2 bg-purple-600 hover:bg-purple-700 text-white px-8 py-2 text-base font-semibold"
               >
                 {isSubmitting || uploading ? (
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     {uploading ? "Uploading..." : "Submitting..."}
                   </div>
+                ) : submissionsData?.attachments?.length > 0 ? (
+                  "Update Submission"
                 ) : (
                   "Submit Assignment"
                 )}

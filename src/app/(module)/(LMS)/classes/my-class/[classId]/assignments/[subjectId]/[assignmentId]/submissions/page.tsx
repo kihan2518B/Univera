@@ -21,7 +21,11 @@ async function getAssignment(
 export default function SubmissionsPage() {
   const { user } = useContext(UserContext)
   const { classId, subjectId, assignmentId } = useParams()
-  const { data: assignment, isLoading } = useQuery({
+  const {
+    data: assignment,
+    isLoading,
+    refetch
+  } = useQuery({
     queryKey: ["submissions"],
     queryFn: () =>
       getAssignment(
@@ -40,6 +44,7 @@ export default function SubmissionsPage() {
       {isLoading && <AssignmentSubmissionsSkeleton />}
       {assignment && (
         <AssignmentSubmissions
+          refetch={refetch}
           assignment={assignment}
           classId={classId as string}
           subjectId={subjectId as string}
