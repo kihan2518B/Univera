@@ -15,7 +15,7 @@
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,html}\" \"package.json\""
   },
   "dependencies": {
-    "@ai-sdk/google": "^1.0.9",
+    "@ai-sdk/google": "^1.2.22",
     "@clerk/nextjs": "^6.3.1",
     "@google/generative-ai": "^0.24.0",
     "@hookform/resolvers": "^3.9.1",
