@@ -10,10 +10,29 @@ const Table = ({
   data: any[]
 }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gradient-to-r from-gray-50 to-blue-50">
+    <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
+      <table className="w-full overflow-x-auto">
+        <thead className="bg-lamaSkyLight border-b border-ColorThree/20">
+          <tr>
+            {columns.map((col) => (
+              <th
+                key={col.accessor}
+                className={`px-4 py-3 text-left text-TextTwo font-semibold text-sm ${col.className}`}
+              >
+                {col.header}
+              </th>
+            ))}
+            <th className="px-4 py-3 text-left text-TextTwo font-semibold text-sm">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        {data && data.length !== 0 ? (
+          <tbody className="divide-y divide-gray-100">
+            {data.map((item, index) => renderRow(item, index))}
+          </tbody>
+        ) : (
+          <tbody>
             <tr>
               {columns.map((col) => (
                 <th
