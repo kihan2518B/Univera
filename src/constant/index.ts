@@ -1,6 +1,5 @@
 import {
   FaUsers,
-  FaChalkboardTeacher,
   FaRegCalendarAlt,
   FaBullhorn,
   FaBook,
@@ -9,31 +8,20 @@ import {
 } from "react-icons/fa"
 import {
   MdSpaceDashboard,
-  MdGroups,
   MdClass,
   MdOutlineHealthAndSafety,
   MdPerson,
   MdPeople,
   MdEditDocument,
   MdForum,
-  MdPolicy,
-  MdOutlineHolidayVillage
+  MdPolicy
 } from "react-icons/md"
 
 export const Menuitems = {
   university_admin: [
     { title: "Dashboard", url: "/admin", icon: MdSpaceDashboard },
     { title: "Departments", url: "/departments", icon: FaBuilding },
-    {
-      title: "Non-Teaching Staff",
-      url: "/non-teaching-staff",
-      icon: MdGroups
-    },
-    {
-      title: "Teachers",
-      url: "/teachers",
-      icon: FaChalkboardTeacher
-    },
+    { title: "Announcement", url: "/announcements", icon: FaBullhorn },
     { title: "Policy", url: "/policy", icon: MdPolicy }
   ],
   university_admin_staff: [
@@ -47,8 +35,9 @@ export const Menuitems = {
     { title: "Subjects", url: "/subject", icon: MdClass },
     { title: "Authorities", url: "/list/authorities", icon: FaUserTie },
     { title: "Faculty", url: "/list/teachers", icon: MdPeople },
-    { title: "Leave", url: "/leave", icon: MdOutlineHolidayVillage },
+    // { title: "Leave", url: "/leave", icon: MdOutlineHolidayVillage },
     { title: "Students", url: "/list/students", icon: MdPeople },
+    { title: "Announcement", url: "/announcements", icon: FaBullhorn },
     { title: "Policy", url: "/policy", icon: MdPolicy }
   ],
   authority: [
@@ -57,7 +46,7 @@ export const Menuitems = {
     { title: "Classes", url: "/classes", icon: FaBook },
     { title: "Courses", url: "/courses", icon: MdEditDocument },
     { title: "Subjects", url: "/subject", icon: MdClass },
-    { title: "Leave", url: "/leave", icon: MdOutlineHolidayVillage },
+    // { title: "Leave", url: "/leave", icon: MdOutlineHolidayVillage },
     { title: "Events", url: "/events", icon: FaRegCalendarAlt },
     { title: "Announcement", url: "/announcements", icon: FaBullhorn },
     { title: "Forums", url: "/forum", icon: MdForum },
@@ -68,7 +57,7 @@ export const Menuitems = {
     { title: "Students", url: "/list/students", icon: FaUsers },
     { title: "Classes", url: "/classes", icon: FaBook },
     { title: "Subjects", url: "/subject", icon: MdClass },
-    { title: "Leave", url: "/leave", icon: MdOutlineHolidayVillage },
+    // { title: "Leave", url: "/leave", icon: MdOutlineHolidayVillage },
     { title: "Events", url: "/events", icon: FaRegCalendarAlt },
     { title: "Announcement", url: "/announcements", icon: FaBullhorn },
     { title: "Forums", url: "/forum", icon: MdForum },
@@ -86,6 +75,7 @@ export const Menuitems = {
 }
 
 import { IconType } from "react-icons"
+// import { title } from "process"
 
 export interface LinkItem {
   title: string

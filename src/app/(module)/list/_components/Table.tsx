@@ -1,4 +1,5 @@
 import React from "react"
+
 const Table = ({
   columns,
   renderRow,
@@ -33,16 +34,26 @@ const Table = ({
         ) : (
           <tbody>
             <tr>
-              <td
-                colSpan={columns.length + 1}
-                className="px-4 py-6 text-center text-gray-500"
-              >
-                No data available
-              </td>
+              {columns.map((col) => (
+                <th
+                  key={col.accessor}
+                  className={`px-6 py-5 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ${col.className}`}
+                >
+                  {col.header}
+                </th>
+              ))}
+              <th className="px-6 py-5 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
-          </tbody>
-        )}
-      </table>
+          </thead>
+          {data && (
+            <tbody className="divide-y divide-gray-100">
+              {data.map((item, index) => renderRow(item, index))}
+            </tbody>
+          )}
+        </table>
+      </div>
     </div>
   )
 }

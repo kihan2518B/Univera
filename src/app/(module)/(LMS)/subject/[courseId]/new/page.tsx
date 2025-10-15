@@ -41,9 +41,6 @@ export default function NewSubjectPage() {
 
       {/* Form Section */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          Create a New Subject
-        </h2>
         <SubjectForm
           courseId={Number(courseId)}
           department={user?.Department}
